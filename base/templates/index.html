@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Computer-Based Testing Interface</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <!-- Optional: Add your own CSS styles -->
+    <style>
+        /* Add custom styles here */
+        .question {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5 mb-4">Computer-Based Testing Interface</h1>
+
+        <form method="post" action="{% url 'result' %}">
+            {% csrf_token %}
+            {% for question in questions %}
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h5 class="card-title">{{ question.text }} </h5>
+                        <div class="list-group">
+                            {% for answer in question.answers.all %}
+                                <label class="list-group-item">
+                                    <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" class="mr-2">
+                                    {{ answer.text }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">Submit</button>
+        </form>
+
+    </div>
+
+    <!-- Bootstrap JS and dependencies (optional) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+</body>
+</html>
