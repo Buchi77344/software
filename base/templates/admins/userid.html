@@ -1,7 +1,18 @@
 <!-- templates/generate_id.html -->
-<h1>Generate User ID</h1>
-<form method="post">
+<form method ="post" class = "create-act-form flex-column">
+    {% for messages in messages %}
+    <h2>{{messages}}</h2>
+    {% endfor %}
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">Generate</button>
-</form>
+    <h2 class = "create-act-head">CREATE ACCOUNT</h2>
+    <div class = "input-wrapper flex-column">
+        <div class = "name-input-div flex-between">
+            <input required type = "text" placeholder="First Name" name = "username" class = "create-acct-input"/>
+            <input required type = "text" placeholder="Last Name" name = "last_name" class = "create-acct-input"/>
+        </div>
+       
+    
+    <button class = "submit-btn" type = "submit">
+        <span>Submit</span>
+        <div class = "loading-anim"></div>
+    </button>

@@ -69,36 +69,39 @@ def generate_random_id(length=6):
     characters = string.ascii_letters + string.digits
     return ''.join(random.choice(characters) for _ in range(length))
 
+ # Assuming you have this utility function
+
 def userid(request):
     error_message = None
 
     if request.method == "POST":
-        form = UsernameForm(request.POST)
-        if form.is_valid():
-            username = form.cleaned_data['username']
-            try:
-                with transaction.atomic():
-                    user, created = User.objects.get_or_create(username=username)
-                    if created:
-                        user.set_password(User.objects.make_random_password())
-                        user.save()
-                    unique_id = generate_random_id()
-                    while UserID.objects.filter(generated_id=unique_id).exists():
-                        unique_id = generate_random_id()
-                    user_id, created = UserID.objects.get_or_create(user=user)
-                    user_id.generated_id = unique_id
-                    user_id.save()
-                    return redirect('admins:userid')
-            except IntegrityError:
-                error_message = "There was an error creating the user. Please try again."
-            except Exception as e:
-                error_message = f"An unexpected error occurred: {str(e)}"
-        else:
-            error_message = "Invalid form data. Please correct the errors below."
-    else:
-        form = UsernameForm()
+        username= request.POST.get('username')
+        last_name = request.POST.get('last_name')
 
-    return render(request, 'admins/userid.html', {'form': form, 'error_message': error_message})
+        try:
+            with transaction.atomic():
+                user, created = User.objects.get_or_create(username=username, last_name=last_name)
+                if created:
+                    user.set_password(User.objects.make_random_password())
+                    user.save()
+
+                unique_id = generate_random_id()
+                while UserID.objects.filter(generated_id=unique_id).exists():
+                    unique_id = generate_random_id()
+
+                user_id, created = UserID.objects.get_or_create(user=user)
+                user_id.generated_id = unique_id
+                user_id.save()
+
+                return redirect('admins:userid')
+
+        except IntegrityError:
+            error_message = "There was an error creating the user. Please try again."
+        except Exception as e:
+            error_message = f"An unexpected error occurred: {str(e)}"
+
+    return render(request, 'admins/userid.html', {'error_message': error_message})
+
 # views.py
 
 from django.shortcuts import render, redirect
