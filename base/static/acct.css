@@ -1,0 +1,153 @@
+*{
+    box-sizing: border-box;
+}
+
+:root{
+    --page-clr : #9ddcd1;
+    --main-sidebar-clr : #0ead8d;
+    --main-sb-hv-clr : #0d6453;
+    --head-text-clr : #63c9b5;
+    --q-selected-btn-clr : #15a987;
+    --block-clr : hsl(0, 0%, 98%);
+    --border-rd: 10px;
+    --font-family : system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+}
+
+body{
+    margin: 0;
+    padding: 0;
+    font-family: var(--font-family);
+}
+
+ul{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+button,
+input{
+    border : none;
+    outline : none;
+    font-family: var(--font-family);
+    transition: outline 0.3s ease, border-color 0.3s ease;
+}
+
+button{
+    cursor: pointer;
+}
+
+button:active{
+    scale : .5;
+    transition : scale 1s ease
+}
+
+input:focus-within{
+    outline: 2px solid var(--main-sidebar-clr);
+    border-color : transparent
+}
+
+h2,h3,h4,p{
+    margin :5px 0; 
+}
+
+img{
+    display: block;
+    max-width: 100%;
+}
+
+a{
+    text-decoration: none;
+    color : black;
+}
+
+svg{
+    width : 20px;
+    height : 20px;
+}
+
+svg path{
+    width : 100%;
+    height: 100%;
+}
+
+.flex-column{
+    display: flex;
+    flex-direction: column;
+}
+
+.page{
+    min-width : 100vw;
+    min-height : 100vh;
+    background-color: var(--page-clr);
+    display: grid;
+    place-items: center;
+}
+
+.create-act-form{
+    max-width: 660px;
+    width: 90%;
+    /* height: 550px; */
+    background-color: hsl(0, 0%, 96%);
+    border-radius: 20px;
+    padding: 15px 30px 15px 30px;
+}
+
+.create-act-head{
+    font-size : 2.2rem;
+    text-align: center;
+    color : var(--head-text-clr);
+    margin : 0;
+}
+
+.input-wrapper{
+    padding-top: 20px;
+}
+
+.input-wrapper.flex-column{
+    gap : 20px;
+}
+
+.create-input{
+    padding : 15px 10px;
+    font-size : 1.1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(0, 0, 0, .2);
+}
+
+.submit-btn{
+    margin-top : 25px;
+    color : hsl(0, 0%, 98%);
+    background-color: var(--main-sidebar-clr);
+    border-radius: 10px;
+    padding-block : 12px;
+    font-size : 1.1rem;
+    letter-spacing: 2px;
+}
+
+.login{
+    max-width: 660px;
+    width: 90%;
+    height: 400px;
+    background-color: hsl(0, 0%, 96%);
+    border-radius: 20px;
+    padding-inline : 30px;
+    padding-bottom: 10px;
+}
+
+.login.flex-column{
+    justify-content: space-around;
+}
+
+.login .input-wrapper.flex-column{
+    gap: 22px
+}
+
+.login .input-wrapper{
+    padding-top: 0;
+}
+
+.login .submit-btn{
+    margin-top: 0;
+}
+
