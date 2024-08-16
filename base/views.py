@@ -34,65 +34,97 @@ from django.contrib import messages
 from .forms import BulkUploadForm
 from .models import Question, Answer
 
+from docx import Document
+from docx.oxml import OxmlElement
+from io import BytesIO
+import os
+
 def upload(request):
     if request.method == 'POST':
         form = BulkUploadForm(request.POST, request.FILES)
         if form.is_valid():
             file = request.FILES['file']
-            csv_file = None
 
             try:
-                # Check the file extension and read as CSV-like data
-                if file.name.endswith('.txt'):
-                    csv_file = TextIOWrapper(file.file, encoding=request.encoding)
-                else:
-                    messages.error(request, 'Unsupported file format. Please upload a .txt file.')
+                if not file.name.endswith('.docx'):
+                    messages.error(request, 'Please upload a DOCX file.')
                     return redirect('upload')
 
-                # Read the CSV-like data
-                reader = csv.DictReader(csv_file)
+                document = Document(file)
+                question_text = None
+                options = []
+                correct_option = None
+                diagram_path = None
 
-                questions = []
-                answers = []
+                for para in document.paragraphs:
+                    text = para.text.strip()
 
-                for row in reader:
-                    question_text = row.get('question_text')
-                    option1 = row.get('option1')
-                    option2 = row.get('option2')
-                    option3 = row.get('option3')
-                    option4 = row.get('option4')
-                    correct_option = row.get('correct_option')
+                    # Check for question section
+                    if text.startswith("Q:"):
+                        if question_text:
+                            save_question_and_answers(question_text, options, correct_option, diagram_path)
+                            options = []
+                            diagram_path = None
 
-                    if not (question_text and option1 and option2 and option3 and option4 and correct_option):
-                        raise ValueError("Missing data in CSV file row.")
+                        question_text = text.replace("Q:", "").strip()
 
-                    correct_option = int(correct_option)
+                    # Check for diagram section
+                    elif text.startswith("D:"):
+                        # Process diagrams or shapes
+                        diagram_path = process_diagram(document)
 
-                    # Create or get Question object
-                    question, created = Question.objects.get_or_create(text=question_text)
+                    # Check for correct option
+                    elif text.startswith("Correct:"):
+                        correct_option = int(text.replace("Correct:", "").strip())
 
-                    # Create Answer objects
-                    answers.append(Answer(question=question, text=option1, is_correct=(correct_option == 1)))
-                    answers.append(Answer(question=question, text=option2, is_correct=(correct_option == 2)))
-                    answers.append(Answer(question=question, text=option3, is_correct=(correct_option == 3)))
-                    answers.append(Answer(question=question, text=option4, is_correct=(correct_option == 4)))
+                    # Check for options
+                    elif text.startswith("1.") or text.startswith("2.") or text.startswith("3.") or text.startswith("4."):
+                        options.append(text.strip())
 
-                # Bulk create answers
-                Answer.objects.bulk_create(answers)
+                # Handle remaining question data after the loop
+                if question_text:
+                    save_question_and_answers(question_text, options, correct_option, diagram_path)
 
                 messages.success(request, "Questions and answers uploaded successfully!")
                 return redirect('/')
 
             except Exception as e:
-                messages.error(request, f"Error uploading or processing file: {e}")
+                messages.error(request, f"Error processing the file: {e}")
                 return redirect('upload')
 
     else:
         form = BulkUploadForm()
 
-    context = {'form': form}
-    return render(request, 'upload.html', context)
+    return render(request, 'upload.html', {'form': form})
 
+def save_question_and_answers(question_text, options, correct_option, diagram_path):
+    question, created = Question.objects.get_or_create(text=question_text)
+
+    if diagram_path:
+        question.diagram = diagram_path
+        question.save()
+
+    for i, option_text in enumerate(options, 1):
+        is_correct = (i == correct_option)
+        Answer.objects.create(question=question, text=option_text, is_correct=is_correct)
+
+def process_diagram(document):
+    for shape in document.inline_shapes:
+        if shape.type == 3:  # Type 3 corresponds to images
+            image = shape.image
+            image_stream = BytesIO(image.blob)
+            image_filename = save_image(image_stream)
+            return f'questions/diagrams/{image_filename}'
+    return None
+
+def save_image(image_stream):
+    # Save image to the file system and return the filename
+    image_filename = 'diagram.png'
+    image_path = os.path.join('media', 'questions', 'diagrams', image_filename)
+    os.makedirs(os.path.dirname(image_path), exist_ok=True)
+    with open(image_path, 'wb') as f:
+        f.write(image_stream.read())
+    return image_filename
 def result(request):
     if request.method == 'POST':
         questions = Question.objects.prefetch_related('answers').all()

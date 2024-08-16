@@ -8,6 +8,8 @@ class User(AbstractUser):
 
 class Question(models.Model):
     text = models.TextField()
+    diagram = models.ImageField(upload_to='questions/diagrams/', blank=True, null=True)  # Stores the path to the diagram image
+
 
     def __str__(self):
         return self.text
@@ -19,6 +21,10 @@ class Answer(models.Model):
 
     def __str__(self):
         return self.text
+   
+
+
+
     
 
 
