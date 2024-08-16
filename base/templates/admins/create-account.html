@@ -11,6 +11,9 @@
 <body>
     <div class = "page">
         <form method ="post" class = "create-act-form flex-column">
+            {% for messages in messages %}
+            <p>{{messages}}</p>
+            {% endfor %}
             {% csrf_token %}
             <h2 class = "create-act-head">CREATE ACCOUNT</h2>
             <div class = "input-wrapper flex-column">

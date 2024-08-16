@@ -20,7 +20,7 @@ def signup(request):
         
         if password == password1:
             if User.objects.filter(username=username).exists():
-                messages.error(request, 'recovery code alrealdy exist')
+                messages.error(request, 'username alrealdy exist')
                 return redirect('admins:signup')
             else:
                User.objects.create_user(first_name=first_name,last_name=last_name ,username=username,school_name=school_name,password=password)
