@@ -12,24 +12,25 @@ def signup(request):
         first_name = request.POST.get('first_name')
         last_name =request.POST.get('last_name')
         school_name =request.POST.get('school_name')
+        username =request.POST.get('username')
         password = request.POST.get('password')
-        password1 =request.post.get('password1')
-        recovery_code =request.post.get('recovery_code')
-        if password != password1:
-            if User.objects.filter(recovery_code=recovery_code).exists():
+        password1 =request.POST.get('password1')
+        
+        if password == password1:
+            if User.objects.filter(username=username).exists():
                 messages.error(request, 'recovery code alrealdy exist')
-                return redirect('signup')
+                return redirect('admins:signup')
             else:
-               User.objects.create_user(first_name=first_name,last_name=last_name ,school_name=school_name,password=password)
-               return redirect('login')
+               User.objects.create_user(first_name=first_name,last_name=last_name ,username=username,school_name=school_name,password=password)
+               return redirect('admins:login')
             
 
         else:
             messages.error(request, 'password do not match')
-            return redirect('signup')
+            return redirect('admins:signup')
                
 
-    return render (request, 'admins/signup.html')
+    return render (request, 'admins/create-account.html')
 
 def login(request):
     
@@ -41,7 +42,7 @@ def login(request):
 
         if user is not None:
             auth.login(request, user)
-            return redirect('dashboard')
+            return redirect('admins:dashboard')
         else:         
             messages.error(request, 'Invalid username or password.')
     return render(request, 'admins/login.html')

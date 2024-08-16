@@ -1,27 +1,34 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="acct.css">
+    <link rel="stylesheet" href="{% static 'css/acct.css' %}">
+    <script defer src ="{% static 'js/script.js' %}"></script>
     <title>Document</title>
 </head>
 <body>
     <div class = "page">
-        <form class = "create-act-form flex-column">
+        <form method ="post" class = "create-act-form flex-column">
+            {% csrf_token %}
             <h2 class = "create-act-head">CREATE ACCOUNT</h2>
-
-                <input type = "text" placeholder="Name Of School" name = "school-name" class = "create-input"/>
-                <input type = "text" placeholder="First Name" name = "first-name" class = "create-input"/>
-                <input type = "text" placeholder="Last Name" name = "last-name" class = "create-input"/>
-                <input type = "text" placeholder="Username" name = "username" class = "create-input"/>
-                <input type = "password" placeholder="Password" name = "password" class = "create-input"/>
-                <input type = "password" placeholder="Confirm Password" name = "confirm-password" class = "create-input"/>
+            <div class = "input-wrapper flex-column">
+                <div class = "name-input-div flex-between">
+                    <input required type = "text" placeholder="First Name" name = "first_name" class = "create-acct-input"/>
+                    <input required type = "text" placeholder="Last Name" name = "last_name" class = "create-acct-input"/>
+                </div>
+                <input required type = "text" placeholder="Name Of School" name = "school_name" class = "create-acct-input"/>
+                <input required type = "text" placeholder="Username" name = "username" class = "create-acct-input"/>
+                <input required type = "password" placeholder="Password" name = "password" class = "create-acct-input"/>
+                <input required type = "password" placeholder="Confirm Password" name = "password1" class = "create-acct-input"/>
             </div>
-
-            <button class = "submit-btn" type = "submit">Submit</button>
-
-            <a href=""></a>
+            
+            <button class = "submit-btn" type = "submit">
+                <span>Submit</span>
+                <div class = "loading-anim"></div>
+            </button>
+            
         </form>
     </div>
 </body>

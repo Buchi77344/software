@@ -4,7 +4,8 @@ from django.contrib.auth.models import AbstractUser
 
 # Create your models here.
 class User(AbstractUser):
-   pass
+   school_name =models.CharField(max_length=500,null=True)
+   recovery_code = models.CharField(max_length=100,null=True)
 
 class Question(models.Model):
     text = models.TextField()

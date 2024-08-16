@@ -71,9 +71,16 @@ svg path{
     height: 100%;
 }
 
+
+
 .flex-column{
     display: flex;
     flex-direction: column;
+}
+
+.flex-between{
+    display: flex;
+    justify-content: space-between;
 }
 
 .page{
@@ -108,12 +115,32 @@ svg path{
     gap : 20px;
 }
 
-.create-input{
+.create-acct-input{
     padding : 15px 10px;
     font-size : 1.1rem;
     border-radius: 10px;
     border: 1px solid rgba(0, 0, 0, .2);
 }
+
+.create-acct-input:user-valid{
+    border : 1px solid var(--main-sidebar-clr);
+}
+
+.create-acct-input:user-invalid{
+    border : 1px solid rgb(201, 23, 23);
+}
+
+.name-input-div.flex-between{
+    align-items: center;
+    gap : 10px;
+
+}
+
+.name-input-div .create-acct-input{
+    width : 50%;
+    min-width : 250px;
+}
+
 
 .submit-btn{
     margin-top : 25px;
@@ -123,6 +150,33 @@ svg path{
     padding-block : 12px;
     font-size : 1.1rem;
     letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.submit-btn.active span{
+    display: none;
+}
+
+.submit-btn.active .loading-anim{
+    display: block;
+}
+
+.loading-anim{
+    width : 35px;
+    height : 35px;
+    border : 4px solid hsl(0, 0%, 90%);
+    border-top-color: rgba(23, 18, 18, 0.344);
+    border-radius: 50%;
+    animation: loadanim .5s linear infinite;
+    display: none;
+}
+
+@keyframes loadanim {
+    to{
+        transform: rotate(360deg);
+    }
 }
 
 .login{

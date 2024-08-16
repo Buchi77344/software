@@ -36,11 +36,16 @@ from .models import Question, Answer
 
 
 
-from django.core.files.base import ContentFile
-from django.core.files.storage import default_storage
+
+
+from django.shortcuts import render, redirect
+from django.contrib import messages
 from docx import Document
 from io import BytesIO
 import os
+import time
+from .forms import BulkUploadForm
+from .models import Question, Answer
 
 def upload(request):
     if request.method == 'POST':
@@ -57,36 +62,30 @@ def upload(request):
                 question_text = None
                 options = []
                 correct_option = None
-                diagram_path = None
+                diagram_image_path = None
 
                 for para in document.paragraphs:
                     text = para.text.strip()
 
-                    # Check for question section
                     if text.startswith("Q:"):
                         if question_text:
-                            save_question_and_answers(question_text, options, correct_option, diagram_path)
+                            save_question_and_answers(question_text, options, correct_option, diagram_image_path)
                             options = []
-                            diagram_path = None
+                            diagram_image_path = None  # Clear the diagram after saving the question
 
                         question_text = text.replace("Q:", "").strip()
 
-                    # Check for diagram section
-                    elif text.startswith("D:"):
-                        # Process diagrams or shapes
-                        diagram_path = process_diagram(document)
-
-                    # Check for correct option
                     elif text.startswith("Correct:"):
-                        correct_option = int(text.replace("Correct:", "").strip())
+                        correct_option = text.replace("Correct:", "").strip()
 
-                    # Check for options
-                    elif text.startswith("1.") or text.startswith("2.") or text.startswith("3.") or text.startswith("4."):
+                    elif text.startswith("A.") or text.startswith("B.") or text.startswith("C.") or text.startswith("D."):
                         options.append(text.strip())
 
-                # Handle remaining question data after the loop
+                    elif text.startswith("DA:"):
+                        diagram_image_path = extract_and_save_diagram(document)  # Extract a new diagram for the current question
+
                 if question_text:
-                    save_question_and_answers(question_text, options, correct_option, diagram_path)
+                    save_question_and_answers(question_text, options, correct_option, diagram_image_path)
 
                 messages.success(request, "Questions and answers uploaded successfully!")
                 return redirect('/')
@@ -100,37 +99,37 @@ def upload(request):
 
     return render(request, 'upload.html', {'form': form})
 
-def save_question_and_answers(question_text, options, correct_option, diagram_path):
+def save_question_and_answers(question_text, options, correct_option, diagram_image_path):
     question, created = Question.objects.get_or_create(text=question_text)
 
-    if diagram_path:
-        question.diagram = diagram_path
+    if diagram_image_path:
+        question.diagram = diagram_image_path
         question.save()
 
-    for i, option_text in enumerate(options, 1):
-        is_correct = (i == correct_option)
+    for option_text in options:
+        is_correct = (option_text.startswith(correct_option))
         Answer.objects.create(question=question, text=option_text, is_correct=is_correct)
 
-def process_diagram(document):
-    for shape in document.inline_shapes:
-        if shape.type == 3:  # Type 3 corresponds to images
-            image = shape.image
-            image_stream = BytesIO(image.blob)
+def extract_and_save_diagram(document):
+    # Extract the first image found in the document for the current question
+    for rel in document.part.rels.values():
+        if "image" in rel.target_ref:
+            image_stream = BytesIO(rel.target_part.blob)
             image_filename = save_image(image_stream)
             return f'questions/diagrams/{image_filename}'
     return None
 
 def save_image(image_stream):
-    # Save image to the file system and return the filename
-    image_filename = 'diagram.png'
+    image_filename = f'diagram_{int(time.time())}.png'
     image_path = os.path.join('media', 'questions', 'diagrams', image_filename)
     os.makedirs(os.path.dirname(image_path), exist_ok=True)
     
-    # Use default storage to handle file saving
-    with default_storage.open(image_path, 'wb') as f:
+    with open(image_path, 'wb') as f:
         f.write(image_stream.read())
     
     return image_filename
+
+
 
 def result(request):
     if request.method == 'POST':
@@ -235,3 +234,5 @@ def login(request):
 
 
 
+def userpage(request):
+    return render(request, 'user-page.html')
