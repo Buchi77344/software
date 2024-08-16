@@ -34,8 +34,11 @@ from django.contrib import messages
 from .forms import BulkUploadForm
 from .models import Question, Answer
 
+
+
+from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from docx import Document
-from docx.oxml import OxmlElement
 from io import BytesIO
 import os
 
@@ -122,9 +125,13 @@ def save_image(image_stream):
     image_filename = 'diagram.png'
     image_path = os.path.join('media', 'questions', 'diagrams', image_filename)
     os.makedirs(os.path.dirname(image_path), exist_ok=True)
-    with open(image_path, 'wb') as f:
+    
+    # Use default storage to handle file saving
+    with default_storage.open(image_path, 'wb') as f:
         f.write(image_stream.read())
+    
     return image_filename
+
 def result(request):
     if request.method == 'POST':
         questions = Question.objects.prefetch_related('answers').all()
