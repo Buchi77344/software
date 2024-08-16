@@ -101,4 +101,7 @@ def userid(request):
     return render(request, 'admins/userid.html', {'form': form, 'error_message': error_message})
 # views.py
 
-        
+def user(request):
+    return render(request, 'admins/userget.html')
+def launch(request):
+    return render(request, 'admins/launch.html')
