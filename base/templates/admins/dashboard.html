@@ -164,7 +164,7 @@
             </div>
             <div class = "main-content">
                 <div class="main-content-header flex">
-                    <span>{{userprofile.user.school_name}}</span>
+                    <span>{{userprofile.user.school_name|upper}}</span>
                 </div>
                 <div class = "welcome-main">
 
@@ -175,7 +175,7 @@
                             </div>
 
                             <div class ="greetings-wrapper">
-                                <h3>Welcome back, Olanrewaju</h3>
+                                <h3>Welcome back, {{userprofile.user.username|upper}}</h3>
                                 <span>Hope you are doing great today?</span>
                             </div>
                         </div>
