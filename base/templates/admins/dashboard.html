@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel = "stylesheet" href = "{% static 'css/style.css' %}"/>
     <script src = "{% static 'script.js' %}" defer></script>
-    <title>Document</title>
+    <title>Dashboard</title>
 </head>
 <body>
     <div class = "page">
@@ -37,7 +37,7 @@
                         </div>
                     </div>
                     <div class= "menu-content flex-column ">
-                        <a href = "#" class = "menu-item">
+                        <a href = "{% url 'admins:dashboard' %}" class = "menu-item">
                             <div class="menu-wrapper flex gp-10">
                                 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
                                 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
@@ -50,7 +50,7 @@
                             </div>
                         </a>
 
-                        <a href = "#" class = "menu-item">
+                        <a href = "{% url 'admins:userid' %}" class = "menu-item">
 
                             <div class="menu-wrapper flex gp-10">
                                 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
@@ -67,7 +67,7 @@
                            
                         </a>
 
-                        <a href = "#" class = "menu-item">
+                        <a href = "{% url 'admins:upload' %}" class = "menu-item">
                             <div class="menu-wrapper flex gp-10">
                                 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
                                 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
@@ -80,7 +80,7 @@
                             </div>
                         </a>
 
-                        <a href = "#" class = "menu-item">
+                        <a href = "{% url 'admins:launch' %}" class = "menu-item">
                             <div class="menu-wrapper flex gp-10">
                                 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
                                 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
@@ -95,7 +95,7 @@
                             </div>
                         </a>
 
-                        <a href = "#" class = "menu-item">
+                        <a href = "{% url 'admins:user' %}" class = "menu-item">
                             <div class="menu-wrapper flex gp-10">
                                 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
                                 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->

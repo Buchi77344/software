@@ -98,6 +98,7 @@ svg path{
     background-color: hsl(0, 0%, 96%);
     border-radius: 20px;
     padding: 15px 30px 15px 30px;
+    position: relative;
 }
 
 .create-act-head{
@@ -204,4 +205,10 @@ svg path{
 .login .submit-btn{
     margin-top: 0;
 }
+
+.login-links-div a{
+    color : var(--main-sidebar-clr);
+    text-decoration: underline;
+}
+
 
