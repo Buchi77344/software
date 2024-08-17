@@ -14,6 +14,66 @@
 
     <div class = "page">
      
+        <div class = "wrapper">
+            <div class = "main-sidebar">
+                <div class = "menu">
+                    <div class= "menu-head flex-between">
+                        <div class="hamburger flex-column">
+                            <span></span>
+                            <span></span>
+                            <span></span>
+                        </div>
+
+                        <div class = "menu-head-content flex gp-10">
+                            <div class = "scholar-icon-div flex-center">
+                                <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+                                <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
+                                <svg fill="#0ead8d" version="1.1" id="Capa_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="800px" height="800px" viewBox="0 0 484.006 484.006" xml:space="preserve">
+                                    <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <g id="SVGRepo_iconCarrier"> <g> <g> <polygon points="484.006,189.845 484.006,179.186 241.897,62.561 0,179.083 0,189.946 241.897,306.471 "/> <path d="M83.808,251.571v69.7l145.836,70.25h24.506l145.435-70.057c0.14-0.307,0.271-0.613,0.402-0.922V251.57l-158.09,76.152 L83.808,251.571z"/> <polygon points="458.506,358.195 458.506,222.599 439.359,232.255 439.359,358.195 426.883,396.203 445.742,421.445 452.123,421.445 470.981,396.203 "/> </g> </g> </g>
+                                </svg>
+                            </div>
+                            <div class = "text-content-div flex-column">
+                                <span class = "sub-text">Hi there</span>
+                                <span class = "text">{{userprofile.user.username}}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class= "menu-content flex-column ">
+                        <a href = "{% url 'admins:dashboard' %}" class = "menu-item">
+                            <div class="menu-wrapper flex gp-10">
+                                <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+                                <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
+                                <svg class = "dashboard-icon" width="800px" height="800px" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg" fill="#f5f5f5" stroke="transparent">
+                                    <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <g id="SVGRepo_iconCarrier"> <title>dashboard-tile-solid</title> <g id="Layer_2" data-name="Layer 2"> <g id="invisible_box" data-name="invisible box"> <rect width="48" height="48" fill="none"/> </g> <g id="icons_Q2" data-name="icons Q2"> <g> <path d="M20,30H8a2,2,0,0,0-2,2V42a2,2,0,0,0,2,2H20a2,2,0,0,0,2-2V32a2,2,0,0,0-2-2Z"/> <path d="M20,4H8A2,2,0,0,0,6,6V24a2,2,0,0,0,2,2H20a2,2,0,0,0,2-2V6a2,2,0,0,0-2-2Z"/> <path d="M40,4H28a2,2,0,0,0-2,2V16a2,2,0,0,0,2,2H40a2,2,0,0,0,2-2V6a2,2,0,0,0-2-2Z"/> <path d="M40,22H28a2,2,0,0,0-2,2V42a2,2,0,0,0,2,2H40a2,2,0,0,0,2-2V24a2,2,0,0,0-2-2Z"/> </g> </g> </g> </g>
+                                </svg>
+                                <span>Dashboard</span>
+                            </div>
+                        </a>
+
+                        <a href = "{% url 'admins:userid' %}" class = "menu-item">
+
+                            <div class="menu-wrapper flex gp-10">
+                                <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+                                <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
+                                <svg fill="#f5f5f5" width="800px" height="800px" viewBox="0 0 56 56" xmlns="http://www.w3.org/2000/svg" stroke="#f5f5f5">
+                                    <g id="SVGRepo_bgCarrier" stroke-width="0"/>
+                                    <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <g id="SVGRepo_iconCarrier">
+                                    <path d="M 13.7851 49.5742 L 42.2382 49.5742 C 47.1366 49.5742 49.5743 47.1367 49.5743 42.3086 L 49.5743 13.6914 C 49.5743 8.8633 47.1366 6.4258 42.2382 6.4258 L 13.7851 6.4258 C 8.9101 6.4258 6.4257 8.8398 6.4257 13.6914 L 6.4257 42.3086 C 6.4257 47.1602 8.9101 49.5742 13.7851 49.5742 Z M 28.0117 35.8164 C 19.6913 35.8164 13.7148 39.8242 11.1835 44.9102 C 10.5507 44.2774 10.1992 43.3633 10.1992 42.1211 L 10.1992 13.8789 C 10.1992 11.4414 11.5117 10.1992 13.8554 10.1992 L 42.1679 10.1992 C 44.4882 10.1992 45.8007 11.4414 45.8007 13.8789 L 45.8007 42.1211 C 45.8007 43.3399 45.4726 44.2774 44.8398 44.8867 C 42.3320 39.8008 36.5429 35.8164 28.0117 35.8164 Z M 28.0117 31.9023 C 32.4882 31.9492 36.0273 28.1289 36.0273 23.1133 C 36.0273 18.4023 32.4882 14.5118 28.0117 14.5118 C 23.5351 14.5118 19.9726 18.4023 19.9960 23.1133 C 20.0429 28.1289 23.5351 31.8320 28.0117 31.9023 Z"/>
+                                    </g>
+                                </svg>
+                                <span>Generate</span>
+                            </div>
+                           
+                        </a>
+
+                        <a href = "{% url 'admins:upload' %}" class = "menu-item">
+                            <div class="menu-wrapper flex gp-10">
+                                <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
                                 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
                                 <svg fill="#f5f5f5" height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 508 508" xml:space="preserve">
                                     <g id="SVGRepo_bgCarrier" stroke-width="0"/>
@@ -114,7 +174,7 @@
     <div class="user-get-container">
         <div class="candidate-info flex-between">
             <h2>Candidate Info</h2>
-            <form method ="get" action="{% url 'admins:search' %}" class = "user-search-form flex">
+            <form method ="get"  class = "user-search-form flex">
                 <input type = "text" placeholder="Search..." name = "query" class = "user-search-input"/>
                 <button type="submit" class ="user-search-btn">
                     <?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
@@ -134,7 +194,7 @@
                 </tr>
             </thead>
             <tbody>
-                {% for user_id in user_id %}
+                {% for user_id in result %}
                 <tr>
                     <td>{{user_id.user.username}}</td>
                     <td>{{user_id.user.last_name}}</td>

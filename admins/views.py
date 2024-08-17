@@ -256,16 +256,18 @@ def question_list(request):
 from base.forms import SearchForm
 from django.db.models import Q
 def search(request):
+    
     form = SearchForm()
     query = None
-    results = []
+    result = []
     if 'query' in request.GET:
         form = SearchForm(request.GET)
         if form.is_valid():
             query = form.cleaned_data['query']
-            results = UserID.objects.filter(
-                Q(userid__icontains=query) |
-                Q(content__icontains=query)
+            result = UserID.objects.filter(
+                Q(generated_id__icontains=query) |
+                Q(user__username__icontains=query)|
+                Q(user__last_name__icontains=query)
             )
-    return render(request, 'admins/userget.html', {'form': form, 'query': query, 'results': results})
+    return render(request, 'admins/search.html', {'form': form, 'query': query, 'result': result})
  
