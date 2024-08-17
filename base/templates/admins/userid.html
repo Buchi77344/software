@@ -1,0 +1,7 @@
+<!-- templates/generate_id.html -->
+<h1>Generate User ID</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit">Generate</button>
+</form>
