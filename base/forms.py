@@ -5,7 +5,8 @@ class BulkUploadForm(forms.Form):
     file = forms.FileField(label='Select a CSV file')
 
 
-
+class SearchForm(forms.Form):
+    query = forms.CharField(max_length=500)
 
 
 class UsernameForm(forms.Form):

@@ -253,3 +253,19 @@ def question_list(request):
     random.shuffle(questions)
 
     return render(request, 'admins/question_list.html', {'questions': questions})
+from base.forms import SearchForm
+from django.db.models import Q
+def search(request):
+    form = SearchForm()
+    query = None
+    results = []
+    if 'query' in request.GET:
+        form = SearchForm(request.GET)
+        if form.is_valid():
+            query = form.cleaned_data['query']
+            results = UserID.objects.filter(
+                Q(userid__icontains=query) |
+                Q(content__icontains=query)
+            )
+    return render(request, 'admins/userget.html', {'form': form, 'query': query, 'results': results})
+ 
