@@ -7,11 +7,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel = "stylesheet" href = "{% static 'css/style.css' %}"/>
-    <script src = "{% static 'script.js' %}" defer></script>
+    <script defer src = "{% static 'js/script.js' %}" ></script>
     <title>Dashboard</title>
 </head>
 <body>
     <div class = "page">
+        <div class = "overlay">
+            <div class="loading-overlay-div">
+                <div class = "loading-overlay-anim"></div>
+            </div>
+        </div>
         <div class = "wrapper">
             <div class = "main-sidebar">
                 <div class = "menu">
@@ -173,10 +178,10 @@
                         {% csrf_token %}
                         <h1 class = "user_id-head">Generate User ID</h1>
                         <div class="user_id-name-input-div flex-between">
-                            <input type = "text" placeholder="First Name" name = "first_name"class = "user_id-input"/>
-                            <input type = "text" placeholder="Last Name" name = "last_name"class = "user_id-input"/>
+                            <input required type = "text" placeholder="First Name" name = "first_name"class = "user_id-input"/>
+                            <input required type = "text" placeholder="Last Name" name = "last_name"class = "user_id-input"/>
                         </div>
-                        <button class = "user_id-submit-btn" type="submit">Generate</button>
+                        <button class = "user_id-submit-btn" type="button"><span>Generate</span></button>
                     </form>
                     
                 </div>
