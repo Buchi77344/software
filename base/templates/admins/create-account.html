@@ -12,7 +12,9 @@
     <div class = "page">
         <form method ="post" class = "create-act-form flex-column">
             {% for messages in messages %}
-            <h2>{{messages}}</h2>
+            <div class="error-div">
+                <span class = "error-text">{{messages}}</span>
+            </div>
             {% endfor %}
             {% csrf_token %}
             <h2 class = "create-act-head">CREATE ACCOUNT</h2>
