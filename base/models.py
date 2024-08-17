@@ -8,9 +8,17 @@ class User(AbstractUser):
    school_name =models.CharField(max_length=500,null=True)
    recovery_code = models.CharField(max_length=100,null=True)
 
+class Subject(models.Model):
+    name = models.CharField(max_length=255, unique=True, null=True)
+
+    def __str__(self):
+        return self.name
+
 class Question(models.Model):
     text = models.TextField()
-    diagram = models.ImageField(upload_to='questions/diagrams/', blank=True, null=True)  # Stores the path to the diagram image
+    diagram = models.ImageField(upload_to='questions/diagrams/', blank=True, null=True) 
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='questions',null=True)
+ # Stores the path to the diagram image
 
 
     def __str__(self):
@@ -24,7 +32,6 @@ class Answer(models.Model):
     def __str__(self):
         return self.text
    
-
 
 
     

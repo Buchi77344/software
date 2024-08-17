@@ -12,4 +12,5 @@ urlpatterns = [
     path('launch',views.launch,name='launch'),
     path('upload',views.upload,name= "upload"),
     path('logout',views.logout,name= "logout"),
+    path('question_list',views.question_list,name= "question_list"),
 ]
