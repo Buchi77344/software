@@ -136,15 +136,15 @@ svg path{
     width : 20%;
     /* height : fit-content; */
     background-color: var(--main-sidebar-clr);
-    border-top-left-radius: var(--border-rd);
-    border-bottom-left-radius: var(--border-rd);
+    /* border-top-left-radius: var(--border-rd);
+    border-bottom-left-radius: var(--border-rd); */
 }
 
 .main-content{
     width : 80%;
     background-color: hsl(0, 0%, 95%);
-    border-top-right-radius: var(--border-rd);
-    border-bottom-right-radius: var(--border-rd);
+    /* border-top-right-radius: var(--border-rd);
+    border-bottom-right-radius: var(--border-rd); */
 }
 
 .menu{
@@ -153,6 +153,7 @@ svg path{
 
 .menu-head{
     padding-inline : 20px;
+    padding-bottom: 15px;
 }
 
 .menu-head.flex-between{
@@ -197,7 +198,20 @@ svg path{
 }
 
 .menu-content{
-    padding-top : 30px;
+    padding-block : 30px 15px;
+    height: 550px;
+    overflow-y: auto;
+}
+
+.menu-content::-webkit-scrollbar{
+    width: 7px;
+    background-color: hsla(260, 4%, 16%, 0.5);
+    border-radius: 10px;
+}
+
+.menu-content::-webkit-scrollbar-thumb{
+    background-color: hsla(260, 60%, 1%, 0.384);
+    border-radius: 10px;
 }
 
 .menu-content.flex-column{
@@ -232,7 +246,7 @@ svg path{
 .main-content-header{
     padding : 10px 12px;
     background-color: var(--block-clr);
-    border-radius: inherit;
+    /* border-radius: inherit; */
 }
 
 .main-content-header span{
