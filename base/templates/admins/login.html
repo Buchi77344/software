@@ -10,9 +10,11 @@
 <body>
     <div class = "page">
         <form method="post"class = "login flex-column">
+            {% for messages in messages %}
+            <p>{{messages}}</p>
+            {% endfor %}
             {% csrf_token %}
             <h2 class = "create-act-head">LOGIN ADMIN</h2>
-            
             <div class="input-wrapper flex-column">
                 <input type = "text" placeholder="Username" name = "username" class = "create-acct-input"/>
                 <input type = "password" placeholder="Password" name = "password" class = "create-acct-input"/>
