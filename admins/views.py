@@ -1,5 +1,5 @@
 from django.shortcuts import render,redirect ,get_object_or_404
-from base.models import User
+from base.models import User ,Userprofile
 from django.contrib import messages
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
@@ -7,7 +7,11 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 @login_required(login_url='admins:login')
 def dashboard(request):
-    return render (request, 'admins/dashboard.html')
+    userprofile = get_object_or_404(Userprofile,user=request.user)
+    context = {
+        'userprofile':userprofile
+    }
+    return render (request, 'admins/dashboard.html',context)
 
 def signup(request):
     if request.method == "POST":
@@ -93,14 +97,20 @@ def userid(request):
                 user_id.generated_id = unique_id
                 user_id.save()
 
-                return redirect('admins:userid')
+                return redirect('admins:user')
 
         except IntegrityError:
-            error_message = "There was an error creating the user. Please try again."
+            error_message = "There was an error creating the user. Please try again."  
         except Exception as e:
             error_message = f"An unexpected error occurred: {str(e)}"
+    else:
+        userprofile = get_object_or_404(Userprofile,user=request.user)
+        context = {
+            'userprofile':userprofile,
+            'error_message':error_message
+        }
 
-    return render(request, 'admins/userid.html', {'error_message': error_message})
+    return render(request, 'admins/userid.html',context)  
 
 # views.py
 
@@ -200,3 +210,7 @@ def user(request):
     return render(request, 'admins/userget.html')
 def launch(request):
     return render(request, 'admins/launch.html')
+
+def logout(request):
+    auth.logout(request)
+    return redirect('admins:login')

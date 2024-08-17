@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.db.models.signals import post_save
 
 
 # Create your models here.
@@ -38,3 +39,15 @@ class UserID(models.Model):
     def __str__(self):
         return self.user.username
 
+
+class Userprofile(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return self.user.username
+def save_user_model(sender ,instance,created,**kwargs):
+    if created:
+          Userprofile.objects.create(user=instance)
+  
+
+post_save.connect(save_user_model, sender=User )

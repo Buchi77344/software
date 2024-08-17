@@ -11,17 +11,22 @@
     <div class = "page">
         <form method="post"class = "login flex-column">
             {% for messages in messages %}
-            <p>{{messages}}</p>
+            <div class="error-div">
+                <span class = "error-text">{{messages}}</span>
+            </div>
             {% endfor %}
             {% csrf_token %}
             <h2 class = "create-act-head">LOGIN ADMIN</h2>
-
             <div class="input-wrapper flex-column">
                 <input type = "text" placeholder="Username" name = "username" class = "create-acct-input"/>
                 <input type = "password" placeholder="Password" name = "password" class = "create-acct-input"/>
             </div>
-
+ 
             <button class = "submit-btn" type = "submit">Submit</button>
+            <div class= "login-links-div flex-between">
+                <a href = "{% url 'admins:signup' %}" class="create-acct-link">CREATE ACCOUNT</a>
+                <a href = "#" class="create-acct-link">Forgot Password?</a>
+            </div>
         </form>
     </div>
 </body>

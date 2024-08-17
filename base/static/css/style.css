@@ -393,6 +393,50 @@ svg path{
     transform: rotate(45deg);
 }
 
+.user_id-main{
+    display: flex;
+    height: calc(100% - 46px);
+}
 
+.user_id-form{
+    max-width: 660px;
+    width: 90%;
+    height: 350px;
+    background-color: var(--main-sb-hv-clr);
+    border-radius: 20px;
+    padding: 15px 30px 15px 30px;
+    position: relative;
+    margin: auto;
+}
 
+.user_id-head{
+    color: var(--block-clr);
+    text-align: center;
+    font-size: 3rem;
+    margin-top: 0;
+}
 
+.user_id-name-input-div.flex-between{
+    gap : 20px;
+}
+
+.user_id-input{
+    width: 50%;
+    padding: 12px 5px 12px 15px;
+    background-color: hsl(0, 0%, 97%);
+    font-size: 1.2rem;
+    border-radius: 50px;
+}
+
+.user_id-submit-btn{
+    margin-top : 25px;
+    color : hsl(0, 0%, 98%);
+    background-color: var(--main-sidebar-clr);
+    border-radius: 10px;
+    padding-block : 12px;
+    font-size : 1.1rem;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
