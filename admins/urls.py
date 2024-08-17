@@ -11,4 +11,5 @@ urlpatterns = [
     path('user',views.user,name='user'),
     path('launch',views.launch,name='launch'),
     path('upload',views.upload,name= "upload"),
+    path('logout',views.logout,name= "logout"),
 ]

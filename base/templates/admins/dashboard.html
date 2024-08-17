@@ -32,7 +32,7 @@
                             </div>
                             <div class = "text-content-div flex-column">
                                 <span class = "sub-text">Hi there</span>
-                                <span class = "text">OLANREWAJU</span>
+                                <span class = "text">{{userprofile.user.username}}</span>
                             </div>
                         </div>
                     </div>
@@ -147,7 +147,7 @@
                             </div>
                         </a>
 
-                        <a class = "menu-item" href = "#">
+                        <a class = "menu-item" href = "{% url 'admins:logout' %}">
                             <div class="menu-wrapper flex gp-10">
                                 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
                                 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
@@ -164,7 +164,7 @@
             </div>
             <div class = "main-content">
                 <div class="main-content-header flex">
-                    <span>OAUSTECH</span>
+                    <span>{{userprofile.user.school_name}}</span>
                 </div>
                 <div class = "main-content-items-wrapper flex gp-15">
 
