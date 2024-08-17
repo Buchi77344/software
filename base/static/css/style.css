@@ -10,6 +10,7 @@
     --q-selected-btn-clr : #15a987;
     --block-clr : hsl(0, 0%, 98%);
     --border-rd: 10px;
+    --border-rd-in: 50px;
     --font-family : system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
 }
 
@@ -42,7 +43,7 @@ button:active{
 }
 
 input:focus-within{
-    outline: 3px solid hsl(263 24% 52% / .5);
+    outline: 1px solid hsl(263 24% 52% / .3);
 }
 
 h2,h3,h4,p{
@@ -161,9 +162,9 @@ svg path{
 }
 
 .hamburger{
-    width : 25px;
+    width : 20%;
     height: 40px;
-    align-items: center;
+    align-items: flex-start;
     justify-content: center;
     gap : 7px;
 }
@@ -197,8 +198,13 @@ svg path{
     font-size: 1.2vw;
 }
 
+
+.menu-head-content{
+    width : 50%;
+}
+
 .menu-content{
-    padding-block : 30px 15px;
+    padding-block : 10px 15px;
     height: 550px;
     overflow-y: auto;
 }
@@ -216,6 +222,7 @@ svg path{
 
 .menu-content.flex-column{
     gap : 30px;
+    justify-content: flex-start;
 }
 
 .menu-item{
@@ -481,3 +488,113 @@ svg path{
         transform: rotate(360deg);
     }
 }
+
+
+.user-get-container{
+    width: 85%;
+    margin-inline: auto;
+    margin-top : 30px;
+}
+
+.user-get-table{
+    border-collapse: collapse;
+    font-size: 1.2rem;
+    width : 100%;
+    margin-top : 25px;
+}
+
+.user-get-table .thead th{
+    background-color: var(--main-sb-hv-clr);
+    border : 1px solid rgba(0,0,0,.6);
+    padding : 12px 10px;
+    text-align: left;
+    color: white;
+}
+
+.user-get-table tbody td{
+    border : 1px solid rgba(0,0,0,.6);;
+    padding: 12px 10px;
+}
+
+.user-get-table tbody tr:nth-child(odd){
+    background-color: hsl(0, 0%, 86%);
+}
+
+.candidate-info.flex-between{
+    align-items: center;
+}
+
+.candidate-info h2{
+    font-size: 2.5rem;
+
+}
+
+.candidate-info .generate-btn{
+    padding: 12px 25px;
+    background-color: var(--main-sb-hv-clr);
+    color : hsl(0, 0%, 95%);
+    border-radius: 5px;
+    font-size: 1.1rem;
+}
+
+.user-search-form{
+    margin-left : auto;
+    margin-right : 20px;
+    width : 45%;
+}
+
+.user-search-input{
+    width : 85%;
+    padding : 12px 10px 12px 20px;
+    background-color: hsl(0, 0%, 92%);
+    font-size: 1.2rem;
+    border-top-left-radius: var(--border-rd-in);
+    border-bottom-left-radius: var(--border-rd-in);
+
+}
+
+.user-search-btn{
+    padding : 12px 10px;
+    background-color: var(--main-sb-hv-clr);
+    color : hsl(0, 0%, 96%);
+    width : 15%;
+    border-top-right-radius: var(--border-rd-in);
+    border-bottom-right-radius: var(--border-rd-in);
+
+}
+
+.welcome-main{
+    padding : 20px 30px;
+}
+
+.welcome-wrapper{
+    background: linear-gradient(45deg, var(--main-sidebar-clr), rgb(11, 178, 219));
+    height : 200px;
+    border-radius: 15px;
+    padding: 25px 30px;
+}
+
+.welcome-text-content.flex-column{
+    justify-content: space-between;
+}
+
+.admin-text{
+    color:hsl(0, 0%, 85%);
+    font-weight: bold;
+    text-transform:uppercase;
+}
+
+.greetings-wrapper h3{
+    font-size: 2.3rem;
+    color : hsl(0, 0%, 94%);
+}
+
+.greetings-wrapper span{
+    color : hsl(0, 0%, 90%);
+}
+
+
+.user-search-btn svg path{
+    stroke : #f5f5f5
+}
+
