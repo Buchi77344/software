@@ -1,6 +1,7 @@
 from django import forms
 
 class BulkUploadForm(forms.Form):
+    subject = forms.CharField(max_length=1000,label='subject')
     file = forms.FileField(label='Select a CSV file')
 
 

@@ -121,12 +121,22 @@ from io import BytesIO
 import os
 import time
 from  base.forms import BulkUploadForm
-from base.models import Question, Answer
+from base.models import Question, Answer ,Subject
   
+from django.shortcuts import render, redirect
+from django.contrib import messages
+
+from docx import Document
+from io import BytesIO
+from PIL import Image
+import os
+import time
+
 def upload(request):
     if request.method == 'POST':
         form = BulkUploadForm(request.POST, request.FILES)
         if form.is_valid():
+            subject_text = form.cleaned_data['subject']
             file = request.FILES['file']
 
             try:
@@ -140,12 +150,14 @@ def upload(request):
                 correct_option = None
                 diagram_image_path = None
 
+                subject, created = Subject.objects.get_or_create(name=subject_text)
+
                 for para in document.paragraphs:
                     text = para.text.strip()
 
                     if text.startswith("Q:"):
                         if question_text:
-                            save_question_and_answers(question_text, options, correct_option, diagram_image_path)
+                            save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject)
                             options = []
                             diagram_image_path = None  # Clear the diagram after saving the question
 
@@ -161,7 +173,7 @@ def upload(request):
                         diagram_image_path = extract_and_save_diagram(document)  # Extract a new diagram for the current question
 
                 if question_text:
-                    save_question_and_answers(question_text, options, correct_option, diagram_image_path)
+                    save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject)
 
                 messages.success(request, "Questions and answers uploaded successfully!")
                 return redirect('/')
@@ -175,8 +187,8 @@ def upload(request):
 
     return render(request, 'admins/upload.html', {'form': form})
 
-def save_question_and_answers(question_text, options, correct_option, diagram_image_path):
-    question, created = Question.objects.get_or_create(text=question_text)
+def save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject):
+    question, created = Question.objects.get_or_create(text=question_text, subject=subject)
 
     if diagram_image_path:
         question.diagram = diagram_image_path
@@ -187,30 +199,57 @@ def save_question_and_answers(question_text, options, correct_option, diagram_im
         Answer.objects.create(question=question, text=option_text, is_correct=is_correct)
 
 def extract_and_save_diagram(document):
-    # Extract the first image found in the document for the current question
+    images = []
+
+    # Extract images from document
     for rel in document.part.rels.values():
         if "image" in rel.target_ref:
             image_stream = BytesIO(rel.target_part.blob)
             image_filename = save_image(image_stream)
-            return f'questions/diagrams/{image_filename}'
-    return None
+            images.append(f'questions/diagrams/{image_filename}')
+
+    # If no images found, attempt to extract shapes (they might be stored as images)
+    # Note: Shapes extraction is complex and may need manual adjustments
+    for shape in document.inline_shapes:
+        if shape.type == 3:  # Shape type 3 means Picture
+            image_stream = BytesIO(shape.image.blob)
+            image_filename = save_image(image_stream)
+            images.append(f'questions/diagrams/{image_filename}')
+
+    return images[0] if images else None
 
 def save_image(image_stream):
+    image = Image.open(image_stream)
     image_filename = f'diagram_{int(time.time())}.png'
     image_path = os.path.join('media', 'questions', 'diagrams', image_filename)
     os.makedirs(os.path.dirname(image_path), exist_ok=True)
     
-    with open(image_path, 'wb') as f:
-        f.write(image_stream.read())
-    
+    # Save the image
+    image.save(image_path, format='PNG')
+
     return image_filename
 
-
 def user(request):
-    return render(request, 'admins/userget.html')
+    user_id = UserID.objects.all()
+    context = {
+        "user_id":user_id
+    }
+    return render(request, 'admins/userget.html',context)
 def launch(request):
     return render(request, 'admins/launch.html')
 
 def logout(request):
     auth.logout(request)
     return redirect('admins:login')
+
+def question_list(request):
+    # Fetch all questions
+    questions = list(Question.objects.all().select_related('subject').prefetch_related('answers'))
+
+    # Use the user's ID or username to seed the random shuffle
+    if request.user.is_authenticated:
+        random.seed(request.user.id)  # or use request.user.username
+
+    random.shuffle(questions)
+
+    return render(request, 'admins/question_list.html', {'questions': questions})
