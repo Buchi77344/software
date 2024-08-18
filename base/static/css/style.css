@@ -563,6 +563,35 @@ svg path{
 
 }
 
+.welcome-main{
+    padding : 20px 30px;
+}
+
+.welcome-wrapper{
+    background: linear-gradient(45deg, var(--main-sidebar-clr), rgb(11, 178, 219));
+    height : 200px;
+    border-radius: 15px;
+    padding: 25px 30px;
+}
+
+.welcome-text-content.flex-column{
+    justify-content: space-between;
+}
+
+.admin-text{
+    color:hsl(0, 0%, 85%);
+    font-weight: bold;
+    text-transform:uppercase;
+}
+
+.greetings-wrapper h3{
+    font-size: 2.3rem;
+    color : hsl(0, 0%, 94%);
+}
+
+.greetings-wrapper span{
+    color : hsl(0, 0%, 90%);
+}
 
 
 .user-search-btn svg path{
