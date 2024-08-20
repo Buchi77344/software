@@ -151,7 +151,7 @@ import random
 import string
 from django.shortcuts import render
 from .models import User
-from .models import UserID
+from .models import UserID , Question
 from .forms import UsernameForm
 from django.db import IntegrityError, transaction
 
