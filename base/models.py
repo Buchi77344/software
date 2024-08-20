@@ -79,6 +79,9 @@ class ExamSession(models.Model):
     exam_duration = models.CharField(max_length=8, default='01:00:00')  # Format hh:mm:ss
     completed = models.BooleanField(default=False)
     shuffle_order = models.PositiveIntegerField(null=True)  # Existing field for shuffle order
-
+ 
     def __str__(self):
         return f'{self.subject.name} - {self.question.text[:50]}'
+    def get_questions(self):
+        
+        return Question.objects.filter(examsession=self).order_by('shuffle_order')

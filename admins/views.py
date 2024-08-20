@@ -310,7 +310,7 @@ def launch(request):
                     )
 
             messages.success(request, 'Exam preferences have been successfully saved.')
-            return redirect('login')  # Redirect to login to start the exam
+            return redirect('admins:launch')  # Redirect to login to start the exam
         else:
             messages.error(request, 'Please correct the errors below.')
     else:

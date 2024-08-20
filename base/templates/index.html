@@ -25,21 +25,23 @@
     <div class="container">
         <h1 class="mt-5 mb-4">Computer-Based Testing Interface</h1>
 
+        <!-- Timer Display -->
         <div id="timer">00:00:00</div>
 
         <!-- Navigation Bar for Subjects -->
-        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
-            <div class="navbar-nav">
-                {% for subject in subjects %}
-                    <form method="post" class="nav-item">
-                        {% csrf_token %}
-                        <input type="hidden" name="subject_id" value="{{ subject.id }}">
-                        <button type="submit" class="btn btn-link nav-link">{{ subject.name }}</button>
-                    </form>
-                {% endfor %}
-            </div>
-        </nav>
+        {% if subjects %}
+            <nav class="navbar navbar-expand-lg navbar-light bg-light">
+                <ul class="navbar-nav mr-auto">
+                    {% for subject in subjects %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="?subject_id={{ subject.id }}">{{ subject.name }}</a>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </nav>
+        {% endif %}
 
+        <!-- Question Form -->
         {% if questions %}
             <form method="post" action="{% url 'result' %}">
                 {% csrf_token %}
@@ -63,6 +65,8 @@
                 {% endfor %}
                 <button type="submit" class="btn btn-primary">Submit</button>
             </form>
+        {% else %}
+            <p>No questions available for this subject.</p>
         {% endif %}
     </div>
 
@@ -100,6 +104,6 @@
             // Update countdown every second
             const countdownInterval = setInterval(updateCountdown, 1000);
         });
-        </script>
+    </script>
 </body>
 </html>
