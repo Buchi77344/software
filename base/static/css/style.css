@@ -162,7 +162,6 @@ svg path{
 }
 
 .hamburger{
-    width : 20%;
     height: 40px;
     align-items: flex-start;
     justify-content: center;
@@ -199,9 +198,9 @@ svg path{
 }
 
 
-.menu-head-content{
+/* .menu-head-content{
     width : 50%;
-}
+} */
 
 .menu-content{
     padding-block : 10px 15px;
