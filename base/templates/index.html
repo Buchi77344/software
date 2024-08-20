@@ -4,11 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Computer-Based Testing Interface</title>
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-    <!-- Optional: Add your own CSS styles -->
     <style>
-        /* Add custom styles here */
         .question {
             margin-bottom: 20px;
         }
@@ -16,40 +13,93 @@
             max-width: 100%;
             height: auto;
         }
+        #timer {
+            font-size: 1.5rem;
+            color: #ff0000;
+            text-align: right;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1 class="mt-5 mb-4">Computer-Based Testing Interface</h1>
 
-        <form method="post" action="{% url 'result' %}">
-            {% csrf_token %}
-            {% for question in questions %}
-                <div class="card mb-4">
-                    <div class="card-body">
-                        <h5 class="card-title">{{ question.text }}</h5>
-                        {% if question.diagram %}
-                            <img src="{{ question.diagram.url }}" alt="Diagram">
-                        {% endif %}
-                        <div class="list-group">
-                            {% for answer in question.answers.all %}
-                                <label class="list-group-item">
-                                    <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" class="mr-2">
-                                    {{ answer.text }}
-                                </label>
-                            {% endfor %}
+        <div id="timer">00:00:00</div>
+
+        <!-- Navigation Bar for Subjects -->
+        <nav class="navbar navbar-expand-lg navbar-light bg-light mb-4">
+            <div class="navbar-nav">
+                {% for subject in subjects %}
+                    <form method="post" class="nav-item">
+                        {% csrf_token %}
+                        <input type="hidden" name="subject_id" value="{{ subject.id }}">
+                        <button type="submit" class="btn btn-link nav-link">{{ subject.name }}</button>
+                    </form>
+                {% endfor %}
+            </div>
+        </nav>
+
+        {% if questions %}
+            <form method="post" action="{% url 'result' %}">
+                {% csrf_token %}
+                {% for question in questions %}
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ question.text }}</h5>
+                            {% if question.diagram %}
+                                <img src="{{ question.diagram.url }}" alt="Diagram">
+                            {% endif %}
+                            <div class="list-group">
+                                {% for answer in question.answers.all %}
+                                    <label class="list-group-item">
+                                        <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" class="mr-2">
+                                        {{ answer.text }}
+                                    </label>
+                                {% endfor %}
+                            </div>
                         </div>
                     </div>
-                </div>
-            {% endfor %}
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
-
+                {% endfor %}
+                <button type="submit" class="btn btn-primary">Submit</button>
+            </form>
+        {% endif %}
     </div>
 
-    <!-- Bootstrap JS and dependencies (optional) -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            // Get remaining time from the server
+            const remainingTime = parseFloat('{{ remaining_time }}');
+            let time = remainingTime;
+        
+            function updateCountdown() {
+                // Calculate hours, minutes, and seconds
+                const hours = Math.floor(time / 3600);
+                const minutes = Math.floor((time % 3600) / 60);
+                const seconds = Math.floor(time % 60);
+        
+                // Display the time
+                document.getElementById('timer').textContent = 
+                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        
+                // Decrement the time
+                time--;
+        
+                // Stop countdown when time reaches zero
+                if (time < 0) {
+                    clearInterval(countdownInterval);
+                    document.getElementById('timer').textContent = '00:00:00';
+                    alert('Time is up!');
+                    // Optionally, redirect or perform other actions when time is up
+                }
+            }
+        
+            // Update countdown every second
+            const countdownInterval = setInterval(updateCountdown, 1000);
+        });
+        </script>
 </body>
 </html>
