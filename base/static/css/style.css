@@ -704,17 +704,18 @@ svg path{
 }
 
 .question-pdf-box-wrapper{
-    width : 90%;
+    width : 85%;
     margin-inline : auto;
     padding : 20px 0px 20px; 
 }
 
 .question-pdf-box-wrapper.flex-wrap{
     gap : 15px;
+    justify-content: space-between;
 }
 
 .question-pdf-box{
-    min-width : 270px;
+    min-width : 280px;
     height : 250px;
     
 }
@@ -747,6 +748,10 @@ svg path{
 }
 
 .question-pdf-name{
-    color : hsl(0, 0%, 10%);
+    color : hsl(0, 0%, 25%);
     font-size: 1.1rem;
+}
+
+.question-pdf-details svg path{
+    stroke : rgba(0,0,0,.6);
 }
