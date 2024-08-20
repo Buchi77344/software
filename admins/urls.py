@@ -14,4 +14,5 @@ urlpatterns = [
     path('logout',views.logout,name= "logout"),
     path('question_list',views.question_list,name= "question_list"),
     path('search',views.search,name='search'),
+    path('export-to-excel/',views.export_user_data_to_pdf, name='export_user_data_to_pdf'),
 ]

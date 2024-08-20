@@ -69,10 +69,11 @@ from base.models import UserID
 from  base.forms import UsernameForm
 from django.db import IntegrityError, transaction
 
-def generate_random_id(length=6):
-    characters = string.ascii_letters + string.digits
-    return ''.join(random.choice(characters) for _ in range(length))
-
+def generate_random_id():
+    numbers = ''.join(random.choice(string.digits) for _ in range(4))
+    alphabets = ''.join(random.choice(string.ascii_letters) for _ in range(2))
+    random_id = numbers + alphabets
+    return ''.join(random.sample(random_id, len(random_id)))
  # Assuming you have this utility function
 
 def userid(request):
@@ -81,7 +82,9 @@ def userid(request):
     if request.method == "POST":
         username= request.POST.get('username')
         last_name = request.POST.get('last_name')
-
+        if User.objects.filter(username=username).exists():
+            messages.error(request, 'this name has already be generated')
+            return redirect("admins:user")
         try:
             with transaction.atomic():
                 user, created = User.objects.get_or_create(username=username, last_name=last_name)
@@ -230,29 +233,133 @@ def save_image(image_stream):
     return image_filename
 
 def user(request):
-    user_id = UserID.objects.all()
+    userprofile = get_object_or_404(Userprofile,user=request.user)
+    
+    user_id = UserID.objects.all()[:10]
     context = {
+        'userprofile':userprofile,   
         "user_id":user_id
     }
     return render(request, 'admins/userget.html',context)
-def launch(request):
-    return render(request, 'admins/launch.html')
 
+import pandas as pd
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+
+def export_user_data_to_pdf(request):
+    userprofile = get_object_or_404(Userprofile, user=request.user)
+    user_id = UserID.objects.all()[:10]  # Fetching the first 10 UserID objects
+    
+    context = {
+        'userprofile': userprofile,
+        "user_id": user_id
+    }
+    
+    template_path = 'admins/pdf.html'
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="user_data.pdf"'
+
+    template = get_template(template_path)
+    html = template.render(context)
+
+    # Generate the PDF
+    pisa_status = pisa.CreatePDF(html, dest=response)
+
+    if pisa_status.err:
+        return HttpResponse('We had some errors with the PDF creation')
+    return response
+from django.shortcuts import render, redirect
+from base.forms import MultiSubjectQuestionSelectionForm
+from base.models import Suffle,ExamSession
+from django.utils import timezone
+
+import uuid
+
+@login_required(login_url='login')
+def launch(request):
+    if request.method == 'POST':
+        form = MultiSubjectQuestionSelectionForm(request.POST)
+        if form.is_valid():
+            subject_question_counts = form.cleaned_data['subject_question_counts']
+            exam_duration = form.cleaned_data['exam_duration']  # Format hh:mm:ss
+
+            # Loop through selected subjects and their respective number of questions
+            for subject, number_of_questions in subject_question_counts.items():
+                # Fetch the questions for the subject and shuffle them
+                questions = list(Question.objects.filter(subject=subject))
+                if len(questions) < number_of_questions:
+                    messages.error(request, f"Not enough questions for {subject.name}.")
+                    return redirect('admins:launch')  # Redirect back to the form if not enough questions
+
+                # Select a random sample of questions based on the requested number
+                selected_questions = random.sample(questions, number_of_questions)
+
+                # Generate a unique session ID for each exam session
+                session_id = str(uuid.uuid4())
+
+                # Store each question and its order in the ExamSession model
+                for index, question in enumerate(selected_questions):
+                    ExamSession.objects.create(
+                        session_id=session_id,
+                        subject=subject,
+                        question=question,
+                        exam_start_time=timezone.now(),
+                        exam_duration=exam_duration,
+                        shuffle_order=index + 1  # Adjust to start from 1 instead of 0
+                    )
+
+            messages.success(request, 'Exam preferences have been successfully saved.')
+            return redirect('login')  # Redirect to login to start the exam
+        else:
+            messages.error(request, 'Please correct the errors below.')
+    else:
+        form = MultiSubjectQuestionSelectionForm()
+
+    return render(request, 'admins/launch.html', {'form': form})
 def logout(request):
     auth.logout(request)
     return redirect('admins:login')
 
+import random
+from django.shortcuts import render, get_object_or_404
+from django.http import Http404
+
+@login_required(login_url='admins:login')
 def question_list(request):
-    # Fetch all questions
-    questions = list(Question.objects.all().select_related('subject').prefetch_related('answers'))
+    # Retrieve user profile
+    user_profile = get_object_or_404(Userprofile, user=request.user)
+    subject = user_profile.subject
+    number_of_questions = user_profile.number_of_questions
 
-    # Use the user's ID or username to seed the random shuffle
-    if request.user.is_authenticated:
-        random.seed(request.user.id)  # or use request.user.username
+    if not subject or not number_of_questions:
+        # Redirect to launch page if preferences are missing
+        return redirect('/')  # Or show an appropriate message
 
-    random.shuffle(questions)
+    # Validate number_of_questions
+    try:
+        number_of_questions = int(number_of_questions)
+        if number_of_questions < 1:
+            raise ValueError("Number of questions must be at least 1.")
+    except (ValueError, TypeError):
+        raise Http404("Invalid number of questions.")
 
-    return render(request, 'admins/question_list.html', {'questions': questions})
+    # Fetch all questions for the subject
+    subject_questions = Question.objects.filter(subject=subject).prefetch_related('answers')
+
+    # Shuffle questions based on user ID or username if authenticated
+    random.seed(request.user.id)  
+    subject_questions = list(subject_questions)  # Convert queryset to list for shuffling
+    random.shuffle(subject_questions)
+
+    # Limit the number of questions to show
+    questions_to_show = subject_questions[:number_of_questions]
+
+    # Render the questions and answers in the template
+    return render(request, 'admins/question_list.html', {
+        'questions': questions_to_show,
+    })
+
 from base.forms import SearchForm
 from django.db.models import Q
 def search(request):

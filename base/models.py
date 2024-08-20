@@ -49,6 +49,8 @@ class UserID(models.Model):
 
 class Userprofile(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, null=True, blank=True, on_delete=models.SET_NULL)
+    number_of_questions = models.IntegerField(null=True, blank=True)
 
     def __str__(self):
         return self.user.username
@@ -58,3 +60,25 @@ def save_user_model(sender ,instance,created,**kwargs):
   
 
 post_save.connect(save_user_model, sender=User )
+
+class Suffle(models.Model):
+  
+    subject = models.ForeignKey(Subject, null=True, blank=True, on_delete=models.SET_NULL)
+    number_of_questions = models.IntegerField(null=True, blank=True)
+    time_limit = models.IntegerField(null=True, blank=True)  # Sto
+
+    def __str__(self):
+        return f"{self.subject.name} - {self.number_of_questions} questions"
+from django.utils import timezone
+
+class ExamSession(models.Model):
+    session_id = models.CharField(max_length=255, null=True)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    exam_start_time = models.DateTimeField(default=timezone.now)
+    exam_duration = models.CharField(max_length=8, default='01:00:00')  # Format hh:mm:ss
+    completed = models.BooleanField(default=False)
+    shuffle_order = models.PositiveIntegerField(null=True)  # Existing field for shuffle order
+
+    def __str__(self):
+        return f'{self.subject.name} - {self.question.text[:50]}'

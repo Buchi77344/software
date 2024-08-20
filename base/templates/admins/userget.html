@@ -175,7 +175,7 @@
         <div class="candidate-info flex-between">
             <h2>Candidate Info</h2>
             <form method= "get" action="{% url 'admins:search' %}" class = "user-search-form flex">
-                <input type = "text" placeholder="Search..." name = "query" class = "user-search-input"/>
+                <input required type = "text" placeholder="Search..." name = "query" class = "user-search-input"/>
                 <button class ="user-search-btn">
                     <?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
                     <svg width="800px" height="800px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -203,7 +203,7 @@
                 {% endfor %}
                
             </tbody>
-        </table>
+            <a href="{% url 'admins:export_user_data_to_pdf' %}">Download as PDF</a>
     </div>
             </div>
         </div>

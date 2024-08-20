@@ -4,42 +4,40 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Question List</title>
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+<!-- Optional: Add your CSS file -->
 </head>
 <body>
-    <div class="container mt-5">
-        <h1>Questions List</h1>
-        <hr>
-        <div class="accordion" id="questionsAccordion">
-            {% for question in questions %}
-                <div class="card">
-                    <div class="card-header" id="heading{{ forloop.counter }}">
-                        <h5 class="mb-0">
-                            <button class="btn btn-link" data-toggle="collapse" data-target="#collapse{{ forloop.counter }}" aria-expanded="true" aria-controls="collapse{{ forloop.counter }}">
-                                {{ question.text }}
-                            </button>
-                        </h5>
-                    </div>
-
-                    <div id="collapse{{ forloop.counter }}" class="collapse" aria-labelledby="heading{{ forloop.counter }}" data-parent="#questionsAccordion">
-                        <div class="card-body">
-                            <ul>
-                                {% for answer in question.answers.all %}
-                                    <li>{{ answer.text }}</li>
-                                {% endfor %}
-                            </ul>
-                            {% if question.diagram %}
-                                <img src="{{ question.diagram.url }}" alt="Diagram" class="img-fluid">
-                            {% endif %}
-                        </div>
-                    </div>
-                </div>
+    <div class="container">
+        <h1>Question List</h1>
+        {% for messages in messages %}
+            <div class="error-div">
+                <span class = "error-text">{{messages}}</span>
+            </div>
             {% endfor %}
-        </div>
+        {% if questions %}
+            <ul class="question-list">
+                {% for question in questions %}
+                    <li class="question-item">
+                        <p><strong>Question:</strong> {{ question.text }}</p>
+                        
+                        <ul class="answer-list">
+                            {% for answer in question.answers.all %}
+                                <li class="answer-item">
+                                    <p>{{ answer.text }}</p>
+                                    {% if answer.is_correct %}
+                                        <p><em>(Correct Answer)</em></p>
+                                    {% endif %}
+                                </li>
+                            {% empty %}
+                                <li>No answers available for this question.</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p>No questions available.</p>
+        {% endif %}
     </div>
-
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
 </body>
 </html>
