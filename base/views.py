@@ -218,3 +218,4 @@ def login(request):
 
 def userpage(request):
     return render(request, 'user-page.html')
+

@@ -377,4 +377,6 @@ def search(request):
                 Q(user__last_name__icontains=query)
             )
     return render(request, 'admins/search.html', {'form': form, 'query': query, 'result': result})
- 
+
+def question(request):
+    return render (request, 'admins/question.html')
