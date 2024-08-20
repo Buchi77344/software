@@ -271,7 +271,7 @@ def export_user_data_to_pdf(request):
     return response
 from django.shortcuts import render, redirect
 from base.forms import MultiSubjectQuestionSelectionForm
-from base.models import Suffle,ExamSession
+from base.models import Suffle,ExamSession , Subject
 from django.utils import timezone
 
 import uuid
@@ -360,7 +360,7 @@ def question_list(request):
         'questions': questions_to_show,
     })
 
-from base.forms import SearchForm
+from base.forms import SearchForm 
 from django.db.models import Q
 def search(request):
     
