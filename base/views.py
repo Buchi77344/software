@@ -13,21 +13,13 @@ import uuid
 # Configure logging
 @login_required(login_url='login')
 def index(request):
-    session_id = request.session.get('exam_session_id')
-    if not session_id:
-        return redirect('set_session')  # Redirect to set session if not present
-
-    exam_session = get_object_or_404(ExamSession, session_id=session_id)
-    questions = exam_session.get_questions()
+    questions =ExamSession.objects.all()
 
     return render(request, 'index.html', {
-        'exam_session': exam_session,
+        
         'questions': questions,
     })
-# def get_next_subject(current_subject_id):
-#     subjects = Subject.objects.all()
-#     next_subject = subjects.filter(id__gt=current_subject_id).first()
-#     return next_subject
+
 import csv
 import pandas as pd
 from io import TextIOWrapper, StringIO

@@ -162,7 +162,6 @@ svg path{
 }
 
 .hamburger{
-    width : 20%;
     height: 40px;
     align-items: flex-start;
     justify-content: center;
@@ -199,12 +198,12 @@ svg path{
 }
 
 
-.menu-head-content{
+/* .menu-head-content{
     width : 50%;
-}
+} */
 
 .menu-content{
-    padding-block : 10px 15px;
+    padding : 10px 0px 15px;
     height: 550px;
     overflow-y: auto;
 }
@@ -567,7 +566,7 @@ svg path{
     padding : 20px 30px;
 }
 
-.welcome-wrapper{
+.welcome-head-wrapper{
     background: linear-gradient(45deg, var(--main-sidebar-clr), rgb(11, 178, 219));
     height : 200px;
     border-radius: 15px;
@@ -593,8 +592,236 @@ svg path{
     color : hsl(0, 0%, 90%);
 }
 
+.welcome-graphics{
+    position: relative;
+    height: 100%;
+    width: 300px;
+}
+
+.welcome-graphics span{
+    position: absolute;
+    display: inline-block;
+    width: 65px;
+    height : 65px;
+    background-color: hsla(0, 0%, 97%, .5);
+    animation: spin 5s infinite linear;
+}
+
+.diamond,
+.square-phic{
+    border-radius: 6px;
+}
+
+.welcome-graphics .diamond{
+    transform: rotate(45deg);
+    bottom: 0px;
+    left: 55%;
+    translate: -50% 0;
+    animation-delay : 1s;
+}
+
+.welcome-graphics .square-phic{
+    right: 5px;
+    animation-delay : 2s;
+}
+
+.welcome-graphics .triangle{
+    left: 30px;
+    border-left : 35px solid transparent; 
+    border-right : 35px solid transparent; 
+    border-bottom : 70px solid hsla(0, 0%, 97%, .5); 
+    background-color: transparent;
+}
+
+@keyframes spin {
+    0%, 100%, 50%{
+        scale : 1;
+        rotate : 0deg;
+        opacity : 1
+    }
+
+    25%{
+        scale : 1.1;
+        rotate : 10deg;
+        opacity : 0.9;
+    }
+
+    75%{
+        scale : 1.1;
+        rotate : -10deg;
+        opacity : 0.9;
+    }
+}
 
 .user-search-btn svg path{
     stroke : #f5f5f5
 }
+
+.welcome-box-wrapper{
+    display : flex;
+    gap: 15px;
+    margin-top : 30px;
+
+}
+
+.stats-box{
+    height: 200px;
+    min-width: 300px;
+    background: white;
+    padding: 20px 15px;
+    border-radius: 10px;
+    text-align: center;
+    /* background-color: ; */
+}
+
+.stats-box.box-one{
+    background: linear-gradient(45deg, rgb(121, 86, 10), var(--main-sidebar-clr));
+}
+
+.stats-box.box-two{
+    background: linear-gradient(45deg, rgb(8, 95, 110), var(--main-sidebar-clr));
+}
+
+.stats-box.box-three{
+    background: linear-gradient(45deg,  var(--main-sidebar-clr), rgb(175, 8, 147));
+}
+
+.stats-box.flex-column{
+    align-items: center;
+    justify-content: center;
+}
+
+.stats-head{
+    font-size: 1.8rem;
+    color: hsl(0deg 0% 100% / 80%);
+}
+
+.stats-result{
+    font-size: 2.5rem;
+    color: hsl(0, 0%, 90%);
+    font-weight: bold;
+    margin-top: 10px;
+}
+
+.question-pdf-box-wrapper{
+    width : 85%;
+    margin-inline : auto;
+    padding : 20px 0px 20px; 
+}
+
+.question-pdf-box-wrapper.flex-wrap{
+    gap : 25px;
+    justify-content: center;
+}
+
+.question-pdf-box{
+    min-width : 280px;
+    height : 250px;
+    
+}
+
+.pdf-graphics{
+    height : 75%;
+    background-color: hsl(0deg 0% 0% / 15%);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+}
+
+.pdf-graphics span{
+    font-size: 4rem;
+    font-weight: bold;
+    color: hsla(0, 0%, 97%, .6);
+}
+
+.question-pdf-details{
+    height : 25%;
+    padding : 0px 10px;
+    border : 1px solid rgba(0,0,0,.2);
+    border-bottom-left-radius: 5px;
+    border-bottom-right-radius: 5px;
+}
+
+.question-pdf-details.flex{
+    justify-content: space-between;
+    align-items: center;
+    
+}
+
+.question-pdf-name{
+    color : hsl(0, 0%, 25%);
+    font-size: 1.1rem;
+}
+
+.question-pdf-details svg path{
+    stroke : rgba(0,0,0,.6);
+}
+
+.delete-overlay{
+    position : fixed;
+    width : 100vw;
+    height : 100vh;
+    background : hsla(0, 0%, 50%, .6);
+    backdrop-filter: blur(5px);
+    display : grid;
+    place-items : center;
+    display : none;
+}
+
+.delete-clarity-div{
+    background-color: hsl(0, 0%, 97%);
+    padding: 15px;
+    position: absolute;
+    left: 40%;
+    width: 40%;
+    height: 40%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 2px 2px 10px rgba(0, 0, 0, .5);
+    transform: scale(0.3);
+    opacity : 0;
+    transition : transform .2s ease, opacity .2s ease;
+}
+
+.delete-clarity-div.visible{
+    transform: scale(1);
+    opacity : 1;
+}
+
+.delete-clarity-head{
+    font-size: 1.8rem;
+    color : hsl(0, 0%, 25%);
+}
+
+.clarity-btn-container{
+    margin-top: 30px;
+    display: flex;
+    gap : 20px;
+    justify-content: center;
+}
+
+.clarity-btn-container a{
+    padding : 12px 40px;
+    border-radius: 10px;
+    color : hsl(0, 0%, 90%);
+    font-size : 1.1rem
+}
+
+.Yes-btn{
+    background-color : rgb(168, 23, 23);
+}
+
+.Yes-btn:hover{
+    background-color : rgb(93, 9, 9);
+}
+
+.No-btn{
+    background-color : rgb(15, 129, 26);
+}
+
+.No-btn:hover{
+    background-color : rgb(10, 80, 17);
+}
+
 

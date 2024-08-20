@@ -179,7 +179,7 @@ def upload(request):
                     save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject)
 
                 messages.success(request, "Questions and answers uploaded successfully!")
-                return redirect('/')
+                return redirect('admins:question')
 
             except Exception as e:
                 messages.error(request, f"Error processing the file: {e}")
@@ -379,4 +379,13 @@ def search(request):
     return render(request, 'admins/search.html', {'form': form, 'query': query, 'result': result})
 
 def question(request):
-    return render (request, 'admins/question.html')
+    subject  = Subject.objects.all()[:10]
+    context ={
+        'subject':subject
+    }
+    return render (request, 'admins/question.html',context)
+
+def delete(request, pk):
+    subject = get_object_or_404(Subject, pk=pk)
+    subject.delete()
+    return redirect('admins:question')
