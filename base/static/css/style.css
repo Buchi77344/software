@@ -255,6 +255,10 @@ svg path{
     /* border-radius: inherit; */
 }
 
+.main-content-header.flex-between{
+    align-items: center;
+}
+
 .main-content-header span{
     margin-left: 20px;
     font-size : 1.2rem;
@@ -488,6 +492,33 @@ svg path{
     }
 }
 
+.download-pdf-btn{
+    padding : 10px;
+    border : 1px solid var(--main-sidebar-clr);
+    color :var(--main-sidebar-clr);
+    border-radius: 5px;
+    transition : background-color .2s ease, color .2s ease;
+}
+
+.download-pdf-btn:hover{
+    background-color: var(--main-sidebar-clr);
+    color:hsl(0, 0%, 95%)
+}
+
+.logout-link{
+    --logout-clr : rgb(185, 31, 31);
+    padding : 10px 20px;
+    border : 1px solid var(--logout-clr);
+    color :var(--logout-clr);
+    border-radius: 5px;
+    letter-spacing: 1px;
+    transition : background-color .2s ease, color .2s ease;
+}
+
+.logout-link:hover{
+    background-color: var(--logout-clr);
+    color:hsl(0, 0%, 97%)
+}
 
 .user-get-container{
     width: 85%;
