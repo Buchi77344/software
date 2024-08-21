@@ -163,7 +163,9 @@
                 <div class="main-content-header flex">
                     <span>{{userprofile.user.school_name}}</span>
                 </div>
-
+                        {% for messages in messages %}
+                        <h3>{{messages|upper}}</h3>
+                        {% endfor %}
                 <div class = "main-content-items-wrapper user_id-main">
                     <form class = "user_id-form flex-column" method="post">
                         {% csrf_token %}

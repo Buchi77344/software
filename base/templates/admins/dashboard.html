@@ -108,7 +108,7 @@
                             </div>
                         </a>
 
-                        <a href = "#" class = "menu-item">
+                        <a href = "{% url 'admins:profile' %}" class = "menu-item">
                             <div class="menu-wrapper flex gp-10">
                                 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
                                 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
@@ -134,7 +134,7 @@
                             </div>
                         </a>
 
-                        <a href = "#" class = "menu-item">
+                        <a href = "{% url 'admins:result' %}" class = "menu-item">
                             <div class="menu-wrapper flex gp-10">
                                 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
                                 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
@@ -179,17 +179,17 @@
                     <div class = "welcome-box-wrapper">
                         <div class = "stats-box box-one flex-column">
                             <h3 class = "stats-head">Number Of Students</h3>
-                            <span class = "stats-result">200</span>
+                            <span class = "stats-result">{{userid}}</span>
                         </div>
 
                         <div class = "stats-box box-two flex-column">
                             <h3 class = "stats-head">Number Of Subjects</h3>
-                            <span class = "stats-result">100</span>
+                            <span class = "stats-result">{{subject}}</span>
                         </div>
 
                         <div class = "stats-box box-three flex-column">
                             <h3 class = "stats-head">Number Of Questions</h3>
-                            <span class = "stats-result">300</span>
+                            <span class = "stats-result">{{qusetion}}</span>
                         </div>
                     </div>
                 </div>
