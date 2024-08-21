@@ -603,7 +603,7 @@ svg path{
     display: inline-block;
     width: 65px;
     height : 65px;
-    background-color: hsla(0, 0%, 97%, .5);
+    background-color: hsla(0, 0%, 97%, .3);
     animation: spin 5s infinite linear;
 }
 
@@ -629,7 +629,7 @@ svg path{
     left: 30px;
     border-left : 35px solid transparent; 
     border-right : 35px solid transparent; 
-    border-bottom : 70px solid hsla(0, 0%, 97%, .5); 
+    border-bottom : 70px solid hsla(0, 0%, 97%, .3); 
     background-color: transparent;
 }
 
