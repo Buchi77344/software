@@ -79,3 +79,15 @@ class ExamSession(models.Model):
     def get_questions(self):
         
         return Question.objects.filter(examsession=self).order_by('shuffle_order')
+    
+class Result(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    selected_answer = models.ForeignKey(Answer, on_delete=models.CASCADE, null=True, blank=True)
+    is_correct = models.BooleanField(default=False)
+    score = models.FloatField(default=0.0)
+    date_taken = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f'{self.user.username} - {self.subject.name} - {self.score}'

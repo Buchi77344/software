@@ -9,37 +9,79 @@ from django.utils import timezone
 from uuid import uuid4
 import uuid
 from datetime import datetime
-
+from django.urls import reverse
 
 @login_required(login_url='login')
 def index(request):
-    subjects = Subject.objects.all()  # Fetch all subjects
-    selected_subject = None
-    questions = None
+    subjects = Subject.objects.all()
+    selected_subject_id = request.GET.get('subject_id')
+    questions = []
     remaining_time = None
+    selected_subject = None
+
+    request.session['selected_subject_id'] = selected_subject_id
 
     if subjects.exists():
-        # Get the first subject as the default subject if no subject is selected
-        selected_subject = subjects.first()
-        # Fetch the ExamSession related to the first subject
-        exam_sessions = ExamSession.objects.filter(subject=selected_subject).order_by('shuffle_order')
-        # Extract the questions from the exam sessions
-        questions = [session.question for session in exam_sessions]
-        
-        # Shuffle questions differently based on session or random seed
-        seed = request.session.get('shuffle_seed')
-        if not seed:
-            seed = datetime.now().timestamp()  # Generate a new seed based on the current time
-            request.session['shuffle_seed'] = seed
-        
-        random.seed(seed)  # Set the seed for random shuffling
-        random.shuffle(questions)  # Shuffle the questions list
+        if selected_subject_id:
+            selected_subject = Subject.objects.get(id=selected_subject_id)
+        else:
+            selected_subject = subjects.first()
 
-        # Calculate remaining time for display (you might want to adjust this logic)
-        remaining_time = exam_sessions.first().exam_duration if exam_sessions.exists() else None
+        # Fetch ExamSession related to the selected subject and shuffle the questions
+        exam_sessions = ExamSession.objects.filter(subject=selected_subject).order_by('shuffle_order')
+        questions = [session.question for session in exam_sessions]
+
+        if request.method == 'POST':
+            results = []
+            for question in questions:
+                selected_answer_id = request.POST.get(f'question_{question.id}')
+                if selected_answer_id:
+                    selected_answer = question.answers.get(id=selected_answer_id)
+                    is_correct = selected_answer.is_correct
+                else:
+                    selected_answer = None
+                    is_correct = False
+
+                # Save result to the Result model
+                result = Result(
+                    user=request.user,
+                    subject=selected_subject,
+                    question=question,
+                    selected_answer=selected_answer,
+                    is_correct=is_correct,
+                    score=1.0 if is_correct else 0.0
+                )
+                result.save()
+
+                results.append({
+                    'question_id': question.id,
+                    'selected_answer_id': selected_answer.id if selected_answer else None,
+                    'correct': is_correct
+                })
+
+            # Redirect to the result page
+            return redirect(reverse('result') + f'?subject_id={selected_subject_id}')
+
+        # Shuffle questions
+        seed = request.session.get(f'shuffle_seed_{selected_subject.id}')
+        if not seed:
+            seed = timezone.now().timestamp()
+            request.session[f'shuffle_seed_{selected_subject.id}'] = seed
+
+        random.seed(seed)
+        random.shuffle(questions)
+
+        # Calculate remaining time for the exam
+        if exam_sessions.exists():
+            start_time = exam_sessions.first().exam_start_time
+            duration = exam_sessions.first().exam_duration
+            hours, minutes, seconds = map(int, duration.split(':'))
+            end_time = start_time + timezone.timedelta(hours=hours, minutes=minutes, seconds=seconds)
+            remaining_time = max(0, (end_time - timezone.now()).total_seconds())
 
     return render(request, 'index.html', {
         'subjects': subjects,
+        'selected_subject': selected_subject,
         'questions': questions,
         'remaining_time': remaining_time,
     })
@@ -57,7 +99,7 @@ from io import TextIOWrapper, StringIO
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import BulkUploadForm
-from .models import Question, Answer
+from .models import Question, Answer ,Result
 
 
 
@@ -66,40 +108,25 @@ from .models import Question, Answer
 
 
 
+@login_required(login_url='login')
 def result(request):
-    if request.method == 'POST':
-        questions = Question.objects.prefetch_related('answers').all()
-        total_questions = len(questions)
-        correct_answers = 0
-        user_responses = []
+    
+    # if not subject_id:
+    #     return redirect('index')  # Redirect to index if no subject_id is provided
+    
+    
+    user_results = Result.objects.filter(user=request.user)
 
-        for question in questions:
-            answer_id = request.POST.get(f'question_{question.id}')
-            selected_answer = Answer.objects.get(id=answer_id)
-
-            if selected_answer.is_correct:
-                correct_answers += 1
-
-            correct_answer = question.answers.filter(is_correct=True).first()
-
-            user_responses.append({
-                'question': question,
-                'selected_answer': selected_answer,
-                'is_correct': selected_answer.is_correct,
-                'correct_answer': correct_answer,
-            })
-
-        context = {
-            'user_responses': user_responses,
-            'correct_answers': correct_answers,
-            'total_questions': total_questions,
-        }
-        return render(request, 'result.html', context)
-
-    else:
-        return redirect('render_questions')
-
-# views.py
+    # Calculate scores
+    total_questions = user_results.count()
+    correct_answers = user_results.filter(is_correct=True).count() 
+    
+    return render(request, 'result.html', {
+      
+        'user_results': user_results,
+        'correct_answers': correct_answers,
+        'total_questions': total_questions,
+    })
 import random
 import string
 from django.shortcuts import render
