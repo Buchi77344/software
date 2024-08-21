@@ -889,10 +889,12 @@ svg path{
 }
 
 .upload-cta-form label{
-    display: block;
     font-size: 1.2rem;
     text-transform: capitalize;
+}
 
+.upload-cta-form input{
+    display: block;
 }
 
 .upload-cta-form #id_subject{
@@ -904,4 +906,13 @@ svg path{
     width: 100%;
     border: 1px solid rgba(0, 0, 0, .1);
     margin-top: 10px;
+    margin-bottom : 20px;
+}
+
+#file-upload-button{
+    display: block;
+    border : none;
+    background-color: #0ead8d;
+    padding: 12px 20px;
+    color : hsl(0, 0%, 96%)
 }
