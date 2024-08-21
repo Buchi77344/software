@@ -179,7 +179,7 @@ def upload(request):
                     save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject)
 
                 messages.success(request, "Questions and answers uploaded successfully!")
-                return redirect('/')
+                return redirect('admins:question')
 
             except Exception as e:
                 messages.error(request, f"Error processing the file: {e}")
@@ -271,7 +271,7 @@ def export_user_data_to_pdf(request):
     return response
 from django.shortcuts import render, redirect
 from base.forms import MultiSubjectQuestionSelectionForm
-from base.models import Suffle,ExamSession
+from base.models import Suffle,ExamSession , Subject
 from django.utils import timezone
 
 import uuid
@@ -310,7 +310,7 @@ def launch(request):
                     )
 
             messages.success(request, 'Exam preferences have been successfully saved.')
-            return redirect('login')  # Redirect to login to start the exam
+            return redirect('admins:launch')  # Redirect to login to start the exam
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
@@ -360,7 +360,7 @@ def question_list(request):
         'questions': questions_to_show,
     })
 
-from base.forms import SearchForm
+from base.forms import SearchForm 
 from django.db.models import Q
 def search(request):
     
@@ -379,4 +379,13 @@ def search(request):
     return render(request, 'admins/search.html', {'form': form, 'query': query, 'result': result})
 
 def question(request):
-    return render (request, 'admins/question.html')
+    subject  = Subject.objects.all()[:10]
+    context ={
+        'subject':subject
+    }
+    return render (request, 'admins/question.html',context)
+
+def delete(request, pk):
+    subject = get_object_or_404(Subject, pk=pk)
+    subject.delete()
+    return redirect('admins:question')

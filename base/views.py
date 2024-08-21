@@ -9,87 +9,17 @@ from django.utils import timezone
 from uuid import uuid4
 import uuid
 
+
 # Configure logging
 @login_required(login_url='login')
 def index(request):
-    # Retrieve or create a unique session ID for the exam
-    session_id = request.session.get('exam_session_id')
-    if not session_id:
-        session_id = str(uuid.uuid4())  # Generate a unique session ID
-        request.session['exam_session_id'] = session_id
-
-    # Retrieve or create the exam session
-    exam_session = ExamSession.objects.filter(session_id=session_id).first()
-    if not exam_session:
-        first_exam_session = ExamSession.objects.first()
-        if not first_exam_session:
-            return redirect('/')  # Redirect to homepage if no exam session is available
-
-        exam_start_time = timezone.now()
-        exam_duration = first_exam_session.exam_duration  # Format hh:mm:ss
-
-        ExamSession.objects.create(
-            session_id=session_id,
-            subject=first_exam_session.subject,
-            exam_start_time=exam_start_time,
-            exam_duration=exam_duration
-        )
-        request.session['exam_start_time'] = exam_start_time.isoformat()
-        request.session['exam_duration'] = exam_duration
-    else:
-        exam_start_time = timezone.datetime.fromisoformat(request.session['exam_start_time'])
-        exam_duration = request.session.get('exam_duration', '01:00:00')
-
-    # Calculate the elapsed time and the remaining time
-    total_seconds = (timezone.now() - exam_start_time).total_seconds()
-    hours, minutes, seconds = map(int, exam_duration.split(':'))
-    exam_duration_seconds = hours * 3600 + minutes * 60 + seconds
-    remaining_time = max(exam_duration_seconds - total_seconds, 0)
-
-    if request.method == 'POST':
-        subject_id = request.POST.get('subject_id')
-        subject = get_object_or_404(Subject, id=subject_id)
-
-        # Retrieve or create exam sessions for this subject
-        existing_sessions = ExamSession.objects.filter(session_id=session_id, subject=subject)
-
-        if not existing_sessions.exists():
-            # Shuffle and store questions if not already stored
-            subject_questions = list(Question.objects.filter(subject=subject))
-            if len(subject_questions) < 5:  # Adjust the number of questions as needed
-                return redirect('/')  # Handle error or redirect if not enough questions are available
-
-            selected_questions = random.sample(subject_questions, 5)  # Adjust the number of questions as needed
-            random.shuffle(selected_questions)
-
-            # Store the shuffled questions in the ExamSession model
-            for index, question in enumerate(selected_questions):
-                ExamSession.objects.create(
-                    session_id=session_id,
-                    subject=subject,
-                    question=question,
-                    exam_start_time=exam_start_time,
-                    exam_duration=exam_duration,
-                    shuffle_order=index
-                )
-
-        selected_questions = [session.question for session in existing_sessions]
-
-        return render(request, 'index.html', {
-            'questions': selected_questions,
-            'subject': subject,
-            'subjects': Subject.objects.all(),  # For navigation bar
-            'remaining_time': remaining_time,  # Pass remaining time to the template
-        })
+    questions =ExamSession.objects.all()
 
     return render(request, 'index.html', {
-        'subjects': Subject.objects.all(),  # For navigation bar
-        'remaining_time': remaining_time,  # Pass remaining time to the template
+        
+        'questions': questions,
     })
-# def get_next_subject(current_subject_id):
-#     subjects = Subject.objects.all()
-#     next_subject = subjects.filter(id__gt=current_subject_id).first()
-#     return next_subject
+
 import csv
 import pandas as pd
 from io import TextIOWrapper, StringIO
@@ -151,7 +81,7 @@ import random
 import string
 from django.shortcuts import render
 from .models import User
-from .models import UserID , Question
+from .models import UserID
 from .forms import UsernameForm
 from django.db import IntegrityError, transaction
 
@@ -218,4 +148,3 @@ def login(request):
 
 def userpage(request):
     return render(request, 'user-page.html')
-

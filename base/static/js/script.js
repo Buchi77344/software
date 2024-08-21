@@ -5,6 +5,32 @@ let btnSpan = document.querySelector(".submit-btn > span")
 let useridBtnSpan = document.querySelector(".user_id-submit-btn > span")
 let createInput = document.querySelectorAll(".create-acct-input")
 let useridInput = document.querySelectorAll(".user_id-input")
+let deleteOverlay = document.querySelector(".delete-overlay")
+let deleteClarityDiv = document.querySelector(".delete-clarity-div")
+let deleteBtn = document.querySelectorAll(".delete-btn")
+let clarityBtn = document.querySelectorAll(".clarity-btn-container a")
+
+Array.from(deleteBtn).forEach(el => {
+    el.onclick = function(){
+        console.log("hi there")
+        deleteOverlay.style.display = "grid"
+        setTimeout(() => {
+            deleteClarityDiv.classList.add("visible")
+        }, 100)
+    }
+})
+
+let arrayClarityBtn = Array.from(clarityBtn)
+arrayClarityBtn.forEach(el => {
+    el.onclick = function(){
+        setTimeout(() => {
+            deleteOverlay.style.display = "none"
+        }, 100)
+        deleteClarityDiv.classList.remove("visible")
+    }
+ 
+})
+
 function emptyValueLength(el_input){
     let value;
     el_input.forEach(el => {

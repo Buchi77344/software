@@ -16,4 +16,5 @@ urlpatterns = [
     path('search',views.search,name='search'),
     path('question',views.question,name='question'),
     path('export-to-excel/',views.export_user_data_to_pdf, name='export_user_data_to_pdf'),
+     path('delete/<str:pk>/', views.delete, name='delete'),
 ]
