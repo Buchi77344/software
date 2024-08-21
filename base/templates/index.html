@@ -25,21 +25,7 @@
     <div class="container">
         <h1 class="mt-5 mb-4">Computer-Based Testing Interface</h1>
 
-        <!-- Timer Display -->
-        <div id="timer">00:00:00</div>
-
-        <!-- Navigation Bar for Subjects -->
-        {% if subjects %}
-            <nav class="navbar navbar-expand-lg navbar-light bg-light">
-                <ul class="navbar-nav mr-auto">
-                    {% for subject in subjects %}
-                        <li class="nav-item">
-                            <a class="nav-link" href="?subject_id={{ subject.id }}">{{ subject.name }}</a>
-                        </li>
-                    {% endfor %}
-                </ul>
-            </nav>
-        {% endif %}
+        
 
         <!-- Question Form -->
         {% if questions %}
@@ -73,37 +59,6 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        document.addEventListener('DOMContentLoaded', function () {
-            // Get remaining time from the server
-            const remainingTime = parseFloat('{{ remaining_time }}');
-            let time = remainingTime;
-        
-            function updateCountdown() {
-                // Calculate hours, minutes, and seconds
-                const hours = Math.floor(time / 3600);
-                const minutes = Math.floor((time % 3600) / 60);
-                const seconds = Math.floor(time % 60);
-        
-                // Display the time
-                document.getElementById('timer').textContent = 
-                    `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
-        
-                // Decrement the time
-                time--;
-        
-                // Stop countdown when time reaches zero
-                if (time < 0) {
-                    clearInterval(countdownInterval);
-                    document.getElementById('timer').textContent = '00:00:00';
-                    alert('Time is up!');
-                    // Optionally, redirect or perform other actions when time is up
-                }
-            }
-        
-            // Update countdown every second
-            const countdownInterval = setInterval(updateCountdown, 1000);
-        });
-    </script>
+    
 </body>
 </html>

@@ -8,51 +8,41 @@ from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from uuid import uuid4
 import uuid
+from datetime import datetime
 
 
 @login_required(login_url='login')
 def index(request):
-    # Get the selected subject ID from the GET parameters
-    subject_id = request.GET.get('subject_id')
-    
-    if subject_id:
-        # Get the selected subject
-        subject = get_object_or_404(Subject, id=subject_id)
-        
-        # Get the user's active exam session for the selected subject
-        exam_sessions = ExamSession.objects.filter(subject=subject)
-        
-        if exam_sessions.exists():
-            # Calculate remaining time
-            current_time = timezone.now()
-            exam_session = exam_sessions.first()
-            duration_parts = exam_session.exam_duration.split(':')
-            duration_seconds = int(duration_parts[0]) * 3600 + int(duration_parts[1]) * 60 + int(duration_parts[2])
-            elapsed_time = (current_time - exam_session.exam_start_time).total_seconds()
-            remaining_time = max(duration_seconds - elapsed_time, 0)
-            
-            # Fetch and order questions by shuffle_order
-            questions = exam_session.get_questions()
-        else:
-            questions = []
-            remaining_time = 0
-    else:
-        subject = None
-        questions = []
-        remaining_time = 0
+    subjects = Subject.objects.all()  # Fetch all subjects
+    selected_subject = None
+    questions = None
+    remaining_time = None
 
-    # Fetch all subjects for the navigation bar
-    subjects = Subject.objects.all()
+    if subjects.exists():
+        # Get the first subject as the default subject if no subject is selected
+        selected_subject = subjects.first()
+        # Fetch the ExamSession related to the first subject
+        exam_sessions = ExamSession.objects.filter(subject=selected_subject).order_by('shuffle_order')
+        # Extract the questions from the exam sessions
+        questions = [session.question for session in exam_sessions]
+        
+        # Shuffle questions differently based on session or random seed
+        seed = request.session.get('shuffle_seed')
+        if not seed:
+            seed = datetime.now().timestamp()  # Generate a new seed based on the current time
+            request.session['shuffle_seed'] = seed
+        
+        random.seed(seed)  # Set the seed for random shuffling
+        random.shuffle(questions)  # Shuffle the questions list
 
-    # Render the template with context
-    context = {
+        # Calculate remaining time for display (you might want to adjust this logic)
+        remaining_time = exam_sessions.first().exam_duration if exam_sessions.exists() else None
+
+    return render(request, 'index.html', {
         'subjects': subjects,
         'questions': questions,
         'remaining_time': remaining_time,
-    }
-    
-    return render(request, 'index.html', context)
-
+    })
 import csv
 import pandas as pd
 from io import TextIOWrapper, StringIO
