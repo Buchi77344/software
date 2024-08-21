@@ -519,7 +519,6 @@ svg path{
     border-radius: 5px;
     letter-spacing: 1px;
     text-decoration: none;
-    
     transition : background-color .2s ease, color .2s ease;
 }
 
@@ -874,3 +873,35 @@ svg path{
     text-align: center;
 }
 
+.upload-cta-container{
+    background-color: hsl(0, 0%, 100%);
+    width: 50%;
+    min-width: 400px;
+    margin: 0 auto;
+    padding: 12px 30px;
+    margin-top: 20px;
+    border-radius: 10px;
+}
+
+.upload-cta-head{
+    margin-top : 0;
+    text-align: center;
+}
+
+.upload-cta-form label{
+    display: block;
+    font-size: 1.2rem;
+    text-transform: capitalize;
+
+}
+
+.upload-cta-form #id_subject{
+    padding: 5px 12px;
+    background-color: hsla(0, 0%, 92%, .5);
+    font-size: 1rem;
+    border-radius: 7px;
+    display: block;
+    width: 100%;
+    border: 1px solid rgba(0, 0, 0, .1);
+    margin-top: 10px;
+}

@@ -157,10 +157,10 @@
                 </div>
                 <div class = "upload-cta-container">
                     <h1 class="upload-cta-head">Bulk Upload Questions</h1>
-                    <form method="post" enctype="multipart/form-data">
+                    <form method="post" class = "upload-cta-form" enctype="multipart/form-data">
                         {% csrf_token %}
                         {{ form.as_p }}
-                        <button type="submit" class="btn btn-primary">Upload</button>
+                        <button type="submit" class="upload-btn">Upload</button>
                     </form>
                     {% if messages %}
                         <ul class="mt-3">
