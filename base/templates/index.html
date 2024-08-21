@@ -38,7 +38,7 @@
         </ul>
 
         <!-- Timer Display -->
-        <div id="timer">Time Left: <span id="timer-countdown">{{ remaining_time|floatformat:0 }}</span> seconds</div>
+        <div id="timer">Time Left: {{ remaining_time|floatformat:0 }} seconds</div>
 
         <!-- Question Form -->
         <form method="post" action="{% url 'index' %}?subject_id={{ selected_subject.id }}">
@@ -55,7 +55,7 @@
                             <div class="list-group">
                                 {% for answer in question.answers.all %}
                                     <label class="list-group-item">
-                                        <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" class="mr-2">
+                                        <input type="radio" name="question_{{question.id}}" value="{{ answer.id }}" class="mr-2">
                                         {{ answer.text }}
                                     </label>
                                 {% endfor %}
@@ -73,25 +73,5 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@1.16.1/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-    <script>
-        // Timer countdown functionality
-        function startTimer(duration) {
-            var timer = duration, minutes, seconds;
-            var countdownElement = document.getElementById('timer-countdown');
-            setInterval(function () {
-                minutes = parseInt(timer / 60, 10);
-                seconds = parseInt(timer % 60, 10);
-                minutes = minutes < 10 ? "0" + minutes : minutes;
-                seconds = seconds < 10 ? "0" + seconds : seconds;
-                countdownElement.textContent = minutes + ":" + seconds;
-                if (--timer < 0) {
-                    timer = 0;
-                    countdownElement.textContent = "00:00";
-                }
-            }, 1000);
-        }
-        var remainingTime = parseInt('{{ remaining_time|floatformat:0 }}', 10);
-        startTimer(remainingTime);
-    </script>
 </body>
 </html>

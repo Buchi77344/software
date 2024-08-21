@@ -277,7 +277,7 @@ def export_user_data_to_pdf(request):
     return response
 from django.shortcuts import render, redirect
 from base.forms import MultiSubjectQuestionSelectionForm
-from base.models import Suffle,ExamSession , Subject
+from base.models import Suffle,ExamSession , Subject ,Result
 from django.utils import timezone
 
 import uuid
@@ -401,4 +401,38 @@ def profile(request):
     return render (request, 'admins/profile.html')
 
 def result(request):
-    return render (request, 'admins/result.html')
+    # Get the subjects the user has taken quizzes for
+    subjects = Subject.objects.filter(result__user=request.user).distinct()
+    subjects_results = {}  # This dictionary will store results per subject
+
+    # Loop through each subject the user has taken the quiz for
+    for subject in subjects:
+        user_results = []  
+        correct_answers = 0
+        total_questions = 0
+
+        # Fetch results for this subject
+        for result in Result.objects.filter(user=request.user, subject=subject):
+            # Get the correct answer for the current question
+            correct_answer = result.question.answers.get(is_correct=True)
+
+            # Add the correct answer to the result object
+            result.correct_answer = correct_answer
+            user_results.append(result)
+
+            # Count the correct answers
+            if result.is_correct:
+                correct_answers += 1
+
+            total_questions += 1
+
+        subjects_results[subject] = {
+            'user_results': user_results,
+            'correct_answers': correct_answers,
+            'total_questions': total_questions,
+        }
+
+    context = {
+        'subjects_results': subjects_results,
+    }
+    return render(request, 'admins/result.html', context)

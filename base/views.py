@@ -18,6 +18,7 @@ def index(request):
     questions = []
     remaining_time = None
     selected_subject = None
+    user_answers = []
 
     request.session['selected_subject_id'] = selected_subject_id
 
@@ -60,7 +61,12 @@ def index(request):
                 })
 
             # Redirect to the result page
-            return redirect(reverse('result') + f'?subject_id={selected_subject_id}')
+            return redirect('result')
+
+        # Retrieve user's previous answers if they exist
+        if request.user.is_authenticated:
+            user_results = Result.objects.filter(user=request.user, subject=selected_subject)
+            user_answers = [(result.question.id, result.selected_answer.id if result.selected_answer else None) for result in user_results]
 
         # Shuffle questions
         seed = request.session.get(f'shuffle_seed_{selected_subject.id}')
@@ -84,8 +90,98 @@ def index(request):
         'selected_subject': selected_subject,
         'questions': questions,
         'remaining_time': remaining_time,
+        'user_answers': user_answers,
     })
-import csv
+@login_required(login_url='login')
+def submit_exam(request):
+    subjects = Subject.objects.all()
+    results = []
+
+    for subject in subjects:
+        exam_sessions = ExamSession.objects.filter(subject=subject)
+        questions = [session.question for session in exam_sessions]
+
+        for question in questions:
+            session_key = f'answer_{request.user.id}_{subject.id}_{question.id}'
+            selected_answer_id = request.session.get(session_key)
+
+            if selected_answer_id:
+                selected_answer = question.answers.get(id=selected_answer_id)
+                is_correct = selected_answer.is_correct
+            else:
+                selected_answer = None
+                is_correct = False
+
+            # Save or update result to the Result model
+            result, created = Result.objects.get_or_create(
+                user=request.user,
+                subject=subject,
+                question=question,
+                defaults={
+                    'selected_answer': selected_answer,
+                    'is_correct': is_correct,
+                    'score': 1.0 if is_correct else 0.0
+                }
+            )
+
+            if not created:
+                result.selected_answer = selected_answer
+                result.is_correct = is_correct
+                result.score = 1.0 if is_correct else 0.0
+                result.save()
+
+            results.append({
+                'subject': subject,
+                'question_id': question.id,
+                'selected_answer_id': selected_answer.id if selected_answer else None,
+                'correct': is_correct
+            })
+
+        # Clear the session answers after submission
+        for question in questions:
+            session_key = f'answer_{request.user.id}_{subject.id}_{question.id}'
+            if session_key in request.session:
+                del request.session[session_key]
+
+    # Redirect to the result page with a summary of results per subject
+    return redirect(reverse('result'))
+
+def result(request):
+    # Get the subjects the user has taken quizzes for
+    subjects = Subject.objects.filter(result__user=request.user).distinct()
+    subjects_results = {}  # This dictionary will store results per subject
+
+    # Loop through each subject the user has taken the quiz for
+    for subject in subjects:
+        user_results = []  
+        correct_answers = 0
+        total_questions = 0
+
+        # Fetch results for this subject
+        for result in Result.objects.filter(user=request.user, subject=subject):
+            # Get the correct answer for the current question
+            correct_answer = result.question.answers.get(is_correct=True)
+
+            # Add the correct answer to the result object
+            result.correct_answer = correct_answer
+            user_results.append(result)
+
+            # Count the correct answers
+            if result.is_correct:
+                correct_answers += 1
+
+            total_questions += 1
+
+        subjects_results[subject] = {
+            'user_results': user_results,
+            'correct_answers': correct_answers,
+            'total_questions': total_questions,
+        }
+
+    context = {
+        'subjects_results': subjects_results,
+    }
+    return render(request, 'result.html', context)
 import pandas as pd
 from io import TextIOWrapper, StringIO
 from django.shortcuts import render, redirect
@@ -108,25 +204,7 @@ from .models import Question, Answer ,Result
 
 
 
-@login_required(login_url='login')
-def result(request):
-    
-    # if not subject_id:
-    #     return redirect('index')  # Redirect to index if no subject_id is provided
-    
-    
-    user_results = Result.objects.filter(user=request.user)
 
-    # Calculate scores
-    total_questions = user_results.count()
-    correct_answers = user_results.filter(is_correct=True).count() 
-    
-    return render(request, 'result.html', {
-      
-        'user_results': user_results,
-        'correct_answers': correct_answers,
-        'total_questions': total_questions,
-    })
 import random
 import string
 from django.shortcuts import render
