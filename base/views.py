@@ -10,15 +10,48 @@ from uuid import uuid4
 import uuid
 
 
-# Configure logging
 @login_required(login_url='login')
 def index(request):
-    questions =ExamSession.objects.all()
-
-    return render(request, 'index.html', {
+    # Get the selected subject ID from the GET parameters
+    subject_id = request.GET.get('subject_id')
+    
+    if subject_id:
+        # Get the selected subject
+        subject = get_object_or_404(Subject, id=subject_id)
         
+        # Get the user's active exam session for the selected subject
+        exam_sessions = ExamSession.objects.filter(subject=subject)
+        
+        if exam_sessions.exists():
+            # Calculate remaining time
+            current_time = timezone.now()
+            exam_session = exam_sessions.first()
+            duration_parts = exam_session.exam_duration.split(':')
+            duration_seconds = int(duration_parts[0]) * 3600 + int(duration_parts[1]) * 60 + int(duration_parts[2])
+            elapsed_time = (current_time - exam_session.exam_start_time).total_seconds()
+            remaining_time = max(duration_seconds - elapsed_time, 0)
+            
+            # Fetch and order questions by shuffle_order
+            questions = exam_session.get_questions()
+        else:
+            questions = []
+            remaining_time = 0
+    else:
+        subject = None
+        questions = []
+        remaining_time = 0
+
+    # Fetch all subjects for the navigation bar
+    subjects = Subject.objects.all()
+
+    # Render the template with context
+    context = {
+        'subjects': subjects,
         'questions': questions,
-    })
+        'remaining_time': remaining_time,
+    }
+    
+    return render(request, 'index.html', context)
 
 import csv
 import pandas as pd

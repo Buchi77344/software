@@ -9,10 +9,12 @@ let deleteOverlay = document.querySelector(".delete-overlay")
 let deleteClarityDiv = document.querySelector(".delete-clarity-div")
 let deleteBtn = document.querySelectorAll(".delete-btn")
 let clarityBtn = document.querySelectorAll(".clarity-btn-container a")
+let yesbtn = document.querySelector(".Yes-btn")
 
 Array.from(deleteBtn).forEach(el => {
     el.onclick = function(){
-        console.log("hi there")
+        let delLink = this.dataset.link
+        yesbtn.href = delLink
         deleteOverlay.style.display = "grid"
         setTimeout(() => {
             deleteClarityDiv.classList.add("visible")
