@@ -8,8 +8,14 @@ from django.contrib.auth.decorators import login_required
 @login_required(login_url='admins:login')
 def dashboard(request):
     userprofile = get_object_or_404(Userprofile,user=request.user)
+    userid = UserID.objects.count()
+    subject = Subject.objects.count()
+    qusetion = Question.objects.count()
     context = {
-        'userprofile':userprofile
+        'userprofile':userprofile,
+        'userid':userid,
+        'subject':subject,
+        'qusetion':qusetion
     }
     return render (request, 'admins/dashboard.html',context)
 
@@ -83,8 +89,8 @@ def userid(request):
         username= request.POST.get('username')
         last_name = request.POST.get('last_name')
         if User.objects.filter(username=username).exists():
-            messages.error(request, 'this name has already be generated')
-            return redirect("admins:user")
+            messages.error(request, 'this Userid has already been generated before, plesase try another name')
+            return redirect("admins:userid") 
         try:
             with transaction.atomic():
                 user, created = User.objects.get_or_create(username=username, last_name=last_name)
@@ -389,3 +395,10 @@ def delete(request, pk):
     subject = get_object_or_404(Subject, pk=pk)
     subject.delete()
     return redirect('admins:question')
+
+
+def profile(request):
+    return render (request, 'admins/profile.html')
+
+def result(request):
+    return render (request, 'admins/result.html')
