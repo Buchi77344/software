@@ -981,6 +981,7 @@ svg path{
     padding: 5px 10px;
     color: var(--variant-clr);
     flex: 1;
+    text-decoration: none;
     min-width: fit-content;
     transition: background-color .2s ease, color .2s ease;
 }
