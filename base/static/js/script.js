@@ -75,3 +75,30 @@ if (useridSubmitBtn){
         startLoadingAnim(useridInput, overlay, useridBtnSpan)
     })
 }
+
+let categoryLinks = document.querySelectorAll(".category-link")
+let subjectResultDivs = document.querySelectorAll(".subject-result-div")
+Array.from(categoryLinks).forEach(link => {
+    link.addEventListener("click", (e) => {
+        categorizeProducts(e, link)
+    })
+})
+
+function categorizeProducts(e, link){
+    e.preventDefault()
+    if(link.dataset.category == "all"){
+        subjectResultDivs.forEach(el => {
+            el.classList.remove("hide")
+        })
+
+    }else{
+        subjectResultDivs.forEach(el => {
+            el.classList.add("hide")
+        })
+
+        document.querySelectorAll(`#${link.dataset.category}`).forEach(el => {
+            el.classList.remove("hide")
+        })
+        
+    }
+}

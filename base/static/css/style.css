@@ -133,12 +133,15 @@ svg path{
 }
 
 .main-sidebar{
-    /* max-width : 230px; */
-    width : 20%;
-    /* height : fit-content; */
+    min-width: 230px;
+    width: 20%;
+    height: 100vh;
     background-color: var(--main-sidebar-clr);
-    /* border-top-left-radius: var(--border-rd);
-    border-bottom-left-radius: var(--border-rd); */
+    position: sticky;
+    left: 0;
+    top: 0;
+    z-index: 99;
+    padding-top: 10px;
 }
 
 .main-content{
@@ -149,9 +152,9 @@ svg path{
     border-bottom-right-radius: var(--border-rd); */
 }
 
-.menu{
+/* .menu{
     padding-top : 15px;
-}
+} */
 
 .menu-head{
     padding-inline : 20px;
@@ -205,7 +208,7 @@ svg path{
 
 .menu-content{
     padding : 10px 0px 15px;
-    height: 550px;
+    height: 490px;
     overflow-y: auto;
 }
 
@@ -255,10 +258,14 @@ svg path{
 }
 
 .main-content-header{
-    padding : 10px 12px;
+    padding: 10px 12px;
     background-color: var(--block-clr);
     min-height: 40px;
     /* border-radius: inherit; */
+    position: sticky;
+    top: 0;
+    left: 0;
+
 }
 
 .main-content-header.flex-between{
@@ -554,7 +561,11 @@ svg path{
 }
 
 .user-get-table tbody tr:nth-child(odd){
-    background-color: hsl(0, 0%, 86%);
+    background-color: hsl(0, 0%, 88%);
+}
+
+.user-get-table tbody tr:hover{
+    background-color: hsl(0, 0%, 80%);
 }
 
 .candidate-info.flex-between{
@@ -910,9 +921,29 @@ svg path{
 }
 
 #file-upload-button{
-    display: block;
     border : none;
     background-color: #0ead8d;
     padding: 12px 20px;
-    color : hsl(0, 0%, 96%)
+    color : hsl(0, 0%, 96%);
+    appearance: none;
+    
+}
+
+.subject-div-wrapper{
+    height : 420px;
+    overflow-y : auto;
+}
+
+.subject-result-div.hide{
+    display: none;
+}
+
+.subject-result-head{
+    font-size: 1.8rem;
+    color: hsl(0, 0%, 25%);
+    margin-top : 20px;
+}
+
+.subject-result-div table{
+    margin-top: 15px;
 }
