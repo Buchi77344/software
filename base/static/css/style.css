@@ -960,6 +960,13 @@ svg path{
     letter-spacing: 1px;
 }
 
+.alert{
+    margin-top: 10px;
+    color: #202051;
+    background-color: #3b3b8040;
+    padding: 10px;
+}
+
 .category-wrapper{
     max-width : 50%;
     padding-top : 7px;
