@@ -277,7 +277,7 @@ def export_user_data_to_pdf(request):
     return response
 from django.shortcuts import render, redirect
 from base.forms import MultiSubjectQuestionSelectionForm
-from base.models import Suffle,ExamSession , Subject ,Result
+from base.models import Suffle,ExamSession , Subject ,Result ,User_result
 from django.utils import timezone
 
 import uuid
@@ -400,16 +400,23 @@ def delete(request, pk):
 def profile(request):
     return render (request, 'admins/profile.html')
 
+from django.db.models import Count, Sum, Value, IntegerField
+from django.db.models.functions import Coalesce, Cast
 def result(request):
     # Get the subjects the user has taken quizzes for
     subjects = Subject.objects.filter(result__user=request.user).distinct()
     subjects_results = {}  # This dictionary will store results per subject
 
+    # Retrieve the UserID instance for the current user
+    users =Result.objects.values('user__username', 'subject__name', 'user__last_name','user__userid__generated_id',).distinct().annotate(
+        total_answers=Count('id'),  # Total number of answers per user-subject pair
+        correct_answers=Coalesce(Sum(Cast('is_correct', IntegerField())), Value(0))  # Sum of correct answers per user-subject pair
+    ).distinct().order_by('subject__name', 'user__username') 
     # Loop through each subject the user has taken the quiz for
     for subject in subjects:
         user_results = []  
         correct_answers = 0
-        total_questions = 0
+        total_questions = 0 
 
         # Fetch results for this subject
         for result in Result.objects.filter(user=request.user, subject=subject):
@@ -432,7 +439,10 @@ def result(request):
             'total_questions': total_questions,
         }
 
+        # Create a User_result entry
+       
     context = {
+        'users':users,
         'subjects_results': subjects_results,
     }
     return render(request, 'admins/result.html', context)

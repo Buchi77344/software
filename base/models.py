@@ -39,6 +39,8 @@ class UserID(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+   
 
 
 class Userprofile(models.Model):
@@ -91,3 +93,19 @@ class Result(models.Model):
 
     def __str__(self):
         return f'{self.user.username} - {self.subject.name} - {self.score}'
+    
+
+class User_result(models.Model):
+    userid = models.ForeignKey(UserID, on_delete=models.CASCADE)
+    correct_answers = models.CharField(max_length=255, null=True,blank=True)
+    total_questions =  models.CharField(max_length=255, null=True,blank=True)
+    
+
+    def __str__(self):
+        return self.user.username
+def save_user_model(sender ,instance,created,**kwargs):
+    if created:
+          User_result.objects.create(userid=instance)
+  
+
+post_save.connect(save_user_model, sender=UserID ) 

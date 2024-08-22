@@ -75,3 +75,31 @@ if (useridSubmitBtn){
         startLoadingAnim(useridInput, overlay, useridBtnSpan)
     })
 }
+
+
+//Script to sort Results by Category of Subjects
+let categoryLinks = document.querySelectorAll(".category-link")
+let subjectResultDivs = document.querySelectorAll(".subject-result-div")
+Array.from(categoryLinks).forEach(link => {
+    link.addEventListener("click", (e) => {
+        categorizeProducts(e, link)
+    })
+})
+
+function categorizeProducts(e, link){
+    e.preventDefault()
+    if(link.dataset.category == "all"){
+        subjectResultDivs.forEach(el => {
+            el.classList.remove("hide")
+        })
+
+    }else{
+        subjectResultDivs.forEach(el => {
+            if(link.dataset.category == el.dataset.select){
+                el.classList.remove("hide")
+            }else{
+                el.classList.add("hide")
+            }
+        })  
+    }
+}
