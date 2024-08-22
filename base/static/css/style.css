@@ -938,11 +938,13 @@ svg path{
 #id_file{
     display: inline-block;
     padding: 8px 17px;
-    width: 120px;
+    width: 140px;
     background-color: var(--main-sidebar-clr);
-    color: hsla(0, 0%, 97%, 1);
+    color: hsla(0, 0%, 100%, 1);
     border-radius: 10px;
+    font-size: 1rem;
     margin-left: 12px;
+    cursor: pointer;
 }
 
 #id_file::file-selector-button{
