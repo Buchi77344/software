@@ -153,20 +153,23 @@
                     <span>{{userprofile.user.school_name}}</span>
                     <a class = "logout-link" href="{% url 'admins:logout' %}">Logout</a>
                 </div>
-                <div class = "upload-cta-container">
-                    <h1 class="upload-cta-head">Bulk Upload Questions</h1>
-                    <form method="post" class = "upload-cta-form" enctype="multipart/form-data">
-                        {% csrf_token %}
-                        {{ form.as_p }}
-                        <button type="submit" class="upload-btn">Upload</button>
-                    </form>
-                    {% if messages %}
-                        <ul class="mt-3">
-                            {% for message in messages %}
-                                <li class="alert alert-info">{{ message }}</li>
-                            {% endfor %}
-                        </ul>
-                    {% endif %}
+
+                <div class = "upload-cta-wrapper flex-center">
+                    <div class = "upload-cta-container flex-column">
+                        <h1 class="upload-cta-head">Bulk Upload Questions</h1>
+                        <form method="post" class = "upload-cta-form flex-column" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ form.as_p }}
+                            <button type="submit" class="upload-btn">Upload</button>
+                        </form>
+                        {% if messages %}
+                            <ul class="mt-3">
+                                {% for message in messages %}
+                                    <li class="alert alert-info">{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
