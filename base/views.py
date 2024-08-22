@@ -61,7 +61,7 @@ def index(request):
                 })
 
             # Redirect to the result page
-            return redirect('result')
+            return redirect('login')
 
         # Retrieve user's previous answers if they exist
         if request.user.is_authenticated:

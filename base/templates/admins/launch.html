@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel = "stylesheet" href = "{% static 'css/style.css' %}"/>
-    <script src = "{% static 'script.js' %}" defer></script>
+    <script src = "{% static 'js/script.js' %}" defer></script>
     <title>Dashboard</title>
 </head>
 <body>
@@ -150,35 +150,20 @@
             </div>
 
             <div class = "main-content">
-                <div class="main-content-header flex">
+                <div class="main-content-header flex-between">
                     <span>{{userprofile.user.school_name}}</span>
+                    <a class = "logout-link" href="{% url 'admins:logout' %}">Logout</a>
                 </div>
-                <div class = "main-content-items-wrapper flex gp-15">
-
-                    {% load static %}
-                    <!DOCTYPE html>
-                    <html lang="en">
-                    <head>
-                        <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <link rel="stylesheet" href="{% static 'bootstrap/css/bootstrap.min.css' %}">
-                        <title>Select Questions</title>
-                    </head>
-                    <body>
-                    <div class="container mt-5">
-                        <h2>Select Questions</h2>
-                        <form method="post"action="{% url 'admins:launch' %}">
+                
+                <div class="launch-form-wrapper">
+                    <div class ="launch-form-container">
+                        <h2 class = "launch-form-container-head">Select Questions</h2>
+                        <form class = "launch-form" method="post"action="{% url 'admins:launch' %}">
                             {% csrf_token %}
                             {{ form.as_p }}
-                            <button type="submit">Submit</button>
+                            <button class = "launch-form-btn" type="submit">Submit</button>
                         </form>
                     </div>
-                    <script src="{% static 'bootstrap/js/bootstrap.bundle.min.js' %}"></script>
-                    </body>
-                    </html>
-                    
-
-
                 </div>
             </div>
         </div>

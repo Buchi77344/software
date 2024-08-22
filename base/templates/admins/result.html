@@ -197,20 +197,20 @@
                     <div class="candidate-info flex-between">
                         <h2>Candidates Result</h2>
                         
-                        <div class = "category-wrapper">
+                        <div class = "category-wrapper flex-scroll">
                             <a data-category = "all" class="category-link" href = "">All</a>
-                            {% for users in users %}
-                            <a data-category = "{{ users.subject__name }}" class="category-link" href = "">{{ users.subject__name|upper }}</a>
+                            {% for subject_name, results in subject_results.items %}
+                            <a data-category = "{{ subject_name }}" class="category-link" href = ""> {{ subject_name }}</a>
                             {% endfor %}
                             
                         </div>
                     </div>
 
                     <div class = "subject-div-wrapper">
-                        {% for users in users %}
-                        <div data-select = "{{ users.subject__name }}" class = "subject-result-div">
-                            <h3 class = "subject-result-head">{{ users.subject__name|upper }}</h3>
-                            <table class="user-get-table">
+                        {% for subject_name, results in subject_results.items %}
+                        <div data-select = "{{ subject_name }}" class = "subject-result-div">
+                            <h3 class = "subject-result-head">{{ subject_name }}</h3>
+                            <table class="user-get-table table">
                                 <thead class="thead">
                                     <tr>
                                         <th scope="col">First Name</th>
@@ -220,14 +220,14 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                   
+                                    {% for result in results %}
                                     <tr>
-                                        <td>{{ users.user__username }}</td>
-                                        <td>{{ users.user__last_name }}</td>
-                                        <td>{{ users.user__userid__generated_id }}</td>
-                                        <td>{{ users.correct_answers|yesno:"1,0,0"|default:0 }} /{{ users.total_answers }}</td>
+                                        <td>{{ result.first_name }}</td>
+                                        <td>{{ result.last_name }}</td>
+                                        <td>{{ result.user_id }}</td>
+                                        <td><span class = "bool-score-span">{{ result.score }}</span></td>
                                     </tr>
-                                  
+                                    {% endfor %}
                                 </tbody>
                             </table>
                         </div>
@@ -238,6 +238,19 @@
         </div>
     </div>
 
+    <script>
+        let boolScoreSpan = document.querySelectorAll(".bool-score-span")
+        boolScoreSpan.forEach(el => {
+            let boolTextContent = el.textContent
+            console.log(boolTextContent)
+            if(boolTextContent.includes("True")){
+                el.textContent = boolTextContent.replace("True", "1")  
+            }
 
+            if(boolTextContent.includes("False")){
+                el.textContent = boolTextContent.replace("False", "0")
+            }
+        })
+    </script>
 </body>
 </html>
