@@ -39,7 +39,7 @@
 
         <!-- Timer Display -->
         <div id="timer">Time Left: {{ remaining_time|floatformat:0 }} seconds</div>
-
+           <h2>{{ selected_subject.name }} {{ total_questions }} {{userprofile.user.username}}</h2>
         <!-- Question Form -->
         <form method="post" action="{% url 'index' %}?subject_id={{ selected_subject.id }}">
             {% csrf_token %}
@@ -54,11 +54,11 @@
                             {% endif %}
                             <div class="list-group">
                                 {% for answer in question.answers.all %}
-                                    <label class="list-group-item">
-                                        <input type="radio" name="question_{{question.id}}" value="{{ answer.id }}" class="mr-2">
-                                        {{ answer.text }}
-                                    </label>
-                                {% endfor %}
+                                <li>
+                                    <input type="radio" name="question_{{ question.id }}" id="answer_{{ answer.id }}" value="{{ answer.id }}">
+                                    <label for="answer_{{ answer.id }}">{{ answer.text }}</label>
+                                </li>
+                            {% endfor %}
                             </div>
                         </div>
                     </div>
