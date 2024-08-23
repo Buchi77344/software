@@ -331,6 +331,7 @@ svg path{
     place-items: center;
     color: var(--q-selected-btn-clr);
     border-radius: 5px;
+    cursor: pointer;
 }
 
 .question-number.answered{
@@ -347,6 +348,7 @@ svg path{
 
 .question-section.flex-column{
     justify-content: flex-start;
+    align-items: flex-start;
 }
 
 .question-section::-webkit-scrollbar,
@@ -360,6 +362,11 @@ svg path{
     padding : 12px 15px;
     border-radius: 10px;
     font-weight: 500;
+    display: none;
+}
+
+.question-box.visible{
+    display: block;
 }
 
 .question-box-head{
@@ -436,6 +443,14 @@ svg path{
 
 .answer-submit-btn:hover{
     background-color: var(--darker-variant-clr);
+}
+
+.user-question-btn-container{
+    width : 100%;
+}
+
+.user-question-btn-container.flex-between{
+    align-items: center;
 }
 
 .user_id-main{

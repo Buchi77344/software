@@ -104,4 +104,79 @@ function categorizeProducts(e, link){
     }
 }
 
+//Script to show answered questions
+let questionBoxes = document.querySelectorAll(".question-box")
+let questionNumbers = document.querySelectorAll(".question-number")
+let smallBoxHead = document.querySelectorAll(".question-box .small-box-head")
+let currentPage = 1;
+const itemsPerPage = 5;
+
+questionBoxes.forEach((box, index) => {
+    box.onchange = () => {
+        questionNumbers[index].classList.add("answered")
+    }
+
+    smallBoxHead.forEach((el, index) => {
+        el.textContent = `Question ${index + 1}`
+    })
+
+})
+
+function displayItems(container, itemsPerPage, page) {
+    const start = (page - 1) * itemsPerPage;
+    const end = start + itemsPerPage;
+  
+    container.querySelectorAll(".question-box").forEach((item, index) => {
+      if (index >= start && index < end) {
+        item.style.display = "block";
+      } else {
+        item.style.display = "none";
+      }
+    });
+  
+    document.getElementById("current-page").textContent = `Page ${page}`;
+}
+
+function updatePagination() {
+    const container = document.querySelector(".question-section");
+    displayItems(container, itemsPerPage, currentPage);
+  
+    const pageCount = Math.ceil(questionBoxes.length / itemsPerPage);
+    document.getElementById("pag-prev").disabled = currentPage === 1;
+    document.getElementById("pag-next").disabled = currentPage === pageCount;
+}
+
+updatePagination();
+
+document.getElementById("pag-prev").addEventListener("click", function () {
+  if (currentPage > 1) {
+    currentPage--;
+    updatePagination();
+  }
+});
+
+document.getElementById("pag-next").addEventListener("click", function () {
+  const pageCount = Math.ceil(questionBoxes.length / itemsPerPage);
+  if (currentPage < pageCount) {
+    currentPage++;
+    updatePagination();
+  }
+});
+
+questionNumbers.forEach((el, index) => {
+    el.addEventListener("click", () => {
+        console.log(index)
+        currentPage = Math.ceil((index + 1) / itemsPerPage);
+        updatePagination();
+
+        // Scroll to the specific item
+        const targetItem = document.querySelectorAll(".question-box")[index];
+        targetItem.scrollIntoView({ behavior: "smooth" });
+    })
+
+})
+
+
+
+
 
