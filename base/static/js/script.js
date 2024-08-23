@@ -76,6 +76,8 @@ if (useridSubmitBtn){
     })
 }
 
+
+//Script to sort Results by Category of Subjects
 let categoryLinks = document.querySelectorAll(".category-link")
 let subjectResultDivs = document.querySelectorAll(".subject-result-div")
 Array.from(categoryLinks).forEach(link => {
@@ -93,13 +95,12 @@ function categorizeProducts(e, link){
 
     }else{
         subjectResultDivs.forEach(el => {
-            el.classList.add("hide")
-        })
-
-        document.querySelectorAll(`#${link.dataset.category}`).forEach(el => {
-            el.classList.remove("hide")
-        })
-        
+            if(link.dataset.category == el.dataset.select){
+                el.classList.remove("hide")
+            }else{
+                el.classList.add("hide")
+            }
+        })  
     }
 }
 

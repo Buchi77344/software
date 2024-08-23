@@ -158,8 +158,9 @@
                 </div>
             </div>
             <div class = "main-content">
-                <div class="main-content-header flex">
-                    <span>{{userprofile.user.school_name|upper}}</span>
+                <div class="main-content-header flex-between">
+                    <span>{{userprofile.user.school_name}}</span>
+                    <a class = "logout-link" href="{% url 'admins:logout' %}">Logout</a>
                 </div>
 
                 <div class = "question-pdf-box-wrapper flex-wrap">

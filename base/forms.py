@@ -23,6 +23,7 @@ class MultiSubjectQuestionSelectionForm(forms.Form):
         queryset=Subject.objects.all(),
         widget=forms.CheckboxSelectMultiple,
         label='Select Subjects'
+        
     )
     exam_duration = forms.CharField(
         max_length=8,

@@ -1051,3 +1051,25 @@ svg path{
 .subject-result-div table{
     margin-top: 15px;
 }
+
+.launch-form-wrapper{
+    height : calc(100vh - 60px);
+    display : flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.launch-form-container{
+    max-width: 700px;
+    width: 90%;
+}
+
+.launch-form-container-head{
+    font-size : 2.5rem;
+    text-align : center;
+    margin-top : 5px; 
+}
+
+.launch-form p:nth-of-type(1) label{
+    font-size : 1.2rem;
+}

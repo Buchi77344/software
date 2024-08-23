@@ -192,9 +192,10 @@ def upload(request):
                 return redirect('admins:upload')
 
     else:
+        userprofile = get_object_or_404(Userprofile,user=request.user)
         form = BulkUploadForm()
 
-    return render(request, 'admins/upload.html', {'form': form})
+    return render(request, 'admins/upload.html', {'form': form,'userprofile':userprofile})
 
 def save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject):
     question, created = Question.objects.get_or_create(text=question_text, subject=subject)
@@ -241,7 +242,7 @@ def save_image(image_stream):
 def user(request):
     userprofile = get_object_or_404(Userprofile,user=request.user)
     
-    user_id = UserID.objects.all()[:10]
+    user_id = UserID.objects.all()
     context = {
         'userprofile':userprofile,   
         "user_id":user_id
@@ -277,7 +278,7 @@ def export_user_data_to_pdf(request):
     return response
 from django.shortcuts import render, redirect
 from base.forms import MultiSubjectQuestionSelectionForm
-from base.models import Suffle,ExamSession , Subject
+from base.models import Suffle,ExamSession , Subject ,Result ,User_result
 from django.utils import timezone
 
 import uuid
@@ -320,9 +321,11 @@ def launch(request):
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
+        userprofile = get_object_or_404(Userprofile, user=request.user)
         form = MultiSubjectQuestionSelectionForm()
 
-    return render(request, 'admins/launch.html', {'form': form})
+
+    return render(request, 'admins/launch.html', {'form': form,'userprofile':userprofile})
 def logout(request):
     auth.logout(request)
     return redirect('admins:login')
@@ -385,9 +388,11 @@ def search(request):
     return render(request, 'admins/search.html', {'form': form, 'query': query, 'result': result})
 
 def question(request):
+    userprofile = get_object_or_404(Userprofile,user=request.user)
     subject  = Subject.objects.all()[:10]
     context ={
-        'subject':subject
+        'subject':subject,
+        'userprofile':userprofile
     }
     return render (request, 'admins/question.html',context)
 
@@ -398,7 +403,84 @@ def delete(request, pk):
 
 
 def profile(request):
-    return render (request, 'admins/profile.html')
+    userprofile = get_object_or_404(Userprofile,user=request.user)
+    context ={ 
+       
+        'userprofile':userprofile
+    }
+    return render (request, 'admins/profile.html',context)
 
+from django.db.models import Count, Sum
 def result(request):
-    return render (request, 'admins/result.html')
+    userprofile = get_object_or_404(Userprofile,user=request.user)
+    # Get the subjects the user has taken quizzes for 
+    subjects = Subject.objects.all()  # Get all subjects from the database
+    subject_results = {}
+
+    # Loop through each subject and get the results
+    for subject in subjects:
+        users = Result.objects.filter(subject__name=subject.name).values(
+            'user__username', 
+            'user__last_name',
+            'user__userid__generated_id'
+        ).annotate(
+            total_answers=Count('id'),  # Total number of answers per user for the subject
+            correct_answers=Sum('is_correct')  # Sum of correct answers per user for the subject
+        ).distinct()
+
+        # Prepare the results for each subject
+        results = []
+        for user in users:
+            total_answers = user['total_answers']
+            correct_answers = user['correct_answers']
+            score = f"{correct_answers}/{total_answers}"  # Format the score as 'correct/total'
+            
+            results.append({
+                'first_name': user['user__username'],
+                'last_name': user['user__last_name'],
+                'user_id': user['user__userid__generated_id'],
+                'score': score
+            })
+        
+        # Store the results in a dictionary with the subject name as the key
+        subject_results[subject.name] = results
+
+    context = {
+        'subject_results': subject_results,
+        'userprofile':userprofile
+    }
+    # Loop through each subject the user has taken the quiz for
+    # for subject in subjects:
+    #     user_results = []  
+    #     correct_answers = 0
+    #     total_questions = 0 
+
+    #     # Fetch results for this subject
+    #     for result in Result.objects.filter(user=request.user, subject=subject):
+    #         # Get the correct answer for the current question
+    #         correct_answer = result.question.answers.get(is_correct=True)
+
+    #         # Add the correct answer to the result object
+    #         result.correct_answer = correct_answer
+    #         user_results.append(result)
+
+    #         # Count the correct answers
+    #         if result.is_correct:
+    #             correct_answers += 1
+
+    #         total_questions += 1
+
+    #     subjects_results[subject] = {
+    #         'user_results': user_results,
+    #         'correct_answers': correct_answers,
+    #         'total_questions': total_questions,
+    #     }
+
+    #     # Create a User_result entry
+       
+    # context = {
+    #     'users':users,
+    #     'subjects_results': subjects_results,
+    #     'userprofile':userprofile,
+    # }
+    return render(request, 'admins/result.html', context)

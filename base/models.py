@@ -39,6 +39,8 @@ class UserID(models.Model):
 
     def __str__(self):
         return self.user.username
+    
+   
 
 
 class Userprofile(models.Model):
@@ -79,3 +81,31 @@ class ExamSession(models.Model):
     def get_questions(self):
         
         return Question.objects.filter(examsession=self).order_by('shuffle_order')
+    
+class Result(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    selected_answer = models.ForeignKey(Answer, on_delete=models.CASCADE, null=True, blank=True)
+    is_correct = models.BooleanField(default=False)
+    score = models.FloatField(default=0.0)
+    date_taken = models.DateTimeField(default=timezone.now)
+
+    def __str__(self):
+        return f'{self.user.username} - {self.subject.name} - {self.score}'
+    
+
+class User_result(models.Model):
+    userid = models.ForeignKey(UserID, on_delete=models.CASCADE)
+    correct_answers = models.CharField(max_length=255, null=True,blank=True)
+    total_questions =  models.CharField(max_length=255, null=True,blank=True)
+    
+
+    def __str__(self):
+        return self.user.username
+def save_user_model(sender ,instance,created,**kwargs):
+    if created:
+          User_result.objects.create(userid=instance)
+  
+
+post_save.connect(save_user_model, sender=UserID ) 
