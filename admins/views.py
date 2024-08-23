@@ -141,6 +141,7 @@ from PIL import Image
 import os
 import time
 
+@login_required(login_url='login')
 def upload(request):
     if request.method == 'POST':
         form = BulkUploadForm(request.POST, request.FILES)
@@ -148,41 +149,24 @@ def upload(request):
             subject_text = form.cleaned_data['subject']
             file = request.FILES['file']
 
+            if not file.name.endswith('.docx'):
+                messages.error(request, 'Please upload a DOCX file.')
+                return redirect('admins:upload')
+
             try:
-                if not file.name.endswith('.docx'):
-                    messages.error(request, 'Please upload a DOCX file.')
-                    return redirect('admins:upload')
-
                 document = Document(file)
-                question_text = None
-                options = []
-                correct_option = None
-                diagram_image_path = None
-
                 subject, created = Subject.objects.get_or_create(name=subject_text)
-
-                for para in document.paragraphs:
-                    text = para.text.strip()
-
-                    if text.startswith("Q:"):
-                        if question_text:
-                            save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject)
-                            options = []
-                            diagram_image_path = None  # Clear the diagram after saving the question
-
-                        question_text = text.replace("Q:", "").strip()
-
-                    elif text.startswith("Correct:"):
-                        correct_option = text.replace("Correct:", "").strip()
-
-                    elif text.startswith("A.") or text.startswith("B.") or text.startswith("C.") or text.startswith("D."):
-                        options.append(text.strip())
-
-                    elif text.startswith("DA:"):
-                        diagram_image_path = extract_and_save_diagram(document)  # Extract a new diagram for the current question
-
-                if question_text:
-                    save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject)
+                questions_data = parse_document(document)
+                
+                with transaction.atomic():
+                    for question_data in questions_data:
+                        save_question_and_answers(
+                            question_text=question_data['question_text'],
+                            options=question_data['options'],
+                            correct_option=question_data['correct_option'],
+                            diagram_image_path=question_data['diagram_image_path'],
+                            subject=subject
+                        )
 
                 messages.success(request, "Questions and answers uploaded successfully!")
                 return redirect('admins:question')
@@ -192,10 +176,53 @@ def upload(request):
                 return redirect('admins:upload')
 
     else:
-        userprofile = get_object_or_404(Userprofile,user=request.user)
+        userprofile = get_object_or_404(Userprofile, user=request.user)
         form = BulkUploadForm()
 
-    return render(request, 'admins/upload.html', {'form': form,'userprofile':userprofile})
+    return render(request, 'admins/upload.html', {'form': form, 'userprofile': userprofile})
+
+def parse_document(document):
+    questions_data = []
+    question_text = None
+    options = []
+    correct_option = None
+    diagram_image_path = None
+
+    for para in document.paragraphs:
+        text = para.text.strip()
+
+        if text.startswith("Q:"):
+            if question_text:
+                questions_data.append({
+                    'question_text': question_text,
+                    'options': options,
+                    'correct_option': correct_option,
+                    'diagram_image_path': diagram_image_path
+                })
+                options = []
+                diagram_image_path = None  # Reset diagram for the next question
+
+            question_text = text.replace("Q:", "").strip()
+
+        elif text.startswith("Correct:"):
+            correct_option = text.replace("Correct:", "").strip()
+
+        elif text.startswith(("A.", "B.", "C.", "D.")):
+            options.append(text.strip())
+
+        elif text.startswith("DA:"):
+            diagram_image_path = extract_and_save_diagram(document)  # Extract a new diagram for the current question
+
+    # Add the last question if any
+    if question_text:
+        questions_data.append({
+            'question_text': question_text,
+            'options': options,
+            'correct_option': correct_option,
+            'diagram_image_path': diagram_image_path
+        })
+
+    return questions_data
 
 def save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject):
     question, created = Question.objects.get_or_create(text=question_text, subject=subject)
@@ -205,7 +232,7 @@ def save_question_and_answers(question_text, options, correct_option, diagram_im
         question.save()
 
     for option_text in options:
-        is_correct = (option_text.startswith(correct_option))
+        is_correct = option_text.startswith(correct_option)
         Answer.objects.create(question=question, text=option_text, is_correct=is_correct)
 
 def extract_and_save_diagram(document):
@@ -218,8 +245,6 @@ def extract_and_save_diagram(document):
             image_filename = save_image(image_stream)
             images.append(f'questions/diagrams/{image_filename}')
 
-    # If no images found, attempt to extract shapes (they might be stored as images)
-    # Note: Shapes extraction is complex and may need manual adjustments
     for shape in document.inline_shapes:
         if shape.type == 3:  # Shape type 3 means Picture
             image_stream = BytesIO(shape.image.blob)
@@ -233,7 +258,7 @@ def save_image(image_stream):
     image_filename = f'diagram_{int(time.time())}.png'
     image_path = os.path.join('media', 'questions', 'diagrams', image_filename)
     os.makedirs(os.path.dirname(image_path), exist_ok=True)
-    
+
     # Save the image
     image.save(image_path, format='PNG')
 
@@ -285,6 +310,7 @@ import uuid
 
 @login_required(login_url='login')
 def launch(request):
+    userprofile=get_object_or_404(Userprofile, user=request.user)
     if request.method == 'POST':
         form = MultiSubjectQuestionSelectionForm(request.POST)
         if form.is_valid():
@@ -312,7 +338,7 @@ def launch(request):
                         subject=subject,
                         question=question,
                         exam_start_time=timezone.now(),
-                        exam_duration=exam_duration,
+                        exam_duration=exam_duration, 
                         shuffle_order=index + 1  # Adjust to start from 1 instead of 0
                     )
 
@@ -321,7 +347,6 @@ def launch(request):
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
-        userprofile = get_object_or_404(Userprofile, user=request.user)
         form = MultiSubjectQuestionSelectionForm()
 
 

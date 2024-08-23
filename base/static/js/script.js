@@ -111,75 +111,111 @@ let smallBoxHead = document.querySelectorAll(".question-box .small-box-head")
 let currentPage = 1;
 const itemsPerPage = 5;
 
-questionBoxes.forEach((box, index) => {
-    box.onchange = () => {
-        questionNumbers[index].classList.add("answered")
-    }
-
-    smallBoxHead.forEach((el, index) => {
-        el.textContent = `Question ${index + 1}`
+if(document.querySelector(".user-question-btn-container")){
+    questionBoxes.forEach((box, index) => {
+        box.onchange = () => {
+            questionNumbers[index].classList.add("answered")
+        }
+    
+        smallBoxHead.forEach((el, index) => {
+            el.textContent = `Question ${index + 1}`
+        })
+    
     })
-
-})
-
-function displayItems(container, itemsPerPage, page) {
-    const start = (page - 1) * itemsPerPage;
-    const end = start + itemsPerPage;
-  
-    container.querySelectorAll(".question-box").forEach((item, index) => {
-      if (index >= start && index < end) {
-        item.style.display = "block";
-      } else {
-        item.style.display = "none";
+    
+    
+    if(questionBoxes.length == 0){
+        if (document.querySelector(".user-question-btn-container")){
+            document.querySelector(".user-question-btn-container").style.display = "none"
+            document.querySelector(".no-questions").style.display = "block"
+        }
+    }
+    
+    function displayItems(container, itemsPerPage, page) {
+        const start = (page - 1) * itemsPerPage;
+        const end = start + itemsPerPage;
+      
+        container.querySelectorAll(".question-box").forEach((item, index) => {
+          if (index >= start && index < end) {
+            item.style.display = "block";
+          } else {
+            item.style.display = "none";
+          }
+        });
+      
+        document.getElementById("current-page").textContent = `Page ${page}`;
+    }
+    
+    function updatePagination() {
+        const container = document.querySelector(".question-section");
+        displayItems(container, itemsPerPage, currentPage);
+      
+        const pageCount = Math.ceil(questionBoxes.length / itemsPerPage);
+        document.getElementById("pag-prev").disabled = currentPage === 1;
+        document.getElementById("pag-next").disabled = currentPage === pageCount;
+    }
+    
+    updatePagination();
+    
+    document.getElementById("pag-prev").addEventListener("click", function () {
+      if (currentPage > 1) {
+        currentPage--;
+        updatePagination();
       }
     });
   
-    document.getElementById("current-page").textContent = `Page ${page}`;
-}
+    document.getElementById("current-page").textContent = `Page ${currentPage}`;
 
-function updatePagination() {
-    const container = document.querySelector(".question-section");
-    displayItems(container, itemsPerPage, currentPage);
-  
-    const pageCount = Math.ceil(questionBoxes.length / itemsPerPage);
-    document.getElementById("pag-prev").disabled = currentPage === 1;
-    document.getElementById("pag-next").disabled = currentPage === pageCount;
-}
-
-updatePagination();
-
-document.getElementById("pag-prev").addEventListener("click", function () {
-  if (currentPage > 1) {
-    currentPage--;
-    updatePagination();
-  }
-});
-
-document.getElementById("pag-next").addEventListener("click", function () {
-  const pageCount = Math.ceil(questionBoxes.length / itemsPerPage);
-  if (currentPage < pageCount) {
-    currentPage++;
-    updatePagination();
-  }
-});
-
-questionNumbers.forEach((el, index) => {
-    el.addEventListener("click", () => {
-        currentPage = Math.ceil((index + 1) / itemsPerPage);
-        updatePagination();
-
-        // Scroll to the specific item
+    function updatePagination() {
+        const container = document.querySelector(".question-section");
+        displayItems(container, itemsPerPage, currentPage);
+      
         const pageCount = Math.ceil(questionBoxes.length / itemsPerPage);
-        let targetIndex = index > questionBoxes.length ? (index - 1) : index
-        console.log(questionBoxes.length)
-        console.log(pageCount)
-        const targetItem = document.querySelectorAll(".question-box")[targetIndex];
-        targetItem.scrollIntoView({ behavior: "smooth" });
+        document.getElementById("pag-prev").disabled = currentPage === 1;
+        document.getElementById("pag-next").disabled = currentPage === pageCount;
+    }
+    
+    updatePagination();
+    
+    document.getElementById("pag-prev").addEventListener("click", function () {
+      if (currentPage > 1) {
+        currentPage--;
+        updatePagination();
+      }
+    });
+    
+    document.getElementById("pag-next").addEventListener("click", function () {
+      const pageCount = Math.ceil(questionBoxes.length / itemsPerPage);
+      if (currentPage < pageCount) {
+        currentPage++;
+        updatePagination();
+      }
+    });
+    
+    questionNumbers.forEach((el, index) => {
+        el.addEventListener("click", () => {
+            currentPage = Math.ceil((index + 1) / itemsPerPage);
+            updatePagination();
+    
+            // Scroll to the specific item
+            const pageCount = Math.ceil(questionBoxes.length / itemsPerPage);
+            let targetIndex = index > questionBoxes.length ? (index - 1) : index
+            console.log(questionBoxes.length)
+            console.log(pageCount)
+            const targetItem = document.querySelectorAll(".question-box")[targetIndex];
+            targetItem.scrollIntoView({ behavior: "smooth" });
+        })
     })
+    
+    if(document.querySelector(".user-login-error-message")){
+        let errorMessage = document.querySelector(".user-login-error-message")
+        console.log(errorMessage)
+        if(errorMessage.textContent != ""){
+            setTimeout(() => {
+                errorMessage.style.display = "none"
+            }, 5000)
+        }
+    }
 
-})
-
-
-
-
+}    
 
