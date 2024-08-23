@@ -200,11 +200,11 @@ if(document.querySelector(".user-question-btn-container")){
             // Scroll to the specific item
             const pageCount = Math.ceil(questionBoxes.length / itemsPerPage);
             let targetIndex = index > questionBoxes.length ? (index - 1) : index
-            console.log(questionBoxes.length)
-            console.log(pageCount)
             const targetItem = document.querySelectorAll(".question-box")[targetIndex];
             targetItem.scrollIntoView({ behavior: "smooth" });
         })
+
+        
     })
     
     if(document.querySelector(".user-login-error-message")){
@@ -218,4 +218,63 @@ if(document.querySelector(".user-question-btn-container")){
     }
 
 }    
+
+//Script to highlight questions and add keyboard shortcuts
+
+let currentQuestion = 0
+let questionsLength = questionBoxes.length
+let optionKeys = ['a', 'b', 'c', 'd']
+function highlightQuestion(index){
+    questionBoxes.forEach((el, i) =>{
+        el.classList.toggle("highlight", i === index)
+    })
+}
+
+function selectOption(optionKey){
+    let optionIndex = optionKeys.indexOf(optionKey)
+    if(optionIndex == -1) return;
+    let currentOption = questionBoxes[currentQuestion].querySelectorAll('.check-answer')
+    currentOption.forEach((el, index) => {
+        el.parentElement.classList.remove("selected")
+        if(index == optionIndex){
+            el.parentElement.classList.add("selected")
+        }
+    })
+}
+
+function nextQuestion(){
+    if(currentQuestion < (questionsLength - 1)){
+        currentQuestion++
+    }
+    
+    const pageCount = Math.ceil(questionBoxes.length / itemsPerPage);
+    currentPage++;
+    updatePagination();
+    highlightQuestion(currentQuestion)
+}
+
+function prevQuestion(){
+    if(currentQuestion > 0){
+        currentQuestion--
+    }
+    highlightQuestion(currentQuestion)
+}
+
+document.addEventListener("keydown", (e) => {
+
+    highlightQuestion(currentQuestion)
+    let key = e.key.toLowerCase()
+    if(optionKeys.includes(key)){
+        selectOption(key)
+    }else if(key == "n" || key == "N"){
+        nextQuestion()
+  
+    }else if(key == "r" || key == "R"){
+        prevQuestion()
+    }else if(key == "s" || key == "S"){
+        document.querySelector(".answer-submit-btn").click()
+    }
+
+    
+})
 

@@ -370,6 +370,10 @@ svg path{
     display: none;
 }
 
+.question-box.highlight{
+    border: 1px solid var(--q-selected-btn-clr);
+}
+
 .question-box.visible{
     display: block;
 }
@@ -405,6 +409,10 @@ svg path{
     gap: 7px;
 }
 
+.answer-item.selected{
+    border: 1px solid black;
+}
+
 .answer-item input{
     appearance: none;
     -webkit-appearance: none;
@@ -418,13 +426,15 @@ svg path{
     cursor: pointer;
 }
 
-.answer-item input:checked{
+.answer-item input:checked,
+.answer-item.selected input{
     background-color: blue;
     border: none;
     position: relative;
 }
 
-.answer-item input:checked::after{
+.answer-item input:checked::after,
+.answer-item.selected input::after{
     content : '';
     position : absolute;
     top : 4px;
