@@ -7,7 +7,7 @@
     <!-- Bootstrap CSS -->
     <link href="{% static 'css/style.css' %}" rel="stylesheet">
     <script defer src = "{% static 'js/script.js' %}"></script>
-    <title>Quiz Results</title>
+    <title> Results</title>
 </head>
 <body>
     <!-- <div class="container mt-5">
@@ -200,7 +200,7 @@
                         <div class = "category-wrapper flex-scroll">
                             <a data-category = "all" class="category-link" href = "">All</a>
                             {% for subject_name, results in subject_results.items %}
-                            <a data-category = "{{ subject_name }}" class="category-link" href = ""> {{ subject_name }}</a>
+                            <a data-category = "{{ subject_name|upper }}" class="category-link" href = ""> {{ subject_name|upper }}</a>
                             {% endfor %}
                             
                         </div>
@@ -209,7 +209,7 @@
                     <div class = "subject-div-wrapper">
                         {% for subject_name, results in subject_results.items %}
                         <div data-select = "{{ subject_name }}" class = "subject-result-div">
-                            <h3 class = "subject-result-head">{{ subject_name }}</h3>
+                            <h3 class = "subject-result-head">{{ subject_name|upper }}</h3>
                             <table class="user-get-table table">
                                 <thead class="thead">
                                     <tr>

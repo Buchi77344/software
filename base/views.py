@@ -12,7 +12,7 @@ from datetime import datetime
 from django.urls import reverse
 
 @login_required(login_url='login')
-def index(request):
+def userpage(request):
     subjects = Subject.objects.all()
     selected_subject_id = request.GET.get('subject_id')
     questions = []
@@ -89,7 +89,7 @@ def index(request):
             end_time = start_time + timezone.timedelta(hours=hours, minutes=minutes, seconds=seconds)
             remaining_time = max(0, (end_time - timezone.now()).total_seconds())
 
-    return render(request, 'index.html', {
+    return render(request, 'user-page.html', {
         'subjects': subjects,
         'selected_subject': selected_subject,
         'questions': questions,
@@ -279,8 +279,9 @@ def login(request):
 
 
 
-
-def userpage(request):
+@login_required(login_url='login')
+def index(request):
+    user = get_object_or_404(Userprofile ,user=request.user)
     subjects = Subject.objects.all()
     selected_subject_id = request.GET.get('subject_id')
     questions = []
@@ -357,13 +358,14 @@ def userpage(request):
             end_time = start_time + timezone.timedelta(hours=hours, minutes=minutes, seconds=seconds)
             remaining_time = max(0, (end_time - timezone.now()).total_seconds())
 
-    return render(request, 'user-page.html', {
+    return render(request, 'index.html', {
         'subjects': subjects,
         'selected_subject': selected_subject,
         'questions': questions,
         'remaining_time': remaining_time,
         'user_answers': user_answers,
-        'total_questions': total_questions,  # Pass the total number of questions to the template
+        'total_questions': total_questions,
+        'user':user  
     })
    
  

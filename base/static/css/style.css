@@ -9,7 +9,8 @@
     --head-text-clr : #63c9b5;
     --q-selected-btn-clr : #15a987;
     --block-clr : hsl(0, 0%, 98%);
-    --variant-clr : hsl(189.71deg 55.9% 27.77%);
+    --variant-clr : hsl(189, 56%, 34%);
+    --darker-variant-clr : hsl(189.71deg 55.9% 27.77%);
     --border-rd: 10px;
     --border-rd-in: 50px;
     --font-family : system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
@@ -325,24 +326,30 @@ svg path{
 .question-number{
     width: 45px;
     height: 45px;
-    background-color: var(--q-selected-btn-clr);
+    border: 1px solid var(--q-selected-btn-clr);
     display: grid;
     place-items: center;
-    color: hsl(0, 0%, 98%);
+    color: var(--q-selected-btn-clr);
     border-radius: 5px;
+    cursor: pointer;
 }
 
-
+.question-number.answered{
+    background-color: var(--q-selected-btn-clr);
+    color : hsl(0, 0%, 95%);
+}
 
 .question-section{
     flex : 1;
     height : 550px;
     overflow-y: auto;
     scrollbar-width: none;
+    position: relative;
 }
 
 .question-section.flex-column{
     justify-content: flex-start;
+    align-items: flex-start;
 }
 
 .question-section::-webkit-scrollbar,
@@ -350,12 +357,21 @@ svg path{
     width : 0;
 }
 
+.user-question-form{
+    width : 100%;
+}
+
 .question-box{
-    width : 90%;
+    width : 95%;
     background-color: var(--block-clr);
     padding : 12px 15px;
     border-radius: 10px;
     font-weight: 500;
+    display: none;
+}
+
+.question-box.visible{
+    display: block;
 }
 
 .question-box-head{
@@ -375,6 +391,10 @@ svg path{
 }
 
 .answers-wrapper.flex-column{
+    align-items: flex-start;
+}
+
+.answers-container.flex-column{
     gap: 15px;
 }
 
@@ -395,6 +415,7 @@ svg path{
     outline : none;
     border-radius: 50%;
     transition: background-color .6s ease;
+    cursor: pointer;
 }
 
 .answer-item input:checked{
@@ -413,6 +434,40 @@ svg path{
     border : solid white;
     border-width : 0 2px 2px 0;
     transform: rotate(45deg);
+}
+
+.answer-submit-btn{
+    padding : 10px 20px;
+    color : hsl(0, 0%, 97%);
+    background-color: var(--variant-clr);
+    margin-top: 20px;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    border-radius : 10px;
+}
+
+.answer-submit-btn:hover{
+    background-color: var(--darker-variant-clr);
+}
+
+.no-questions{
+    font-size: 4rem;
+    color: hsla(0, 0%, 77%, 0.9);
+    position: absolute;
+    width: 100%;
+    top: 50%;
+    text-align: center;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: none;
+}
+
+.user-question-btn-container{
+    width : 100%;
+}
+
+.user-question-btn-container.flex-between{
+    align-items: center;
 }
 
 .user_id-main{
@@ -903,6 +958,7 @@ svg path{
     padding: 0px 30px;
     height: 75%;
     border-radius: 10px;
+    position: relative;
 }
 
 .upload-cta-head{
@@ -960,12 +1016,21 @@ svg path{
     letter-spacing: 1px;
 }
 
+.alert-ul{
+    position: absolute;
+    top: 0;
+    width: 90%;
+    padding-top: 10px;
+}
+
 .alert{
     margin-top: 10px;
     color: #202051;
     background-color: #3b3b8040;
     padding: 10px;
+    font-size: 1.1rem;
 }
+
 
 .category-wrapper{
     max-width : 50%;
@@ -1039,4 +1104,69 @@ svg path{
 
 .launch-form p:nth-of-type(1) label{
     font-size : 1.2rem;
+}
+
+.user-login-wrapper{
+    height : 100vh;
+    width : 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.user-login-container{
+    width : 90%;
+    max-width : 600px;
+    border-radius: 10px;
+    background-color: var(--variant-clr);
+    padding : 12px 40px;
+    height: 350px;
+    position: relative;
+}
+
+.user-login-head{
+    font-size : 2.5rem;
+    text-align: center;
+    color : hsl(0, 0%, 97%);
+}
+
+label[for = "id_user_id"]{
+    display: block;
+    font-size : 1.3rem;
+    color : hsl(0, 0%, 95%);
+    margin-bottom : 10px;
+}
+
+input#id_user_id{
+    display: block;
+    background-color : hsla(0, 0%, 98%, .5);
+    width : 100%;
+    border-radius: 10px;
+    padding : 10px 12px;
+    color : black;
+    font-size: 1.1rem;
+}
+
+.user-login-btn{
+    padding : 12px 20px;
+    color : hsl(0, 0%, 97%);
+    background-color : var(--q-selected-btn-clr);
+    border-radius: 10px;
+    margin-top : 20px;
+    width : 100%;
+    font-size: 1.2rem;
+    letter-spacing: 1px;
+}
+
+.user-login-error-message{
+    position: absolute;
+    top: 0;
+    width: 90%;
+    text-align: center;
+    background-color: rgb(248 1 1 / 13%);
+    color: rgb(255 204 204);
+    border: 1px solid rgb(139 25 25);
+    padding: 5px;
+    border-radius: 10px;
+    font-size: 1.1rem;
 }

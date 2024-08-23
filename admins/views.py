@@ -310,6 +310,7 @@ import uuid
 
 @login_required(login_url='login')
 def launch(request):
+    userprofile=get_object_or_404(Userprofile, user=request.user)
     if request.method == 'POST':
         form = MultiSubjectQuestionSelectionForm(request.POST)
         if form.is_valid():
@@ -337,7 +338,7 @@ def launch(request):
                         subject=subject,
                         question=question,
                         exam_start_time=timezone.now(),
-                        exam_duration=exam_duration,
+                        exam_duration=exam_duration, 
                         shuffle_order=index + 1  # Adjust to start from 1 instead of 0
                     )
 
@@ -346,7 +347,6 @@ def launch(request):
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
-        userprofile = get_object_or_404(Userprofile, user=request.user)
         form = MultiSubjectQuestionSelectionForm()
 
 
