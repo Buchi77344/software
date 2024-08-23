@@ -260,6 +260,8 @@ from django.contrib import auth
 from .forms import LoginForm
 
 def login(request):
+    username = "TIPLOGO CBT CENTRE"
+    
     error_message = None
 
     if request.method == "POST":
@@ -267,15 +269,16 @@ def login(request):
         if form.is_valid():
             user_id = form.cleaned_data['user_id']
             user = auth.authenticate(request, username=user_id)
-            if user is not None:
+            if user is not None: 
                 auth.login(request, user)
-                return redirect('/')  # Redirect to a success page
+                return redirect('welcome')  # Redirect to a succ ess page
             else:
                 error_message = "Invalid user ID"
     else:
         form = LoginForm()
+        
  
-    return render(request, 'login.html', {'form': form, 'error_message': error_message})
+    return render(request, 'login.html', {'form': form, 'error_message': error_message,'username':username})
 
 
 
@@ -369,3 +372,9 @@ def index(request):
     })
    
  
+def welcome(request):
+    userprofile = get_object_or_404(Userprofile,user=request.user)
+    context = {
+        'userprofile':userprofile
+    }
+    return render (request, 'welcome.html',context) 

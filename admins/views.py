@@ -436,6 +436,7 @@ def profile(request):
     return render (request, 'admins/profile.html',context)
 
 from django.db.models import Count, Sum
+@login_required(login_url='admins:login')
 def result(request):
     userprofile = get_object_or_404(Userprofile,user=request.user)
     # Get the subjects the user has taken quizzes for 
@@ -446,7 +447,7 @@ def result(request):
     for subject in subjects:
         users = Result.objects.filter(subject__name=subject.name).values(
             'user__username', 
-            'user__last_name',
+            'user__last_name', 
             'user__userid__generated_id'
         ).annotate(
             total_answers=Count('id'),  # Total number of answers per user for the subject

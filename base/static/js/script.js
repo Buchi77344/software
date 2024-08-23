@@ -95,8 +95,9 @@ function categorizeProducts(e, link){
 
     }else{
         subjectResultDivs.forEach(el => {
-            if(link.dataset.category == el.dataset.select){
+            if(link.dataset.category.toLowerCase() == el.dataset.select.toLowerCase()){
                 el.classList.remove("hide")
+                console.log(el)
             }else{
                 el.classList.add("hide")
             }
@@ -186,12 +187,13 @@ if(document.querySelector(".user-question-btn-container")){
     })
 }
 
-
-let errorMessage = document.querySelector(".user-login-error-message")
-console.log(errorMessage)
-if(errorMessage.textContent != ""){
-    setTimeout(() => {
-        errorMessage.style.display = "none"
-    }, 5000)
+if(document.querySelector(".user-login-error-message")){
+    let errorMessage = document.querySelector(".user-login-error-message")
+    console.log(errorMessage)
+    if(errorMessage.textContent != ""){
+        setTimeout(() => {
+            errorMessage.style.display = "none"
+        }, 5000)
+    }
 }
 

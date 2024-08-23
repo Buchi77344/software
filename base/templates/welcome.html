@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Custom styling for the instructions */
+        .instruction-list li {
+            margin-bottom: 10px;
+        }
+        .instruction-list .shortcut {
+            font-weight: bold;
+            font-family: monospace;
+            background-color: #f8f9fa;
+            padding: 2px 5px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+    <!-- Welcome Message -->
+    <div class="jumbotron text-center">
+        <h1 class="display-4">Welcome, <span id="username">User</span>!</h1>
+        <p class="lead">We're excited to have you here.</p>
+    </div>
+
+    <!-- CBT Instructions -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Instructions for Computer-Based Testing (CBT)</h3>
+        </div>
+        <div class="card-body">
+            <ol class="instruction-list">
+                
+                <li>Read each question carefully before selecting your answer.</li>
+                <li>All questions are mandatory; ensure you answer all of them before submitting.</li>
+                <li>You can review your answers before the final submission.</li>
+                <li>Regularly monitor the timer to avoid being logged out when time expires.</li>
+                <li>Click the "Submit" button once you have completed all the questions.</li>
+                <li>If you encounter any technical issues, please contact support immediately.</li>
+                <li class="text-primary">
+                    <strong>Keyboard Shortcuts:</strong>
+                    <ul>
+                        <li>Press <span class="shortcut">N</span> for "Next" question</li>
+                        <li>Press <span class="shortcut">R</span> for "Previous" question</li>
+                        <li>Press <span class="shortcut">A</span> for option "A"</li>
+                        <li>Press <span class="shortcut">B</span> for option "B"</li>
+                        <li>Press <span class="shortcut">C</span> for option "C"</li>
+                        <li>Press <span class="shortcut">D</span> for option "D"</li>
+                        <li>Press <span class="shortcut">S</span> to submit the test</li>
+                    </ul>
+                </li>
+            </ol>
+            <p class="text-danger"><strong>Note:</strong> Once you submit your test, you will not be able to make any changes.</p>
+        </div>
+    </div>
+
+    <!-- Start Exam Button -->
+    <div class="text-center mt-4">
+        <a href="exam-page.html" class="btn btn-primary btn-lg">Start Exam</a>
+    </div>
+</div>
+
+<!-- Bootstrap JS and dependencies -->
+<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.2/dist/umd/popper.min.js"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+<!-- Script to dynamically insert the user's name -->
+<script>
+    // Example: Replace 'User' with the actual username
+    document.getElementById('username').textContent = '{{userprofile.user.username}}'; // Replace 'John Doe' with the actual username from your backend
+</script>
+
+</body>
+</html>

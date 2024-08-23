@@ -341,7 +341,8 @@ svg path{
 
 .question-section{
     flex : 1;
-    height : 550px;
+    /* height : 550px; */
+    max-height : 80vh;
     overflow-y: auto;
     scrollbar-width: none;
     position: relative;
@@ -1106,8 +1107,23 @@ svg path{
     font-size : 1.2rem;
 }
 
-.user-login-wrapper{
+.user-login-page{
+    display: flex;
+    align-items: center;
+    justify-content : center;
     height : 100vh;
+    flex-direction: column;
+}
+
+.user-login-page-head{
+    margin-top : 0;
+    margin-bottom : 30px;
+    font-size: 3.2rem;
+    color : hsl(0, 0%, 25%);
+}
+
+.user-login-wrapper{
+    /* height : 100vh; */
     width : 100%;
     display: flex;
     justify-content: center;

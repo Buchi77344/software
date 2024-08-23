@@ -11,20 +11,24 @@
 </head>
 <body>
     <div class = "page">
-       
-        <div class = "user-login-wrapper">
-            <div class = "user-login-container">
-                <h1 class = "user-login-head">Login </h1>
-                {% if error_message %}
-                    <p class = "user-login-error-message">{{ error_message }}</p>
-                {% endif %}
-                <form class = "user-login-form" method="post">
-                    {% csrf_token %}
-                    {{ form.as_p }}
-                    <button class = "user-login-btn" type="submit">Login</button>
-                </form>
+       <div class="user-login-page">
+           <h1 class = "user-login-page-head">{{username}}</h1>
+          
+            <div class = "user-login-wrapper">
+                <div class = "user-login-container">
+                    <h1 class = "user-login-head">Login </h1>
+                    {% if error_message %}
+                        <p class = "user-login-error-message">{{ error_message }}</p>
+                    {% endif %}
+                    <form class = "user-login-form" method="post">
+                        {% csrf_token %}
+                        {{ form.as_p }}
+                        <button class = "user-login-btn" type="submit">Login</button>
+                    </form>
+                </div>
             </div>
-        </div>
+
+       </div>
                
     </div>
 </body>
