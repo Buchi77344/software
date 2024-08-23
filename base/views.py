@@ -10,7 +10,9 @@ from uuid import uuid4
 import uuid
 from datetime import datetime
 from django.urls import reverse
+from datetime import timedelta
 
+@login_required(login_url='login')
 @login_required(login_url='login')
 def userpage(request):
     subjects = Subject.objects.all()
@@ -21,20 +23,45 @@ def userpage(request):
     user_answers = []
     total_questions = 0
 
-    request.session['selected_subject_id'] = selected_subject_id
-
     if subjects.exists():
         if selected_subject_id:
-            selected_subject = Subject.objects.get(id=selected_subject_id)
+            selected_subject = get_object_or_404(Subject, id=selected_subject_id)
         else:
             selected_subject = subjects.first()
 
-        # Fetch ExamSession related to the selected subject and shuffle the questions
-        exam_sessions = ExamSession.objects.filter(subject=selected_subject).order_by('shuffle_order')
-        questions = [session.question for session in exam_sessions]
+        # Check if an exam session already exists for this user and subject
+        session_id = f'{request.user.id}_{selected_subject.id}'
+        exam_sessions = ExamSession.objects.filter(session_id=session_id, subject=selected_subject)
 
-        # Count the total number of questions
+        if not exam_sessions.exists():
+            # Create a new exam session with shuffled questions and start time
+            questions = list(Question.objects.filter(subject=selected_subject))
+            random.shuffle(questions)
+            start_time = timezone.now()
+            duration = '01:00:00'  # Example duration of 1 hour
+
+            for index, question in enumerate(questions):
+                ExamSession.objects.create(
+                    session_id=session_id,
+                    subject=selected_subject,
+                    question=question,
+                    exam_start_time=start_time,
+                    exam_duration=duration,
+                    shuffle_order=index,
+                )
+
+        # Fetch the user's exam session
+        exam_sessions = ExamSession.objects.filter(session_id=session_id, subject=selected_subject).order_by('shuffle_order')
+        questions = [session.question for session in exam_sessions]
         total_questions = len(questions)
+
+        # Calculate remaining time based on the user's start time
+        if exam_sessions.exists():
+            start_time = exam_sessions.first().exam_start_time
+            duration_parts = exam_sessions.first().exam_duration.split(':')
+            duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]), seconds=int(duration_parts[2]))
+            end_time = start_time + duration
+            remaining_time = max(0, (end_time - timezone.now()).total_seconds())
 
         if request.method == 'POST':
             results = []
@@ -64,6 +91,9 @@ def userpage(request):
                     'correct': is_correct
                 })
 
+            # Mark the exam as completed
+            ExamSession.objects.filter(session_id=session_id, subject=selected_subject).update(completed=True)
+
             # Redirect to the result page
             return redirect('login')
 
@@ -72,31 +102,15 @@ def userpage(request):
             user_results = Result.objects.filter(user=request.user, subject=selected_subject)
             user_answers = [(result.question.id, result.selected_answer.id if result.selected_answer else None) for result in user_results]
 
-        # Shuffle questions
-        seed = request.session.get(f'shuffle_seed_{selected_subject.id}')
-        if not seed:
-            seed = timezone.now().timestamp()
-            request.session[f'shuffle_seed_{selected_subject.id}'] = seed
-
-        random.seed(seed)
-        random.shuffle(questions)
-
-        # Calculate remaining time for the exam
-        if exam_sessions.exists():
-            start_time = exam_sessions.first().exam_start_time
-            duration = exam_sessions.first().exam_duration
-            hours, minutes, seconds = map(int, duration.split(':'))
-            end_time = start_time + timezone.timedelta(hours=hours, minutes=minutes, seconds=seconds)
-            remaining_time = max(0, (end_time - timezone.now()).total_seconds())
-
     return render(request, 'user-page.html', {
         'subjects': subjects,
         'selected_subject': selected_subject,
         'questions': questions,
         'remaining_time': remaining_time,
         'user_answers': user_answers,
-        'total_questions': total_questions,  # Pass the total number of questions to the template
+        'total_questions': total_questions,
     })
+
    
 @login_required(login_url='login')
 def submit_exam(request):
@@ -220,8 +234,9 @@ from .forms import UsernameForm
 from django.db import IntegrityError, transaction
 
 def generate_random_id(length=6):
-    characters = string.ascii_letters + string.digits
+    characters = string.ascii_lowercase + string.digits
     return ''.join(random.choice(characters) for _ in range(length))
+ 
 
 def userid(request):
     error_message = None
@@ -284,7 +299,6 @@ def login(request):
 
 @login_required(login_url='login')
 def index(request):
-    user = get_object_or_404(Userprofile ,user=request.user)
     subjects = Subject.objects.all()
     selected_subject_id = request.GET.get('subject_id')
     questions = []
@@ -293,20 +307,45 @@ def index(request):
     user_answers = []
     total_questions = 0
 
-    request.session['selected_subject_id'] = selected_subject_id
-
     if subjects.exists():
         if selected_subject_id:
-            selected_subject = Subject.objects.get(id=selected_subject_id)
+            selected_subject = get_object_or_404(Subject, id=selected_subject_id)
         else:
             selected_subject = subjects.first()
 
-        # Fetch ExamSession related to the selected subject and shuffle the questions
-        exam_sessions = ExamSession.objects.filter(subject=selected_subject).order_by('shuffle_order')
-        questions = [session.question for session in exam_sessions]
+        # Check if an exam session already exists for this user and subject
+        session_id = f'{request.user.id}_{selected_subject.id}'
+        exam_sessions = ExamSession.objects.filter(session_id=session_id, subject=selected_subject)
 
-        # Count the total number of questions
+        if not exam_sessions.exists():
+            # Create a new exam session with shuffled questions and start time
+            questions = list(Question.objects.filter(subject=selected_subject))
+            random.shuffle(questions)
+            start_time = timezone.now()
+            duration = '01:00:00'  # Example duration of 1 hour
+
+            for index, question in enumerate(questions):
+                ExamSession.objects.create(
+                    session_id=session_id,
+                    subject=selected_subject,
+                    question=question,
+                    exam_start_time=start_time,
+                    exam_duration=duration,
+                    shuffle_order=index,
+                )
+
+        # Fetch the user's exam session
+        exam_sessions = ExamSession.objects.filter(session_id=session_id, subject=selected_subject).order_by('shuffle_order')
+        questions = [session.question for session in exam_sessions]
         total_questions = len(questions)
+
+        # Calculate remaining time based on the user's start time
+        if exam_sessions.exists():
+            start_time = exam_sessions.first().exam_start_time
+            duration_parts = exam_sessions.first().exam_duration.split(':')
+            duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]), seconds=int(duration_parts[2]))
+            end_time = start_time + duration
+            remaining_time = max(0, (end_time - timezone.now()).total_seconds())
 
         if request.method == 'POST':
             results = []
@@ -336,6 +375,9 @@ def index(request):
                     'correct': is_correct
                 })
 
+            # Mark the exam as completed
+            ExamSession.objects.filter(session_id=session_id, subject=selected_subject).update(completed=True)
+
             # Redirect to the result page
             return redirect('login')
 
@@ -344,23 +386,6 @@ def index(request):
             user_results = Result.objects.filter(user=request.user, subject=selected_subject)
             user_answers = [(result.question.id, result.selected_answer.id if result.selected_answer else None) for result in user_results]
 
-        # Shuffle questions
-        seed = request.session.get(f'shuffle_seed_{selected_subject.id}')
-        if not seed:
-            seed = timezone.now().timestamp()
-            request.session[f'shuffle_seed_{selected_subject.id}'] = seed
-
-        random.seed(seed)
-        random.shuffle(questions)
-
-        # Calculate remaining time for the exam
-        if exam_sessions.exists():
-            start_time = exam_sessions.first().exam_start_time
-            duration = exam_sessions.first().exam_duration
-            hours, minutes, seconds = map(int, duration.split(':'))
-            end_time = start_time + timezone.timedelta(hours=hours, minutes=minutes, seconds=seconds)
-            remaining_time = max(0, (end_time - timezone.now()).total_seconds())
-
     return render(request, 'index.html', {
         'subjects': subjects,
         'selected_subject': selected_subject,
@@ -368,9 +393,7 @@ def index(request):
         'remaining_time': remaining_time,
         'user_answers': user_answers,
         'total_questions': total_questions,
-        'user':user  
     })
-   
  
 def welcome(request):
     userprofile = get_object_or_404(Userprofile,user=request.user)
