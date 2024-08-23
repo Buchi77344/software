@@ -165,12 +165,15 @@ document.getElementById("pag-next").addEventListener("click", function () {
 
 questionNumbers.forEach((el, index) => {
     el.addEventListener("click", () => {
-        console.log(index)
         currentPage = Math.ceil((index + 1) / itemsPerPage);
         updatePagination();
 
         // Scroll to the specific item
-        const targetItem = document.querySelectorAll(".question-box")[index];
+        const pageCount = Math.ceil(questionBoxes.length / itemsPerPage);
+        let targetIndex = index > questionBoxes.length ? (index - 1) : index
+        console.log(questionBoxes.length)
+        console.log(pageCount)
+        const targetItem = document.querySelectorAll(".question-box")[targetIndex];
         targetItem.scrollIntoView({ behavior: "smooth" });
     })
 
