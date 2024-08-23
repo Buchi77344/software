@@ -102,3 +102,5 @@ function categorizeProducts(e, link){
         
     }
 }
+
+
