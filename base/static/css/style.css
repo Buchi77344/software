@@ -341,7 +341,7 @@ svg path{
 
 .question-section{
     flex : 1;
-    height : 550px;
+    max-height : 80vh;
     overflow-y: auto;
     scrollbar-width: none;
     position: relative;
