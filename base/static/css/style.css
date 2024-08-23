@@ -903,6 +903,7 @@ svg path{
     padding: 0px 30px;
     height: 75%;
     border-radius: 10px;
+    position: relative;
 }
 
 .upload-cta-head{
@@ -960,12 +961,21 @@ svg path{
     letter-spacing: 1px;
 }
 
+.alert-ul{
+    position: absolute;
+    top: 0;
+    width: 90%;
+    padding-top: 10px;
+}
+
 .alert{
     margin-top: 10px;
     color: #202051;
     background-color: #3b3b8040;
     padding: 10px;
+    font-size: 1.1rem;
 }
+
 
 .category-wrapper{
     max-width : 50%;
