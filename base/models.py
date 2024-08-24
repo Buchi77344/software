@@ -1,26 +1,27 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 
 class User(AbstractUser):
-   school_name =models.CharField(max_length=500,null=True)
-   recovery_code = models.CharField(max_length=100,null=True)
-   
-school_name = User.school_name
-user_school =User.objects.filter(is_staff =True,school_name=school_name)
+    school_name = models.CharField(max_length=500, null=True)
+    recovery_code = models.CharField(max_length=100, null=True)
+
 class Name_School(models.Model):
-    school = models.CharField(max_length=345,default=user_school)
+    school = models.CharField(max_length=345)
 
     def __str__(self):
         return self.school
-def save_user_model(sender ,instance,created,**kwargs):
-    if created:
-          Name_School.objects.create(user=instance)
-  
 
-post_save.connect(save_user_model, sender=User )
+@receiver(post_save, sender=User)
+def save_user_model(sender, instance, created, **kwargs):
+    if created:
+        # Filter users who are staff and match the new user's school_name
+        user_school = User.objects.filter(is_staff=True, school_name=instance.school_name)
+        if user_school.exists():
+            Name_School.objects.create(school=instance.school_name)
 
 class Subject(models.Model):
     name = models.CharField(max_length=255, unique=True, null=True)

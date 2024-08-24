@@ -215,7 +215,7 @@ from io import TextIOWrapper, StringIO
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import BulkUploadForm
-from .models import Question, Answer ,Result
+from .models import Question, Answer ,Result ,Name_School
 
 
 
@@ -275,7 +275,7 @@ from django.contrib import auth
 from .forms import LoginForm
 
 def login(request):
-    username = 'lkmd'
+    username = get_object_or_404(Name_School)
     
     error_message = None
 
