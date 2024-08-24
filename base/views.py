@@ -275,7 +275,7 @@ from django.contrib import auth
 from .forms import LoginForm
 
 def login(request):
-    username = "TIPLOGO CBT CENTRE"
+    username = 'lkmd'
     
     error_message = None
 

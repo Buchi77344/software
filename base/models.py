@@ -7,6 +7,20 @@ from django.db.models.signals import post_save
 class User(AbstractUser):
    school_name =models.CharField(max_length=500,null=True)
    recovery_code = models.CharField(max_length=100,null=True)
+   
+school_name = User.school_name
+user_school =User.objects.filter(is_staff =True,school_name=school_name)
+class Name_School(models.Model):
+    school = models.CharField(max_length=345,default=user_school)
+
+    def __str__(self):
+        return self.school
+def save_user_model(sender ,instance,created,**kwargs):
+    if created:
+          Name_School.objects.create(user=instance)
+  
+
+post_save.connect(save_user_model, sender=User )
 
 class Subject(models.Model):
     name = models.CharField(max_length=255, unique=True, null=True)
