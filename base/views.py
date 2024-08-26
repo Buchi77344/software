@@ -275,6 +275,7 @@ from django.contrib import auth
 from .forms import LoginForm
 
 def login(request):
+    
     username = get_object_or_404(Name_School)
     
     error_message = None
@@ -289,7 +290,7 @@ def login(request):
                 return redirect('welcome')  # Redirect to a succ ess page
             else:
                 error_message = "Invalid user ID"
-    else:
+    else: 
         form = LoginForm()
         
  
@@ -299,102 +300,22 @@ def login(request):
 
 @login_required(login_url='login')
 def index(request):
-    subjects = Subject.objects.all()
-    selected_subject_id = request.GET.get('subject_id')
-    questions = []
-    remaining_time = None
-    selected_subject = None
-    user_answers = []
-    total_questions = 0
+    session_id = request.session.get('exam_session_id')
 
-    if subjects.exists():
-        if selected_subject_id:
-            selected_subject = get_object_or_404(Subject, id=selected_subject_id)
-        else:
-            selected_subject = subjects.first()
-
-        # Check if an exam session already exists for this user and subject
-        session_id = f'{request.user.id}_{selected_subject.id}'
-        exam_sessions = ExamSession.objects.filter(session_id=session_id, subject=selected_subject)
-
-        if not exam_sessions.exists():
-            # Create a new exam session with shuffled questions and start time
-            questions = list(Question.objects.filter(subject=selected_subject))
-            random.shuffle(questions)
-            start_time = timezone.now()
-            duration = '01:00:00'  # Example duration of 1 hour
-
-            for index, question in enumerate(questions):
-                ExamSession.objects.create(
-                    session_id=session_id,
-                    subject=selected_subject,
-                    question=question,
-                    exam_start_time=start_time,
-                    exam_duration=duration,
-                    shuffle_order=index,
-                )
-
-        # Fetch the user's exam session
-        exam_sessions = ExamSession.objects.filter(session_id=session_id, subject=selected_subject).order_by('shuffle_order')
+    if session_id:
+        # Retrieve ExamSession entries for the specific session_id and order by shuffle_order
+        exam_sessions = ExamSession.objects.filter(session_id=session_id).order_by('shuffle_order')
         questions = [session.question for session in exam_sessions]
-        total_questions = len(questions)
+    else:
+        # If no session ID, show all questions (or handle as needed)
+        questions = Question.objects.all()  # Customize as needed if no session ID
 
-        # Calculate remaining time based on the user's start time
-        if exam_sessions.exists():
-            start_time = exam_sessions.first().exam_start_time
-            duration_parts = exam_sessions.first().exam_duration.split(':')
-            duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]), seconds=int(duration_parts[2]))
-            end_time = start_time + duration
-            remaining_time = max(0, (end_time - timezone.now()).total_seconds())
-
-        if request.method == 'POST':
-            results = []
-            for question in questions:
-                selected_answer_id = request.POST.get(f'question_{question.id}')
-                if selected_answer_id:
-                    selected_answer = question.answers.get(id=selected_answer_id)
-                    is_correct = selected_answer.is_correct
-                else:
-                    selected_answer = None
-                    is_correct = False
-
-                # Save result to the Result model
-                result = Result(
-                    user=request.user,
-                    subject=selected_subject,
-                    question=question,
-                    selected_answer=selected_answer,
-                    is_correct=is_correct,
-                    score=1.0 if is_correct else 0.0
-                )
-                result.save()
-
-                results.append({
-                    'question_id': question.id,
-                    'selected_answer_id': selected_answer.id if selected_answer else None,
-                    'correct': is_correct
-                })
-
-            # Mark the exam as completed
-            ExamSession.objects.filter(session_id=session_id, subject=selected_subject).update(completed=True)
-
-            # Redirect to the result page
-            return redirect('login')
-
-        # Retrieve user's previous answers if they exist
-        if request.user.is_authenticated:
-            user_results = Result.objects.filter(user=request.user, subject=selected_subject)
-            user_answers = [(result.question.id, result.selected_answer.id if result.selected_answer else None) for result in user_results]
+    total_questions = len(questions)
 
     return render(request, 'index.html', {
-        'subjects': subjects,
-        'selected_subject': selected_subject,
         'questions': questions,
-        'remaining_time': remaining_time,
-        'user_answers': user_answers,
         'total_questions': total_questions,
     })
- 
 def welcome(request):
     userprofile = get_object_or_404(Userprofile,user=request.user)
     context = {

@@ -94,6 +94,7 @@
                         
                         <form class = "user-question-form flex-column gp-15" method="post" action="{% url 'index' %}?subject_id={{ selected_subject.id }}">
                             {% csrf_token %}
+                            {% if questions %}
                             {% for question in questions %}
                                 <div class = "question-box">
                                     <div class = "question-box-head flex-center">
@@ -106,6 +107,9 @@
         
                                     <div class = "answers-wrapper flex-column">
                                         <div class ="answers-container flex-column">
+                                            {% if question.diagram %}
+                                            <img src="{{ question.diagram.url }}" alt="Diagram">
+                                          {% endif %}
                                             {% for answer in question.answers.all %}
                                             <div class = "answer-item">
                                                 <input type = "radio" name="question_{{ question.id }}" value="{{ answer.id }}" id="answer_{{ answer.id }}" class = "check-answer"/>
@@ -113,10 +117,12 @@
                                             </div>
                                             {% endfor %}
                                         </div>
-        
+                                        
                                     </div>
                                 </div>
                             {% endfor %}
+                           
+                            {% endif %}
                             <div class="user-question-btn-container flex-between">
                                 <button type = "submit" class = "answer-submit-btn">Submit Answer</button>
                                 <div class = "pag-btn-container">
@@ -168,7 +174,7 @@
         startCountDown("{{ remaining_time|floatformat:0 }}")
 
     </script>
-    <script>
+    {% comment %} <script>
         document.addEventListener('DOMContentLoaded', (event) => {
             let inactivityTime = function () {
                 let time;
@@ -215,7 +221,7 @@
     
             inactivityTime(); // Run the inactivity timer function
         });
-    </script>
+    </script> {% endcomment %}
 </body>
 </html>
 

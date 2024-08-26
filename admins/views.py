@@ -7,43 +7,57 @@ from django.contrib.auth.decorators import login_required
 # Create your views here.
 @login_required(login_url='admins:login')
 def dashboard(request):
+    school_name =get_object_or_404(Name_School)
     userprofile = get_object_or_404(Userprofile,user=request.user)
     userid = UserID.objects.count()
     subject = Subject.objects.count()
     qusetion = Question.objects.count()
     context = {
+        'school_name':school_name,
         'userprofile':userprofile,
         'userid':userid,
         'subject':subject,
-        'qusetion':qusetion
+        'qusetion':qusetion,
     }
     return render (request, 'admins/dashboard.html',context)
+from django.contrib.auth import get_user_model
+User = get_user_model()
 
 def signup(request):
     if request.method == "POST":
         first_name = request.POST.get('first_name')
-        last_name =request.POST.get('last_name')
-        school_name =request.POST.get('school_name')
-        username =request.POST.get('username')
+        last_name = request.POST.get('last_name')
+        school_name = request.POST.get('school_name')
+        username = request.POST.get('username')
         password = request.POST.get('password')
-        password1 =request.POST.get('password1')
-        is_staff =request.POST.get('is_staff')
+        password1 = request.POST.get('password1')
+        is_staff = request.POST.get('is_staff')  # This should be checked if it’s a staff signup
         
+        # Check if any admin account already exists
+        if is_staff and User.objects.filter(is_staff=True).exists():
+            messages.error(request, 'An admin account already exists. You cannot create another one.')
+            return redirect('admins:signup')
+
         if password == password1:
             if User.objects.filter(username=username).exists():
-                messages.error(request, 'username alrealdy exist')
+                messages.error(request, 'Username already exists')
                 return redirect('admins:signup')
             else:
-               User.objects.create_user(first_name=first_name,last_name=last_name ,username=username,school_name=school_name,password=password,is_staff=True)
-               return redirect('admins:login')
-            
-
+                # Create the user account (setting is_staff=True explicitly for admin creation)
+                User.objects.create_user(
+                    first_name=first_name,
+                    last_name=last_name,
+                    username=username,
+                    school_name=school_name,
+                    password=password,
+                    is_staff=True  # This ensures the created user is an admin
+                )
+                return redirect('admins:login')
         else:
-            messages.error(request, 'password do not match')
-            return redirect('admins:signup') 
-               
+            messages.error(request, 'Passwords do not match')
+            return redirect('admins:signup')
 
-    return render (request, 'admins/create-account.html')
+    return render(request, 'admins/create-account.html')
 
 def login(request):
     
@@ -114,9 +128,9 @@ def userid(request):
         except Exception as e:
             error_message = f"An unexpected error occurred: {str(e)}"
     else:
-        userprofile = get_object_or_404(Userprofile,user=request.user)
+        school_name =get_object_or_404(Name_School)
         context = {
-            'userprofile':userprofile,
+            'school_name':school_name,
             'error_message':error_message
         }
 
@@ -156,20 +170,28 @@ def upload(request):
 
             try:
                 document = Document(file)
+                cleaned_document = clean_document(document)
                 subject, created = Subject.objects.get_or_create(name=subject_text)
-                questions_data = parse_document(document)
-                
+                questions_data = parse_document(cleaned_document)
+
+                if not questions_data:
+                    messages.error(request, "No valid questions found. Please ensure your document is properly formatted.")
+                    return redirect('admins:upload')
+
                 with transaction.atomic():
                     for question_data in questions_data:
-                        save_question_and_answers(
+                        success = save_question_and_answers(
                             question_text=question_data['question_text'],
                             options=question_data['options'],
                             correct_option=question_data['correct_option'],
                             diagram_image_path=question_data['diagram_image_path'],
                             subject=subject
                         )
+                        if not success:
+                            messages.error(request, f"Failed to save question: {question_data['question_text']}")
+                            return redirect('admins:upload')
 
-                messages.success(request, "Questions and answers uploaded successfully!")
+                messages.success(request, "Questions uploaded successfully!")
                 return redirect('admins:question')
 
             except Exception as e:
@@ -177,10 +199,33 @@ def upload(request):
                 return redirect('admins:upload')
 
     else:
-        userprofile = get_object_or_404(Userprofile, user=request.user)
+        school_name = get_object_or_404(Name_School)
         form = BulkUploadForm()
 
-    return render(request, 'admins/upload.html', {'form': form, 'userprofile': userprofile})
+    return render(request, 'admins/upload.html', {'form': form, 'school_name': school_name})
+
+def clean_document(document):
+    cleaned_paragraphs = []
+    last_label = None
+
+    for para in document.paragraphs:
+        text = para.text.strip()
+
+        if text.startswith(("Q:", "A.", "B.", "C.", "D.", "Correct:", "DA:")):
+            last_label = text[:2]
+            cleaned_paragraphs.append(text)
+        else:
+            # Handle missing or incorrect labels by continuing from the last valid label
+            if last_label and not text.startswith("Q:"):
+                cleaned_paragraphs[-1] += " " + text
+            else:
+                cleaned_paragraphs.append(text)
+
+    cleaned_document = Document()
+    for cleaned_text in cleaned_paragraphs:
+        cleaned_document.add_paragraph(cleaned_text)
+
+    return cleaned_document
 
 def parse_document(document):
     questions_data = []
@@ -188,20 +233,27 @@ def parse_document(document):
     options = []
     correct_option = None
     diagram_image_path = None
+    expecting_diagram = False
 
     for para in document.paragraphs:
         text = para.text.strip()
 
         if text.startswith("Q:"):
             if question_text:
-                questions_data.append({
-                    'question_text': question_text,
-                    'options': options,
-                    'correct_option': correct_option,
-                    'diagram_image_path': diagram_image_path
-                })
+                if all([options, correct_option]):
+                    questions_data.append({
+                        'question_text': question_text,
+                        'options': options,
+                        'correct_option': correct_option,
+                        'diagram_image_path': diagram_image_path
+                    })
+                else:
+                    # Skip incomplete questions and log the error
+                    messages.warning(request, f"Incomplete question ignored: {question_text}")
+
                 options = []
-                diagram_image_path = None  # Reset diagram for the next question
+                correct_option = None
+                diagram_image_path = None
 
             question_text = text.replace("Q:", "").strip()
 
@@ -211,19 +263,73 @@ def parse_document(document):
         elif text.startswith(("A.", "B.", "C.", "D.")):
             options.append(text.strip())
 
-        elif text.startswith("DA:"):
-            diagram_image_path = extract_and_save_diagram(document)  # Extract a new diagram for the current question
+        elif "DA:" in text:
+            expecting_diagram = True
+            diagram_image_path = extract_and_save_diagram_or_shape(document, para)
 
-    # Add the last question if any
+        if expecting_diagram and diagram_image_path is None:
+            diagram_image_path = extract_and_save_diagram_or_shape(document, para)
+            expecting_diagram = False
+
     if question_text:
-        questions_data.append({
-            'question_text': question_text,
-            'options': options,
-            'correct_option': correct_option,
-            'diagram_image_path': diagram_image_path
-        })
+        if all([options, correct_option]):
+            questions_data.append({
+                'question_text': question_text,
+                'options': options,
+                'correct_option': correct_option,
+                'diagram_image_path': diagram_image_path
+            })
+        else:
+            messages.warning(request, f"Incomplete question ignored: {question_text}")
 
     return questions_data
+
+def extract_and_save_diagram_or_shape(document, paragraph):
+    images = []
+
+    try:
+        para_index = document.paragraphs.index(paragraph)
+        
+        if paragraph._element.xpath('.//pic:pic'):
+            images += extract_images_from_paragraph(paragraph)
+
+        if para_index > 0:
+            prev_para = document.paragraphs[para_index - 1]
+            if prev_para._element.xpath('.//pic:pic'):
+                images += extract_images_from_paragraph(prev_para)
+
+        if para_index < len(document.paragraphs) - 1:
+            next_para = document.paragraphs[para_index + 1]
+            if next_para._element.xpath('.//pic:pic'):
+                images += extract_images_from_paragraph(next_para)
+
+    except ValueError:
+        pass
+
+    return images[0] if images else None
+
+def extract_images_from_paragraph(paragraph):
+    images = []
+    for rel in paragraph.part.rels.values():
+        if "image" in rel.target_ref:
+            image_stream = BytesIO(rel.target_part.blob)
+            image_filename = save_image(image_stream)
+            if image_filename:
+                images.append(f'questions/diagrams/{image_filename}')
+    return images
+
+def save_image(image_stream):
+    image = Image.open(image_stream)
+    image_filename = f'diagram_{int(time.time())}.png'
+    image_path = os.path.join('media', 'questions', 'diagrams', image_filename)
+    os.makedirs(os.path.dirname(image_path), exist_ok=True)
+
+    try:
+        image.save(image_path, format='PNG')
+        return image_filename
+    except Exception as e:
+        print(f"Error saving image: {e}")
+        return None
 
 def save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject):
     question, created = Question.objects.get_or_create(text=question_text, subject=subject)
@@ -236,45 +342,17 @@ def save_question_and_answers(question_text, options, correct_option, diagram_im
         is_correct = option_text.startswith(correct_option)
         Answer.objects.create(question=question, text=option_text, is_correct=is_correct)
 
-def extract_and_save_diagram(document):
-    images = []
-
-    # Extract images from document
-    for rel in document.part.rels.values():
-        if "image" in rel.target_ref:
-            image_stream = BytesIO(rel.target_part.blob)
-            image_filename = save_image(image_stream)
-            images.append(f'questions/diagrams/{image_filename}')
-
-    for shape in document.inline_shapes:
-        if shape.type == 3:  # Shape type 3 means Picture
-            image_stream = BytesIO(shape.image.blob)
-            image_filename = save_image(image_stream)
-            images.append(f'questions/diagrams/{image_filename}')
-
-    return images[0] if images else None
-
-def save_image(image_stream):
-    image = Image.open(image_stream)
-    image_filename = f'diagram_{int(time.time())}.png'
-    image_path = os.path.join('media', 'questions', 'diagrams', image_filename)
-    os.makedirs(os.path.dirname(image_path), exist_ok=True)
-
-    # Save the image
-    image.save(image_path, format='PNG')
-
-    return image_filename
+    return True
 
 def user(request):
-    userprofile = get_object_or_404(Userprofile,user=request.user)
+    userprofile = get_object_or_404(Userprofile, user=request.user)
     
     user_id = UserID.objects.all()
     context = {
-        'userprofile':userprofile,   
-        "user_id":user_id
+        'userprofile': userprofile,   
+        "user_id": user_id
     }
-    return render(request, 'admins/userget.html',context)
-
+    return render(request, 'admins/userget.html', context)
 import pandas as pd
 from django.http import HttpResponse
 from django.template.loader import get_template
@@ -304,54 +382,53 @@ def export_user_data_to_pdf(request):
     return response
 from django.shortcuts import render, redirect
 from base.forms import MultiSubjectQuestionSelectionForm
-from base.models import Suffle,ExamSession , Subject ,Result ,User_result
+from base.models import Suffle,ExamSession , Subject ,Result ,User_result ,Name_School
 from django.utils import timezone
 
 import uuid
 
 @login_required(login_url='login')
 def launch(request):
-    userprofile=get_object_or_404(Userprofile, user=request.user)
+    school_name = get_object_or_404(Name_School)
     if request.method == 'POST':
         form = MultiSubjectQuestionSelectionForm(request.POST)
         if form.is_valid():
             subject_question_counts = form.cleaned_data['subject_question_counts']
-            exam_duration = form.cleaned_data['exam_duration']  # Format hh:mm:ss
+            exam_duration = form.cleaned_data['exam_duration']
 
-            # Loop through selected subjects and their respective number of questions
+            # Generate a unique session ID for the user
+            session_id = f'{request.user.id}_{uuid.uuid4()}'
+
             for subject, number_of_questions in subject_question_counts.items():
-                # Fetch the questions for the subject and shuffle them
                 questions = list(Question.objects.filter(subject=subject))
                 if len(questions) < number_of_questions:
                     messages.error(request, f"Not enough questions for {subject.name}.")
-                    return redirect('admins:launch')  # Redirect back to the form if not enough questions
+                    return redirect('admins:launch')
 
-                # Select a random sample of questions based on the requested number
                 selected_questions = random.sample(questions, number_of_questions)
 
-                # Generate a unique session ID for each exam session
-                session_id = str(uuid.uuid4())
-
-                # Store each question and its order in the ExamSession model
+                # Save the shuffled questions in the ExamSession model
                 for index, question in enumerate(selected_questions):
                     ExamSession.objects.create(
                         session_id=session_id,
                         subject=subject,
                         question=question,
                         exam_start_time=timezone.now(),
-                        exam_duration=exam_duration, 
-                        shuffle_order=index + 1  # Adjust to start from 1 instead of 0
+                        exam_duration=exam_duration,
+                        shuffle_order=index + 1  # Ensure the order starts from 1
                     )
 
+            # Store the session ID in the user's session data
+            request.session['exam_session_id'] = session_id
+
             messages.success(request, 'Exam preferences have been successfully saved.')
-            return redirect('admins:launch')  # Redirect to login to start the exam
+            return redirect('index')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
         form = MultiSubjectQuestionSelectionForm()
 
-
-    return render(request, 'admins/launch.html', {'form': form,'userprofile':userprofile})
+    return render(request, 'admins/launch.html', {'form': form, 'school_name': school_name})
 def logout(request):
     auth.logout(request)
     return redirect('admins:login')
@@ -414,11 +491,11 @@ def search(request):
     return render(request, 'admins/search.html', {'form': form, 'query': query, 'result': result})
 
 def question(request):
-    userprofile = get_object_or_404(Userprofile,user=request.user)
+    school_name =get_object_or_404(Name_School)
     subject  = Subject.objects.all()[:10]
     context ={
         'subject':subject,
-        'userprofile':userprofile
+        'school_name':school_name
     }
     return render (request, 'admins/question.html',context)
 
@@ -429,10 +506,18 @@ def delete(request, pk):
 
 
 def profile(request):
-    userprofile = get_object_or_404(Userprofile,user=request.user)
+   
+    school_name =get_object_or_404(Name_School)
+    if request.method == 'POST':
+        school =request.POST.get('school')
+        school_name.school = school
+        school_name.save()
+        return redirect('admins:profile')
+
     context ={ 
        
-        'userprofile':userprofile
+       
+        'school_name':school_name
     }
     return render (request, 'admins/profile.html',context)
 
