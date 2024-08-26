@@ -27,19 +27,20 @@ def signup(request):
         username =request.POST.get('username')
         password = request.POST.get('password')
         password1 =request.POST.get('password1')
+        is_staff =request.POST.get('is_staff')
         
         if password == password1:
             if User.objects.filter(username=username).exists():
                 messages.error(request, 'username alrealdy exist')
                 return redirect('admins:signup')
             else:
-               User.objects.create_user(first_name=first_name,last_name=last_name ,username=username,school_name=school_name,password=password)
+               User.objects.create_user(first_name=first_name,last_name=last_name ,username=username,school_name=school_name,password=password,is_staff=True)
                return redirect('admins:login')
             
 
         else:
             messages.error(request, 'password do not match')
-            return redirect('admins:signup')
+            return redirect('admins:signup') 
                
 
     return render (request, 'admins/create-account.html')
