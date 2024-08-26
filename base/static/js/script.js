@@ -10,7 +10,8 @@ let popupDiv = document.querySelector(".popup-div")
 let deleteBtn = document.querySelectorAll(".delete-btn")
 let popupBtn = document.querySelectorAll(".popup-btn")
 let yesbtn = document.querySelector(".Yes-btn")
-
+let answerBtn = document.querySelector(".answer-submit-btn")
+console.log(answerBtn)
 function ShowPopup(){
     popupOverlay.style.display = "grid"
     setTimeout(() => {
@@ -23,6 +24,15 @@ function removePopup(){
     setTimeout(() => {
         popupOverlay.style.display = "none"
     }, 100)
+}
+
+function submitAnswer(){
+    answerBtn.type = "submit"
+    answerBtn.click()
+}
+
+document.querySelector(".exam.Yes-btn").onclick = function(){
+    submitAnswer()
 }
 
 Array.from(deleteBtn).forEach(el => {
@@ -215,6 +225,11 @@ if(document.querySelector(".user-question-btn-container")){
 
         
     })
+
+    answerBtn.addEventListener("click", () => {
+        console.log("answe")
+        ShowPopup()
+    })
     
     if(document.querySelector(".user-login-error-message")){
         let errorMessage = document.querySelector(".user-login-error-message")
@@ -292,10 +307,15 @@ if(document.querySelector(".user-question-btn-container")){
         }else if(key == "s" || key == "S"){
             // document.querySelector(".answer-submit-btn").click()
             ShowPopup()
+            if(key == "y" || key == "Y"){
+                submitAnswer()
+            }
         }
     
         
     })
+
+
 }    
 
 

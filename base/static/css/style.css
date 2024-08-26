@@ -48,7 +48,7 @@ input:focus-within{
     outline: 1px solid hsl(263 24% 52% / .3);
 }
 
-h2,h3,h4,p{
+h1,h2,h3,h4,p{
     margin :5px 0; 
 }
 
@@ -345,6 +345,7 @@ svg path{
     overflow-y: auto;
     scrollbar-width: none;
     position: relative;
+    scroll-padding: 50px;
 }
 
 .question-section.flex-column{
@@ -359,6 +360,7 @@ svg path{
 
 .user-question-form{
     width : 100%;
+    padding: 10px;
 }
 
 .question-box{
@@ -371,7 +373,7 @@ svg path{
 }
 
 .question-box.highlight{
-    border: 1px solid var(--q-selected-btn-clr);
+    outline: 1px solid var(--q-selected-btn-clr);
 }
 
 .question-box.visible{
@@ -920,7 +922,7 @@ svg path{
     justify-content: center;
 }
 
-.popup-btn-container a{
+.popup-btn-container button{
     padding : 12px 40px;
     border-radius: 10px;
     color : hsl(0, 0%, 90%);
@@ -929,6 +931,11 @@ svg path{
 
 .Yes-btn{
     background-color : rgb(168, 23, 23);
+    
+}
+
+.Yes-btn a{
+    color : hsl(0, 0%, 90%);
 }
 
 .Yes-btn:hover{
@@ -1192,4 +1199,101 @@ input#id_user_id{
     padding: 5px;
     border-radius: 10px;
     font-size: 1.1rem;
+}
+
+.welcome-page{
+    background-color: hsl(168deg 85% 37% / 5%);
+    padding : 20px;
+}
+
+.welcome-text-content-div{
+    /* background-color : hsl(0deg 0% 5% / 11%); */
+    height : 40vh;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background: linear-gradient(45deg,rgb(16 151 129), rgb(0, 119, 255));
+}
+
+.welcome-text-content-head{
+    font-size : 4rem;
+    font-weight: 300;
+    line-height: 1.2;
+    color: hsl(0, 0%, 97%);
+    text-transform: capitalize;
+}
+
+.welcome-text-content-text{
+    font-size: 1.2rem;
+    font-weight: 300;
+    color: hsl(0deg 0% 97% / 65%)
+}
+
+.instruct-container{
+    margin-top: 30px;
+    
+}
+
+.instruct-header-div{
+    padding : .7rem 1rem;
+    background-color : hsl(0, 0%, 92%);
+    border: 1px solid rgba(0, 0, 0, .2);
+}
+
+.instruct-header-div{
+    font-size: 1.6rem;
+    color :hsl(0, 0%, 20%)
+}
+
+.instruct-body-div{
+    border: 1px solid rgba(0, 0, 0, .2);
+    border-top-color: transparent;
+    padding : 0px 20px 20px
+}
+
+.shortcut-list-parent{
+    color : #267a6c
+}
+
+.instruct-list > li{
+    padding : 12px 0px;
+}
+
+.shortcut-list{
+    list-style-type: circle;
+}
+
+.shortcut-list-strong{
+    padding-bottom: 10px;
+    display: block;
+}
+
+.shortcut-list li:not(:last-child){
+    padding-bottom : 12px;
+}
+
+.danger-text{
+    color : rgb(150, 16, 16);
+    font-size: 1.1rem;
+}
+
+.danger-text strong{
+    font-weight: bold;
+}
+
+.start-exam-btn{
+    padding : 10px 42px;
+    background-color: hsl(212, 72%, 39%);
+    color:hsl(0, 0%, 96%);
+    margin-top: 30px;
+    border-radius: 10px;
+    display: inline-block;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+}
+
+.start-exam-btn:hover{
+    background-color : hsl(212, 72%, 29%)
 }
