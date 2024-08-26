@@ -10,6 +10,15 @@
 </head>
 <body>
     <div class = "page">
+        <div class="popup-overlay">
+            <div class="popup-div">
+                <h3 class = "popup-head">Are you sure you want to submit</h3>
+                <div class = "popup-btn-container">
+                    <button  class = "popup-btn Yes-btn"><a href = "#">Yes, I'm sure</a></button>
+                    <button class = "popup-btn No-btn">No, Not Yet</button>
+                </div>
+            </div>
+        </div>
         <div class = "wrapper">
             <div class = "main-sidebar">
                 <div class = "menu">
@@ -128,10 +137,7 @@
 
                             <h3 class = "no-questions">No Questions Yet</h3>
                         </form>
-                       
-                       
-
-                      
+                 
                     </div>
                 </div>
             </div>
@@ -168,6 +174,54 @@
         startCountDown("{{ remaining_time|floatformat:0 }}")
 
     </script>
+    <!-- <script>
+        document.addEventListener('DOMContentLoaded', (event) => {
+            let inactivityTime = function () {
+                let time;
+                const warningMessage = 'You have been inactive for 10 seconds. Please select an answer to continue.';
+    
+                // Function to display the warning message
+                function displayWarning() {
+                    alert(warningMessage);
+                }
+    
+                // Reset timer on user interaction
+                function resetTimer() {
+                    clearTimeout(time);
+                    sessionStorage.setItem('lastInteractionTime', new Date().getTime());
+                    time = setTimeout(displayWarning, 10000); // 10 seconds = 10000 milliseconds
+                }
+    
+                // Function to check if the user has been inactive for a while
+                function checkInactivity() {
+                    const lastInteractionTime = sessionStorage.getItem('lastInteractionTime');
+                    if (lastInteractionTime) {
+                        const now = new Date().getTime();
+                        const inactiveDuration = now - parseInt(lastInteractionTime, 10);
+                        if (inactiveDuration >= 10000) { // 10 seconds
+                            displayWarning();
+                        }
+                    }
+                    resetTimer();
+                }
+    
+                // Initialize the last interaction time if not set
+                if (!sessionStorage.getItem('lastInteractionTime')) {
+                    sessionStorage.setItem('lastInteractionTime', new Date().getTime());
+                }
+    
+                // Event listeners to reset timer on interaction
+                document.addEventListener('click', resetTimer, true);
+                document.addEventListener('keydown', resetTimer, true);
+                document.addEventListener('mousemove', resetTimer, true);
+    
+                // Check for inactivity on page load
+                checkInactivity();
+            };
+    
+            inactivityTime(); // Run the inactivity timer function
+        });
+    </script> -->
 </body>
 </html>
 

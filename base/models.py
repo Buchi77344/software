@@ -102,7 +102,7 @@ class User_result(models.Model):
     
 
     def __str__(self):
-        return self.user.username
+        return self.userid.user.username
 def save_user_model(sender ,instance,created,**kwargs):
     if created:
           User_result.objects.create(userid=instance)

@@ -426,15 +426,13 @@ svg path{
     cursor: pointer;
 }
 
-.answer-item input:checked,
-.answer-item.selected input{
+.answer-item input:checked{
     background-color: blue;
     border: none;
     position: relative;
 }
 
-.answer-item input:checked::after,
-.answer-item.selected input::after{
+.answer-item input:checked::after{
     content : '';
     position : absolute;
     top : 4px;
@@ -877,7 +875,7 @@ svg path{
     stroke : rgba(0,0,0,.6);
 }
 
-.delete-overlay{
+.popup-overlay{
     position : fixed;
     width : 100vw;
     height : 100vh;
@@ -888,7 +886,7 @@ svg path{
     z-index : 900;
 }
 
-.delete-clarity-div{
+.popup-div{
     background-color: hsl(0, 0%, 97%);
     padding: 15px;
     position: absolute;
@@ -905,24 +903,24 @@ svg path{
     transition : transform .2s ease, opacity .2s ease;
 }
 
-.delete-clarity-div.visible{
+.popup-div.visible{
     transform: scale(1);
     opacity : 1;
 }
 
-.delete-clarity-head{
+.popup-head{
     font-size: 1.8rem;
     color : hsl(0, 0%, 25%);
 }
 
-.clarity-btn-container{
+.popup-btn-container{
     margin-top: 30px;
     display: flex;
     gap : 20px;
     justify-content: center;
 }
 
-.clarity-btn-container a{
+.popup-btn-container a{
     padding : 12px 40px;
     border-radius: 10px;
     color : hsl(0, 0%, 90%);
@@ -1116,8 +1114,23 @@ svg path{
     font-size : 1.2rem;
 }
 
-.user-login-wrapper{
+.user-login-page{
+    display: flex;
+    align-items: center;
+    justify-content : center;
     height : 100vh;
+    flex-direction: column;
+}
+
+.user-login-page-head{
+    margin-top : 0;
+    margin-bottom : 30px;
+    font-size: 3.2rem;
+    color : hsl(0, 0%, 25%);
+}
+
+.user-login-wrapper{
+    /* height : 100vh; */
     width : 100%;
     display: flex;
     justify-content: center;
