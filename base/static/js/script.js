@@ -5,32 +5,54 @@ let btnSpan = document.querySelector(".submit-btn > span")
 let useridBtnSpan = document.querySelector(".user_id-submit-btn > span")
 let createInput = document.querySelectorAll(".create-acct-input")
 let useridInput = document.querySelectorAll(".user_id-input")
-let deleteOverlay = document.querySelector(".delete-overlay")
-let deleteClarityDiv = document.querySelector(".delete-clarity-div")
+let popupOverlay = document.querySelector(".popup-overlay")
+let popupDiv = document.querySelector(".popup-div")
 let deleteBtn = document.querySelectorAll(".delete-btn")
-let clarityBtn = document.querySelectorAll(".clarity-btn-container a")
+let popupBtn = document.querySelectorAll(".popup-btn")
 let yesbtn = document.querySelector(".Yes-btn")
+let answerBtn = document.querySelector(".answer-submit-btn")
+console.log(answerBtn)
+function ShowPopup(){
+    popupOverlay.style.display = "grid"
+    setTimeout(() => {
+        popupDiv.classList.add("visible")
+    }, 100)
+}
+
+function removePopup(){
+    popupDiv.classList.remove("visible")
+    setTimeout(() => {
+        popupOverlay.style.display = "none"
+    }, 100)
+}
+
+function submitAnswer(){
+    answerBtn.type = "submit"
+    answerBtn.click()
+}
+
+document.querySelector(".exam.Yes-btn").onclick = function(){
+    submitAnswer()
+}
 
 Array.from(deleteBtn).forEach(el => {
     el.onclick = function(){
         let delLink = this.dataset.link
-        yesbtn.href = delLink
-        deleteOverlay.style.display = "grid"
-        setTimeout(() => {
-            deleteClarityDiv.classList.add("visible")
-        }, 100)
+        if(this.dataset.link !== ""){
+            yesbtn.querySelector("a").href = delLink
+        }
+        ShowPopup()
     }
 })
 
-let arrayClarityBtn = Array.from(clarityBtn)
-arrayClarityBtn.forEach(el => {
+let arrayPopupBtn = Array.from(popupBtn)
+arrayPopupBtn.forEach(el => {
     el.onclick = function(){
-        setTimeout(() => {
-            deleteOverlay.style.display = "none"
-        }, 100)
-        deleteClarityDiv.classList.remove("visible")
+        removePopup()
+        if(this.classList.contains("Yes-btn")){
+            this.querySelector("a").click()
+        }
     }
- 
 })
 
 function emptyValueLength(el_input){
@@ -113,23 +135,37 @@ let currentPage = 1;
 const itemsPerPage = 5;
 
 if(document.querySelector(".user-question-btn-container")){
-    questionBoxes.forEach((box, index) => {
-        box.onchange = () => {
-            questionNumbers[index].classList.add("answered")
-        }
-    
-        smallBoxHead.forEach((el, index) => {
-            el.textContent = `Question ${index + 1}`
+
+    function selectNumber(){
+        questionBoxes.forEach((box, index) => {
+            box.onchange = () => {
+                questionNumbers[index].classList.add("answered")
+                console.log("hi")
+            }
+        
+            smallBoxHead.forEach((el, index) => {
+                el.textContent = `Question ${index + 1}`
+            })
+        
         })
-    
-    })
-    
+    }
+
+    selectNumber()
+
+    function removeOtherBoxes(index){
+        questionBoxes.forEach((d, i) => {
+            if(i !== index){
+                console.log(d)
+                d.classList.remove("highlight")
+            }
+        })
+    }
+
+
     
     if(questionBoxes.length == 0){
-        if (document.querySelector(".user-question-btn-container")){
             document.querySelector(".user-question-btn-container").style.display = "none"
             document.querySelector(".no-questions").style.display = "block"
-        }
     }
     
     function displayItems(container, itemsPerPage, page) {
@@ -146,7 +182,10 @@ if(document.querySelector(".user-question-btn-container")){
       
         document.getElementById("current-page").textContent = `Page ${page}`;
     }
-    
+
+  
+    // document.getElementById("current-page").textContent = `Page ${currentPage}`;
+
     function updatePagination() {
         const container = document.querySelector(".question-section");
         displayItems(container, itemsPerPage, currentPage);
@@ -175,25 +214,108 @@ if(document.querySelector(".user-question-btn-container")){
     
     questionNumbers.forEach((el, index) => {
         el.addEventListener("click", () => {
-            console.log(index)
             currentPage = Math.ceil((index + 1) / itemsPerPage);
             updatePagination();
     
             // Scroll to the specific item
-            const targetItem = document.querySelectorAll(".question-box")[index];
+            let targetIndex = index > questionBoxes.length ? (index - 1) : index
+            const targetItem = document.querySelectorAll(".question-box")[targetIndex];
             targetItem.scrollIntoView({ behavior: "smooth" });
         })
-    
-    })
-}
 
-if(document.querySelector(".user-login-error-message")){
-    let errorMessage = document.querySelector(".user-login-error-message")
-    console.log(errorMessage)
-    if(errorMessage.textContent != ""){
-        setTimeout(() => {
-            errorMessage.style.display = "none"
-        }, 5000)
+        
+    })
+
+    answerBtn.addEventListener("click", () => {
+        console.log("answe")
+        ShowPopup()
+    })
+    
+    if(document.querySelector(".user-login-error-message")){
+        let errorMessage = document.querySelector(".user-login-error-message")
+        console.log(errorMessage)
+        if(errorMessage.textContent != ""){
+            setTimeout(() => {
+                errorMessage.style.display = "none"
+            }, 5000)
+        }
     }
-}
+
+    //Script to highlight questions and add keyboard shortcuts
+    
+    let currentQuestion = 0
+    let questionsLength = questionBoxes.length
+    let optionKeys = ['a', 'b', 'c', 'd']
+    let questionPerPage = 5
+    
+    
+    function highlightQuestion(index){
+        currentPage = Math.ceil((index + 1) / questionPerPage);
+        updatePagination();
+    
+        // Scroll to the specific item
+        let targetIndex = index > questionBoxes.length ? (index - 1) : index
+        const targetItem = document.querySelectorAll(".question-box")[targetIndex];
+        targetItem.scrollIntoView({ behavior: "smooth" });
+    
+        //highlight Questions
+        questionBoxes.forEach((el, i) =>{
+            el.classList.toggle("highlight", i === index)
+        })
+    
+    }
+    
+    function selectOption(optionKey){
+        let optionIndex = optionKeys.indexOf(optionKey)
+        if(optionIndex == -1) return;
+        let currentOption = questionBoxes[currentQuestion].querySelectorAll('.check-answer')
+        currentOption.forEach((el, index) => {
+            el.parentElement.classList.remove("selected")
+            
+            if(index == optionIndex){
+                el.click()
+                selectNumber()
+            }
+        })
+    }
+    
+    function nextQuestion(){
+        if(currentQuestion < (questionsLength - 1)){
+            currentQuestion++
+        }
+        highlightQuestion(currentQuestion)
+    }
+    
+    function prevQuestion(){
+        if(currentQuestion > 0){
+            currentQuestion--
+        }
+        highlightQuestion(currentQuestion)
+    }
+    
+    document.addEventListener("keydown", (e) => {
+    
+        highlightQuestion(currentQuestion)
+        let key = e.key.toLowerCase()
+        if(optionKeys.includes(key)){
+            selectOption(key)
+        }else if(key == "n" || key == "N"){
+            nextQuestion()
+      
+        }else if(key == "r" || key == "R"){
+            prevQuestion()
+        }else if(key == "s" || key == "S"){
+            // document.querySelector(".answer-submit-btn").click()
+            ShowPopup()
+            if(key == "y" || key == "Y"){
+                submitAnswer()
+            }
+        }
+    
+        
+    })
+
+
+}    
+
 

@@ -6,7 +6,7 @@ from django.dispatch import receiver
 
 
 class User(AbstractUser):
-    school_name = models.CharField(max_length=500, null=True)
+    school_name = models.CharField(max_length=500, null=True,blank=True)
     recovery_code = models.CharField(max_length=100, null=True)
 
 class Name_School(models.Model):
@@ -17,11 +17,9 @@ class Name_School(models.Model):
 
 @receiver(post_save, sender=User)
 def save_user_model(sender, instance, created, **kwargs):
-    if created:
-        # Filter users who are staff and match the new user's school_name
-        user_school = User.objects.filter(is_staff=True, school_name=instance.school_name)
-        if user_school.exists():
-            Name_School.objects.create(school=instance.school_name)
+    if created and instance.is_staff and instance.school_name:
+        # Create the Name_School object if it doesn't already exist
+        Name_School.objects.get_or_create(school=instance.school_name)
 
 class Subject(models.Model):
     name = models.CharField(max_length=255, unique=True, null=True)
@@ -51,6 +49,7 @@ class Answer(models.Model):
 class UserID(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     generated_id = models.CharField(max_length=100, unique=True)
+    
 
     def __str__(self):
         return self.user.username
@@ -83,7 +82,7 @@ class Suffle(models.Model):
 from django.utils import timezone
 
 class ExamSession(models.Model):
-    session_id = models.CharField(max_length=255, null=True)
+    
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     exam_start_time = models.DateTimeField(default=timezone.now)
@@ -96,7 +95,13 @@ class ExamSession(models.Model):
     def get_questions(self):
         
         return Question.objects.filter(examsession=self).order_by('shuffle_order')
-    
+class UserExamSession(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    exam_session = models.ForeignKey(ExamSession, on_delete=models.CASCADE,null=True)
+    start_time = models.DateTimeField(default=timezone.now)  # When the user starts the exam
+
+    def __str__(self):
+        return f"UserExamSession - User: {self.user.username}, Exam: {self.exam_session.subject.name}"
 class Result(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)

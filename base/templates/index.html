@@ -10,6 +10,15 @@
 </head>
 <body>
     <div class = "page">
+        <div class="popup-overlay">
+            <div class="popup-div">
+                <h3 class = "popup-head">Are you sure you want to submit</h3>
+                <div class = "popup-btn-container">
+                    <button  class = "popup-btn exam Yes-btn"><a href = "#">Yes, I'm sure</a></button>
+                    <button class = "popup-btn No-btn">No, Not Yet</button>
+                </div>
+            </div>
+        </div>
         <div class = "wrapper">
             <div class = "main-sidebar">
                 <div class = "menu">
@@ -86,7 +95,7 @@
 
                         <div class= "small-box-info">
                             <h4 class = "small-box-head">Number Of Questions</h4>
-                            <p class = "small-box-text">You have all questions</p>
+                            <p class = "small-box-text"> Questions Total: {{total_questions}}</p>
                         </div>
                     </div>
 
@@ -124,7 +133,7 @@
                            
                             {% endif %}
                             <div class="user-question-btn-container flex-between">
-                                <button type = "submit" class = "answer-submit-btn">Submit Answer</button>
+                                <button type = "button" class = "answer-submit-btn">Submit Answer</button>
                                 <div class = "pag-btn-container">
                                     <button type = "button" id = "pag-prev" class = "pag-prev-btn">Prev</button>
                                     <span id = "current-page" class = "pag-page-span"></span>
@@ -134,10 +143,7 @@
 
                             <h3 class = "no-questions">No Questions Yet</h3>
                         </form>
-                       
-                       
-
-                      
+                 
                     </div>
                 </div>
             </div>
@@ -174,7 +180,7 @@
         startCountDown("{{ remaining_time|floatformat:0 }}")
 
     </script>
-    {% comment %} <script>
+    <!-- <script>
         document.addEventListener('DOMContentLoaded', (event) => {
             let inactivityTime = function () {
                 let time;
@@ -221,7 +227,7 @@
     
             inactivityTime(); // Run the inactivity timer function
         });
-    </script> {% endcomment %}
+    </script> -->
 </body>
 </html>
 

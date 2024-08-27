@@ -215,7 +215,7 @@ from io import TextIOWrapper, StringIO
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import BulkUploadForm
-from .models import Question, Answer ,Result ,Name_School
+from .models import Question, Answer ,Result ,Name_School,UserExamSession
 
 
 
@@ -300,20 +300,83 @@ def login(request):
 
 @login_required(login_url='login')
 def index(request):
-    session_id = request.session.get('exam_session_id')
+    subjects = Subject.objects.all()
+    selected_subject_id = request.GET.get('subject_id')
+    questions = []
+    remaining_time = None
+    selected_subject = None
+    user_answers = []
+    total_questions = 0
 
-    if session_id:
-        # Retrieve ExamSession entries for the specific session_id and order by shuffle_order
-        exam_sessions = ExamSession.objects.filter(session_id=session_id).order_by('shuffle_order')
+    if subjects.exists():
+        if selected_subject_id:
+            selected_subject = get_object_or_404(Subject, id=selected_subject_id)
+        else:
+            selected_subject = subjects.first()
+
+        # Retrieve questions in the stored sequential order
+        exam_sessions = ExamSession.objects.filter(subject=selected_subject).order_by('shuffle_order') 
         questions = [session.question for session in exam_sessions]
-    else:
-        # If no session ID, show all questions (or handle as needed)
-        questions = Question.objects.all()  # Customize as needed if no session ID
+        total_questions = len(questions)
 
-    total_questions = len(questions)
+        # Shuffle questions for display
+        seed = hash(request.user.id) % 10000  # Unique seed for shuffling based on user ID
+        random.seed(seed)
+        random.shuffle(questions)
+
+        # Manage user-specific exam start
+        if exam_sessions.exists():
+            # Take the first available exam session for the subject
+            exam_session = exam_sessions.first()
+            user_exam_session, created = UserExamSession.objects.get_or_create(
+                user=request.user,
+                exam_session=exam_session,
+                defaults={'start_time': timezone.now()}
+            )
+
+            # Ensure start_time is not updated on subsequent loads
+            if not created:
+                user_exam_session.refresh_from_db()
+
+            # Calculate remaining time for the user
+            exam_start_time = user_exam_session.start_time
+            duration_parts = exam_session.exam_duration.split(':')
+            duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]), seconds=int(duration_parts[2]))
+            end_time = exam_start_time + duration
+
+            remaining_time = max(0, (end_time - timezone.now()).total_seconds())
+
+        if request.method == 'POST':
+            for question in questions:
+                selected_answer_id = request.POST.get(f'question_{question.id}')
+                if selected_answer_id:
+                    selected_answer = question.answers.get(id=selected_answer_id)
+                    is_correct = selected_answer.is_correct
+                else:
+                    selected_answer = None
+                    is_correct = False
+
+                Result.objects.create(
+                    user=request.user,
+                    subject=selected_subject,
+                    question=question,
+                    selected_answer=selected_answer,
+                    is_correct=is_correct,
+                    score=1.0 if is_correct else 0.0
+                )
+
+            return redirect('login')  # Redirect to login after completing the exam
+
+        if request.user.is_authenticated:
+            user_results = Result.objects.filter(user=request.user, subject=selected_subject)
+            user_answers = [(result.question.id, result.selected_answer.id if result.selected_answer else None) for result in user_results]
 
     return render(request, 'index.html', {
+        'subjects': subjects,
+        'selected_subject': selected_subject,
         'questions': questions,
+        'remaining_time': remaining_time,
+        'user_answers': user_answers,
         'total_questions': total_questions,
     })
 def welcome(request):

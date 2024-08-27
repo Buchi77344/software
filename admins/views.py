@@ -99,8 +99,8 @@ def generate_random_id():
 
 def userid(request):
     error_message = None
-
-    if request.method == "POST":
+    
+    if request.method == "POST": 
         username= request.POST.get('username')
         last_name = request.POST.get('last_name')
         if User.objects.filter(username=username).exists():
@@ -215,7 +215,6 @@ def clean_document(document):
             last_label = text[:2]
             cleaned_paragraphs.append(text)
         else:
-            # Handle missing or incorrect labels by continuing from the last valid label
             if last_label and not text.startswith("Q:"):
                 cleaned_paragraphs[-1] += " " + text
             else:
@@ -248,7 +247,6 @@ def parse_document(document):
                         'diagram_image_path': diagram_image_path
                     })
                 else:
-                    # Skip incomplete questions and log the error
                     messages.warning(request, f"Incomplete question ignored: {question_text}")
 
                 options = []
@@ -353,6 +351,42 @@ def user(request):
         "user_id": user_id
     }
     return render(request, 'admins/userget.html', context)
+
+import pandas as pd
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+
+def export_user_data_to_pdf(request):
+    userprofile = get_object_or_404(Userprofile, user=request.user)
+    user_id = UserID.objects.all()[:10]
+    
+    context = {
+        'userprofile': userprofile,
+        "user_id": user_id
+    }
+    
+    template_path = 'admins/pdf.html'
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="user_data.pdf"'
+
+    template = get_template(template_path)
+    html = template.render(context)
+
+    pisa_status = pisa.CreatePDF(html, dest=response)
+
+    if pisa_status.err:
+        return HttpResponse('We had some errors with the PDF creation')
+    return response
+def user(request):
+    userprofile = get_object_or_404(Userprofile, user=request.user)
+    
+    user_id = UserID.objects.all()
+    context = {
+        'userprofile': userprofile,   
+        "user_id": user_id
+    }
+    return render(request, 'admins/userget.html', context)
 import pandas as pd
 from django.http import HttpResponse
 from django.template.loader import get_template
@@ -386,7 +420,6 @@ from base.models import Suffle,ExamSession , Subject ,Result ,User_result ,Name_
 from django.utils import timezone
 
 import uuid
-
 @login_required(login_url='login')
 def launch(request):
     school_name = get_object_or_404(Name_School)
@@ -396,33 +429,25 @@ def launch(request):
             subject_question_counts = form.cleaned_data['subject_question_counts']
             exam_duration = form.cleaned_data['exam_duration']
 
-            # Generate a unique session ID for the user
-            session_id = f'{request.user.id}_{uuid.uuid4()}'
-
             for subject, number_of_questions in subject_question_counts.items():
-                questions = list(Question.objects.filter(subject=subject))
+                questions = list(Question.objects.filter(subject=subject).order_by('id'))  # Order by ID
                 if len(questions) < number_of_questions:
                     messages.error(request, f"Not enough questions for {subject.name}.")
                     return redirect('admins:launch')
 
-                selected_questions = random.sample(questions, number_of_questions)
+                selected_questions = questions[:number_of_questions]  # Select first N questions
 
-                # Save the shuffled questions in the ExamSession model
                 for index, question in enumerate(selected_questions):
                     ExamSession.objects.create(
-                        session_id=session_id,
                         subject=subject,
                         question=question,
-                        exam_start_time=timezone.now(),
-                        exam_duration=exam_duration,
-                        shuffle_order=index + 1  # Ensure the order starts from 1
+                        exam_start_time=timezone.now(),  # Set start time
+                        exam_duration=exam_duration,  # Duration
+                        shuffle_order=index + 1  # Store the original order
                     )
 
-            # Store the session ID in the user's session data
-            request.session['exam_session_id'] = session_id
-
-            messages.success(request, 'Exam preferences have been successfully saved.')
-            return redirect('index')
+            messages.success(request, 'Exam session has been successfully started.')
+            return redirect('admins:launch')
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
