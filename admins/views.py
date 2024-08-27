@@ -99,7 +99,7 @@ def generate_random_id():
 
 def userid(request):
     error_message = None
-    
+    userprofile = get_object_or_404(Userprofile ,user=request.user)
     if request.method == "POST": 
         username= request.POST.get('username')
         last_name = request.POST.get('last_name')
@@ -131,7 +131,8 @@ def userid(request):
         school_name =get_object_or_404(Name_School)
         context = {
             'school_name':school_name,
-            'error_message':error_message
+            'error_message':error_message,
+            'userprofile':userprofile
         }
 
     return render(request, 'admins/userid.html',context)  
@@ -158,6 +159,7 @@ import time
 
 @login_required(login_url='login')
 def upload(request):
+    userprofile = get_object_or_404(Userprofile,user=request.user)
     if request.method == 'POST':
         form = BulkUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -171,7 +173,7 @@ def upload(request):
             try:
                 document = Document(file)
                 cleaned_document = clean_document(document)
-                subject, created = Subject.objects.get_or_create(name=subject_text)
+                subject, created = Subject.objects.get_or_create(name=subject_text) 
                 questions_data = parse_document(cleaned_document)
 
                 if not questions_data:
@@ -202,7 +204,7 @@ def upload(request):
         school_name = get_object_or_404(Name_School)
         form = BulkUploadForm()
 
-    return render(request, 'admins/upload.html', {'form': form, 'school_name': school_name})
+    return render(request, 'admins/upload.html', {'form': form, 'school_name': school_name,'userprofile':userprofile})
 
 def clean_document(document):
     cleaned_paragraphs = []

@@ -39,7 +39,7 @@
                             </div>
                             <div class = "text-content-div flex-column">
                                 <span class = "sub-text">Hi there</span>
-                                <span class = "text">{{school_name.school}}</span>
+                                <span class = "text">{{userprofile.user.username}}</span>
                             </div>
                         </div>
                     </div>
@@ -157,7 +157,7 @@
 
             <div class = "main-content">
                 <div class="main-content-header flex-between">
-                    <span>{{userprofile.user.school_name}}</span>
+                    <span>{{school_name.school}}</span>
                     <a class = "logout-link" href="{% url 'admins:logout' %}">Logout</a>
                 </div>
                 {% for messages in messages %}

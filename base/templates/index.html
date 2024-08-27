@@ -46,7 +46,7 @@
                         </div>
                     </div>
                     <div class= "user menu-content flex-column ">
-                        <div class = "subjects-link-div">
+                        <div class = "subjects-link-div flex-column">
                             {% for subject in subjects %}
                             <a href = "{% url 'index' %}?subject_id={{ subject.id }}" class = "user menu-item">
                                 <div class="menu-wrapper flex gp-10">

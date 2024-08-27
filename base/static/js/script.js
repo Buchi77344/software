@@ -368,3 +368,139 @@ function getCookie(name) {
         }
         return cookieValue;
 }
+// Script for calculator
+
+let calculatorScreen = document.querySelector(".calculator-screen")
+let calculatorButtons = document.querySelectorAll(".calculator-button")
+let currentInput = ""
+let calculatorOperator = ""
+let firstOperand = ""
+let dotAdded = false
+
+function updateDisplay(value){
+    calculatorScreen.textContent = value
+}
+
+function handleButtonClick(value){
+    if(value >= 0 && value <= 9){
+        currentInput += value
+        if(calculatorOperator){
+            updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
+        }else{
+            updateDisplay(currentInput)
+        }
+
+    }else if(value === "." && !dotAdded){
+        if(currentInput === ''){
+            currentInput = '0'
+        }
+        currentInput += '.'
+        dotAdded = true
+        updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
+    }else if(value === "CLR"){
+        currentInput = ""
+        calculatorOperator = "" 
+        firstOperand = ""
+        updateDisplay('')
+    }else if(value === "="){
+        if(currentInput !== ''){
+            let secondOperand = currentInput
+            result = calculateFunc(firstOperand, secondOperand, calculatorOperator)
+            updateDisplay(result)
+            currentInput = result
+            firstOperand = ''
+            calculatorOperator = ""
+            dotAdded = result.includes(".")
+        }
+    }else if(value === "%"){
+        if(currentInput !== ''){
+            currentInput = (parseFloat(currentInput) / 100).toString()
+            updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
+            dotAdded = currentInput.includes(".")
+        }
+    }else if(['+', '-', '*', '/'].includes(value)){
+        if(currentInput !== ''){
+            if(firstOperand !== '' && calculatorOperator !== ''){
+                firstOperand = calculateFunc(firstOperand, currentInput, calculatorOperator)
+                calculatorOperator = value
+                currentInput = ''
+                dotAdded = false 
+                updateDisplay(firstOperand + ' ' + calculatorOperator)
+            }else{
+                firstOperand = currentInput
+                calculatorOperator = value
+                currentInput = ""
+                dotAdded = false
+                updateDisplay(firstOperand + ' ' + calculatorOperator)
+            }
+        }
+    }else if(value === "DEL"){
+        if(currentInput !== ''){
+           if(currentInput.endsWith(".")){
+               dotAdded = false
+           }
+           currentInput = currentInput.slice(0, -1)
+        }else if(calculatorOperator !== ''){
+            calculatorOperator = ''
+        }else if(firstOperand !== ''){
+            firstOperand = firstOperand.slice(0, -1)
+        }
+
+        if(calculatorOperator){
+            updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
+        }else{
+            updateDisplay(firstOperand + currentInput)
+        }
+    }
+}
+
+function calculateFunc(operand1, operand2, operatorCal){
+    let result = 0
+    operand1 = parseFloat(operand1)
+    operand2 = parseFloat(operand2)
+
+    switch(operatorCal){
+        case '+':
+            result = operand1 + operand2
+            break;
+
+        case '-':
+            result = operand1 - operand2
+            break;
+
+        case '*':
+            result = operand1 * operand2
+            break;
+
+        case '/':
+            result = operand1 / operand2
+            break;
+
+        default:
+            result = ''
+    }
+
+    return result.toString()
+}
+
+calculatorButtons.forEach(btn => {
+    btn.addEventListener("click", function(){
+        handleButtonClick(btn.textContent)
+    })
+})
+
+document.addEventListener("keydown", function(e){
+    let key = e.key
+
+    if((key >= 0 && key <= 9) || key === '.'){
+        handleButtonClick(key)
+    }else if((key == 'Enter') || (key === '=')){
+        handleButtonClick('=')
+    }else if((key === 'escape') || (key === 'Escape') || key === 'c'){
+        handleButtonClick("CLR")
+    }else if((key === 'backspace') || (key === 'Backspace')){
+        handleButtonClick('DEL')
+    }else if(['+', '-', '*', '/'].includes(key)){
+        handleButtonClick(key)
+    }
+})
