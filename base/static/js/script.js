@@ -8,19 +8,22 @@ let useridInput = document.querySelectorAll(".user_id-input")
 let popupOverlay = document.querySelector(".popup-overlay")
 let popupDiv = document.querySelector(".popup-div")
 let deleteBtn = document.querySelectorAll(".delete-btn")
-let popupBtn = document.querySelectorAll(".popup-btn")
+let popupBtn = document.querySelectorAll(".popup-btn-container button")
 let yesbtn = document.querySelector(".Yes-btn")
 let answerBtn = document.querySelector(".answer-submit-btn")
-console.log(answerBtn)
+let popupVisible;
 function ShowPopup(){
     popupOverlay.style.display = "grid"
+    popupVisible = true
     setTimeout(() => {
         popupDiv.classList.add("visible")
     }, 100)
+
 }
 
 function removePopup(){
     popupDiv.classList.remove("visible")
+    popupVisible = false
     setTimeout(() => {
         popupOverlay.style.display = "none"
     }, 100)
@@ -31,8 +34,10 @@ function submitAnswer(){
     answerBtn.click()
 }
 
-document.querySelector(".exam.Yes-btn").onclick = function(){
-    submitAnswer()
+if(document.querySelector(".Yes-btn.exam")){
+    document.querySelector(".Yes-btn.exam").addEventListener("click", function(){
+        submitAnswer()
+    })
 }
 
 Array.from(deleteBtn).forEach(el => {
@@ -49,7 +54,7 @@ let arrayPopupBtn = Array.from(popupBtn)
 arrayPopupBtn.forEach(el => {
     el.onclick = function(){
         removePopup()
-        if(this.classList.contains("Yes-btn")){
+        if(this.classList.contains("yes-link")){
             this.querySelector("a").click()
         }
     }
@@ -65,10 +70,6 @@ function emptyValueLength(el_input){
         }
        
     })
-//the input nodelist will be empty if we are on another page, that why with this condition we set value to false to enable the animation to work
-    // if(el_input.length == 0){
-    //     value = false
-    // }
     
     return value
 }
@@ -104,11 +105,11 @@ let categoryLinks = document.querySelectorAll(".category-link")
 let subjectResultDivs = document.querySelectorAll(".subject-result-div")
 Array.from(categoryLinks).forEach(link => {
     link.addEventListener("click", (e) => {
-        categorizeProducts(e, link)
+        categorizeResults(e, link)
     })
 })
 
-function categorizeProducts(e, link){
+function categorizeResults(e, link){
     e.preventDefault()
     if(link.dataset.category == "all"){
         subjectResultDivs.forEach(el => {
@@ -139,8 +140,8 @@ if(document.querySelector(".user-question-btn-container")){
     function selectNumber(){
         questionBoxes.forEach((box, index) => {
             box.onchange = () => {
-                questionNumbers[index].classList.add("answered")
                 console.log("hi")
+                questionNumbers[index].classList.add("answered")
             }
         
             smallBoxHead.forEach((el, index) => {
@@ -151,17 +152,6 @@ if(document.querySelector(".user-question-btn-container")){
     }
 
     selectNumber()
-
-    function removeOtherBoxes(index){
-        questionBoxes.forEach((d, i) => {
-            if(i !== index){
-                console.log(d)
-                d.classList.remove("highlight")
-            }
-        })
-    }
-
-
     
     if(questionBoxes.length == 0){
             document.querySelector(".user-question-btn-container").style.display = "none"
@@ -226,8 +216,8 @@ if(document.querySelector(".user-question-btn-container")){
         
     })
 
-    answerBtn.addEventListener("click", () => {
-        console.log("answe")
+    answerBtn.addEventListener("click", (e) => {
+        console.log(e.target)
         ShowPopup()
     })
     
@@ -294,27 +284,30 @@ if(document.querySelector(".user-question-btn-container")){
     }
     
     document.addEventListener("keydown", (e) => {
-    
         highlightQuestion(currentQuestion)
         let key = e.key.toLowerCase()
-        if(optionKeys.includes(key)){
-            selectOption(key)
-        }else if(key == "n" || key == "N"){
-            nextQuestion()
-      
-        }else if(key == "r" || key == "R"){
-            prevQuestion()
-        }else if(key == "s" || key == "S"){
-            // document.querySelector(".answer-submit-btn").click()
-            ShowPopup()
+        if(popupVisible){
             if(key == "y" || key == "Y"){
                 submitAnswer()
+            }else if(key == "n" || key == "N"){
+                removePopup()
+            }
+        }else{
+            if(optionKeys.includes(key)){
+                selectOption(key)
+            }else if(key == "n" || key == "N"){
+                nextQuestion()
+            }else if(key == "r" || key == "R"){
+                prevQuestion()
+            }else if(key == "s" || key == "S"){
+                ShowPopup()
             }
         }
     
         
     })
 
+    highlightQuestion(currentQuestion)
 
 }    
 
