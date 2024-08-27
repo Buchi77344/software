@@ -307,6 +307,7 @@ def index(request):
     selected_subject = None
     user_answers = []
     total_questions = 0
+    user_exam_session = None
 
     if subjects.exists():
         if selected_subject_id:
@@ -315,7 +316,7 @@ def index(request):
             selected_subject = subjects.first()
 
         # Retrieve questions in the stored sequential order
-        exam_sessions = ExamSession.objects.filter(subject=selected_subject).order_by('shuffle_order') 
+        exam_sessions = ExamSession.objects.filter(subject=selected_subject).order_by('shuffle_order')
         questions = [session.question for session in exam_sessions]
         total_questions = len(questions)
 
@@ -326,23 +327,25 @@ def index(request):
 
         # Manage user-specific exam start
         if exam_sessions.exists():
-            # Take the first available exam session for the subject
-            exam_session = exam_sessions.first()
-            user_exam_session, created = UserExamSession.objects.get_or_create(
-                user=request.user,
-                exam_session=exam_session,
-                defaults={'start_time': timezone.now()}
-            )
+            # Check if a UserExamSession already exists for this user and subject
+            try:
+                user_exam_session = UserExamSession.objects.get(user=request.user, exam_session__subject=selected_subject)
+            except UserExamSession.DoesNotExist:
+                # If no session exists, create a new one using the current time or a previous start time if available
+                first_exam_session = UserExamSession.objects.filter(user=request.user).order_by('start_time').first()
+                user_exam_start_time = first_exam_session.start_time if first_exam_session else timezone.now()
 
-            # Ensure start_time is not updated on subsequent loads
-            if not created:
-                user_exam_session.refresh_from_db()
+                # Create a new UserExamSession for the selected subject
+                user_exam_session = UserExamSession.objects.create(
+                    user=request.user,
+                    exam_session=exam_sessions.first(),
+                    start_time=user_exam_start_time
+                )
 
             # Calculate remaining time for the user
-            exam_start_time = user_exam_session.start_time
-            duration_parts = exam_session.exam_duration.split(':')
+            duration_parts = user_exam_session.exam_session.exam_duration.split(':')
             duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]), seconds=int(duration_parts[2]))
-            end_time = exam_start_time + duration
+            end_time = user_exam_session.start_time + duration
 
             remaining_time = max(0, (end_time - timezone.now()).total_seconds())
 
