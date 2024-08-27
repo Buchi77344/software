@@ -88,20 +88,29 @@ class ExamSession(models.Model):
     exam_start_time = models.DateTimeField(default=timezone.now)
     exam_duration = models.CharField(max_length=8, default='01:00:00')  # Format hh:mm:ss
     completed = models.BooleanField(default=False)
-    shuffle_order = models.PositiveIntegerField(null=True)  # Existing field for shuffle order
+    shuffle_order = models.PositiveIntegerField(null=True) 
+    submit = models.BooleanField(default=False) # Existing field for shuffle order
  
     def __str__(self):
         return f'{self.subject.name} - {self.question.text[:50]}'
     def get_questions(self):
         
         return Question.objects.filter(examsession=self).order_by('shuffle_order')
-class UserExamSession(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    exam_session = models.ForeignKey(ExamSession, on_delete=models.CASCADE,null=True)
+
+
+
+class UserExamSessionx(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)  # Track subject separately
+    exam_session = models.ForeignKey(ExamSession, on_delete=models.CASCADE, null=True)
     start_time = models.DateTimeField(default=timezone.now)  # When the user starts the exam
 
+    class Meta:
+        unique_together = ('user', 'subject')  # Ensure unique sessions per user per subject
+
     def __str__(self):
-        return f"UserExamSession - User: {self.user.username}, Exam: {self.exam_session.subject.name}"
+        return f"UserExamSession - User: {self.user.username}, Subject: {self.subject.name}"
+
 class Result(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
@@ -129,3 +138,12 @@ def save_user_model(sender ,instance,created,**kwargs):
   
 
 post_save.connect(save_user_model, sender=UserID ) 
+
+
+class UserSelection(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # If using Django's user model
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    selected_answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now=True)
+
+    

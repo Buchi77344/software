@@ -311,4 +311,60 @@ if(document.querySelector(".user-question-btn-container")){
 
 }    
 
+// Script to persist answers on refresh
 
+// Fetch existing selections when the page loads
+fetch('/get_selections/')
+    .then(response => response.json())
+    .then(data => {
+        const selectedAnswers = data.selected_answers;
+        console.log(`selectedAnswers: ${selectedAnswers}`)
+        for (const [questionId, answerId] of Object.entries(selectedAnswers)) {
+            const radio = document.querySelector(`input[name="question_${questionId}"][value="${answerId}"]`);
+            if (radio) {
+                radio.checked = true;
+            }
+        }
+    });
+        
+// Add event listener to save selection on change
+document.querySelectorAll('.check-answer').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const questionId = this.name.split('_')[1];
+        const answerId = this.value;
+        console.log(`Answer Id: ${answerId}`)
+        fetch('/save_selection/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')  // Add CSRF token for security
+            },
+            body: JSON.stringify({
+                question_id: questionId,
+                answer_id: answerId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status !== 'success') {
+                console.log('Failed to save selection');
+            }
+        });
+    });
+});
+
+function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+}

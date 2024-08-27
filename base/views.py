@@ -215,7 +215,7 @@ from io import TextIOWrapper, StringIO
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import BulkUploadForm
-from .models import Question, Answer ,Result ,Name_School,UserExamSession
+from .models import Question, Answer ,Result ,Name_School,UserExamSessionx
 
 
 
@@ -300,6 +300,8 @@ def login(request):
 
 @login_required(login_url='login')
 def index(request):
+    username = get_object_or_404(UserID,user=request.user)
+    school_name = get_object_or_404(Name_School)
     subjects = Subject.objects.all()
     selected_subject_id = request.GET.get('subject_id')
     questions = []
@@ -307,7 +309,7 @@ def index(request):
     selected_subject = None
     user_answers = []
     total_questions = 0
-    user_exam_session = None
+    start_time = None
 
     if subjects.exists():
         if selected_subject_id:
@@ -327,25 +329,32 @@ def index(request):
 
         # Manage user-specific exam start
         if exam_sessions.exists():
-            # Check if a UserExamSession already exists for this user and subject
-            try:
-                user_exam_session = UserExamSession.objects.get(user=request.user, exam_session__subject=selected_subject)
-            except UserExamSession.DoesNotExist:
-                # If no session exists, create a new one using the current time or a previous start time if available
-                first_exam_session = UserExamSession.objects.filter(user=request.user).order_by('start_time').first()
-                user_exam_start_time = first_exam_session.start_time if first_exam_session else timezone.now()
+            exam_session = exam_sessions.first()
 
-                # Create a new UserExamSession for the selected subject
-                user_exam_session = UserExamSession.objects.create(
-                    user=request.user,
-                    exam_session=exam_sessions.first(),
-                    start_time=user_exam_start_time
-                )
+            # Check if the user has already started an exam session for any subject
+            first_user_exam_session = UserExamSessionx.objects.filter(user=request.user).first()
+            if first_user_exam_session:
+                # Use the same start time for the new subject
+                start_time = first_user_exam_session.start_time
+            else:
+                # No previous exam session, start a new one
+                start_time = timezone.now()
 
-            # Calculate remaining time for the user
-            duration_parts = user_exam_session.exam_session.exam_duration.split(':')
+            # Create or retrieve the user's exam session for the selected subject
+            user_exam_session, created = UserExamSessionx.objects.get_or_create(
+                user=request.user,
+                subject=selected_subject,
+                defaults={'exam_session': exam_session, 'start_time': start_time}
+            )
+
+            # Ensure start_time is not updated on subsequent loads
+            if not created:
+                user_exam_session.refresh_from_db()
+
+            # Calculate remaining time for the user based on the start time
+            duration_parts = exam_session.exam_duration.split(':')
             duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]), seconds=int(duration_parts[2]))
-            end_time = user_exam_session.start_time + duration
+            end_time = start_time + duration
 
             remaining_time = max(0, (end_time - timezone.now()).total_seconds())
 
@@ -363,12 +372,13 @@ def index(request):
                     user=request.user,
                     subject=selected_subject,
                     question=question,
-                    selected_answer=selected_answer,
+                    selected_answer=selected_answer,  
                     is_correct=is_correct,
                     score=1.0 if is_correct else 0.0
                 )
+                
 
-            return redirect('login')  # Redirect to login after completing the exam
+            return redirect('complete')  # Redirect to login after completing the exam
 
         if request.user.is_authenticated:
             user_results = Result.objects.filter(user=request.user, subject=selected_subject)
@@ -381,6 +391,8 @@ def index(request):
         'remaining_time': remaining_time,
         'user_answers': user_answers,
         'total_questions': total_questions,
+        'school_name':school_name,
+        'username':username
     })
 def welcome(request):
     userprofile = get_object_or_404(Userprofile,user=request.user)
@@ -388,3 +400,36 @@ def welcome(request):
         'userprofile':userprofile
     }
     return render (request, 'welcome.html',context) 
+
+def complete(request):
+    return render(request, 'exam_complete.html')
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import UserSelection
+import json
+
+@csrf_exempt
+def save_selection(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        question_id = data.get('question_id')
+        answer_id = data.get('answer_id')
+
+        if request.user.is_authenticated:  # Ensure the user is logged in
+            selection, created = UserSelection.objects.update_or_create(
+                user=request.user,
+                question_id=question_id,
+                defaults={'selected_answer_id': answer_id},
+            )
+            return JsonResponse({'status': 'success'})
+
+    return JsonResponse({'status': 'failed'}, status=400)
+
+def get_selections(request):
+    if request.user.is_authenticated:
+        user_selections = UserSelection.objects.filter(user=request.user)
+        selected_answers = {selection.question_id: selection.selected_answer_id for selection in user_selections}
+        return JsonResponse({'selected_answers': selected_answers})
+
+    return JsonResponse({'status': 'failed'}, status=400)
