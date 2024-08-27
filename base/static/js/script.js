@@ -311,4 +311,78 @@ if(document.querySelector(".user-question-btn-container")){
 
 }    
 
+// Script for calculator
 
+let calculatorScreen = document.querySelector(".calculator-screen")
+let calculatorButtons = document.querySelectorAll(".calculator-button")
+let currentInput = ""
+let calculatorOperator = ""
+let firstOperand = ""
+
+function updateDisplay(value){
+    calculatorScreen.textContent = value
+}
+
+function handleButtonClick(value){
+    if(value >= 0 && value <= 9){
+        currentInput += value
+        updateDisplay(currentInput)
+    }else if(value === "CLR"){
+        currentInput = ""
+        calculatorOperator = "" 
+        firstOperand = ""
+    }else if(value === "="){
+        if(calculatorOperator && currentInput){
+            currentInput= calculateFunc(firstOperand, currentInput, calculatorOperator)
+            updateDisplay(currentInput)
+            firstOperand = currentInput
+            currentInput = ""
+            calculatorOperator = ""
+        }
+    }else if(['+', '-', '*', '/']){
+        if(currentInput){
+            firstOperand = currentInput
+            calculatorOperator = value
+            currentInput = ""
+        }
+    }else if(value === "DEL"){
+        currentInput = currentInput.slice(0, -1)
+        updateDisplay(currentInput)
+    }
+}
+
+function calculateFunc(operand1, operand2, operatorCal){
+    let result = 0
+    operand1 = parseFloat(operand1)
+    operand2 = parseFloat(operand2)
+
+    switch(operatorCal){
+        case '+':
+            result = operand1 + operand2
+            break
+
+        case '-':
+            result = operand1 - operand2
+            break
+
+        case '*':
+            result = operand1 * operand2
+            break
+
+        case '/':
+            result = operand1 / operand2
+            break
+    }
+
+    return result.toString()
+}
+
+calculatorButtons.forEach(btn => {
+    btn.addEventListener("click", function(){
+        handleButtonClick(btn.textContent)
+    })
+})
+
+document.addEventListener("keydown", function(e){
+    
+})

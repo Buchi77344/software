@@ -285,7 +285,7 @@ svg path{
 }
 
 .calculator{
-    background-color : hsla(164, 27%, 92%, 0.5);
+    background-color : hsl(0deg 0% 98% / 90%);
     padding : 15px 12px;
     border-radius: 10px;
 }
@@ -297,6 +297,7 @@ svg path{
     background-color: hsla(168, 12%, 92%, 0.9);
     margin-bottom: 15px;
     border-radius: 50px;
+    box-shadow: 3px 3px 9px rgb(0 0 0 / 27%);
 }
 
 .calculator-btn-container{
@@ -306,14 +307,16 @@ svg path{
 }
 
 .calculator-button{
-    width : 45px;
     height : 45px;
     border-radius: 50%;
-    background-color: hsla(164, 61%, 41%, 0.479);;
+    background-color: hsl(164deg 30.79% 69.01% / 26%);
+    box-shadow: 2px 5px 9px rgb(0 0 0 / 27%), -2px -2px 9px rgb(255 255 255 / 87%);
+    font-size: .85rem;
 }
 
 .calculator-button.large{
     grid-column: span 2;
+    border-radius: 20px;
 }
 
 .main-content-header{
