@@ -384,5 +384,17 @@ calculatorButtons.forEach(btn => {
 })
 
 document.addEventListener("keydown", function(e){
-    
+    const key = e.key
+
+    if((key >= 0 && key <= 9) || key == "."){
+        handleButtonClick(key)
+    }else if(key === "Enter" || key === '='){
+        handleButtonClick("=")
+    }else if(key === "Escape" || key === 'c'){
+        handleButtonClick("CLR")
+    }else if(key === "Backspace"){
+        handleButtonClick("DEL")
+    }else if (['+', '-', '*', '/'].includes(key)){
+        handleButtonClick(key)
+    }
 })
