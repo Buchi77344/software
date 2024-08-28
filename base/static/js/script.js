@@ -217,7 +217,6 @@ if(document.querySelector(".user-question-btn-container")){
     })
 
     answerBtn.addEventListener("click", (e) => {
-        console.log(e.target)
         ShowPopup()
     })
     
@@ -287,7 +286,7 @@ if(document.querySelector(".user-question-btn-container")){
         highlightQuestion(currentQuestion)
         let key = e.key.toLowerCase()
         if(popupVisible){
-            if(key == "y" || key == "Y"){
+            if(key === "y" || key === "Y"){
                 submitAnswer()
             }else if(key == "n" || key == "N"){
                 removePopup()
