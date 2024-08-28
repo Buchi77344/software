@@ -311,6 +311,63 @@ if(document.querySelector(".user-question-btn-container")){
 
 }    
 
+// Script to persist answers on refresh
+
+// Fetch existing selections when the page loads
+fetch('/get_selections/')
+    .then(response => response.json())
+    .then(data => {
+        const selectedAnswers = data.selected_answers;
+        console.log(`selectedAnswers: ${selectedAnswers}`)
+        for (const [questionId, answerId] of Object.entries(selectedAnswers)) {
+            const radio = document.querySelector(`input[name="question_${questionId}"][value="${answerId}"]`);
+            if (radio) {
+                radio.checked = true;
+            }
+        }
+    });
+        
+// Add event listener to save selection on change
+document.querySelectorAll('.check-answer').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const questionId = this.name.split('_')[1];
+        const answerId = this.value;
+        console.log(`Answer Id: ${answerId}`)
+        fetch('/save_selection/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')  // Add CSRF token for security
+            },
+            body: JSON.stringify({
+                question_id: questionId,
+                answer_id: answerId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status !== 'success') {
+                console.log('Failed to save selection');
+            }
+        });
+    });
+});
+
+function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+}
 // Script for calculator
 
 let calculatorScreen = document.querySelector(".calculator-screen")
@@ -318,6 +375,7 @@ let calculatorButtons = document.querySelectorAll(".calculator-button")
 let currentInput = ""
 let calculatorOperator = ""
 let firstOperand = ""
+let dotAdded = false
 
 function updateDisplay(value){
     calculatorScreen.textContent = value
@@ -326,28 +384,73 @@ function updateDisplay(value){
 function handleButtonClick(value){
     if(value >= 0 && value <= 9){
         currentInput += value
-        updateDisplay(currentInput)
+        if(calculatorOperator){
+            updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
+        }else{
+            updateDisplay(currentInput)
+        }
+
+    }else if(value === "." && !dotAdded){
+        if(currentInput === ''){
+            currentInput = '0'
+        }
+        currentInput += '.'
+        dotAdded = true
+        updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
     }else if(value === "CLR"){
         currentInput = ""
         calculatorOperator = "" 
         firstOperand = ""
+        updateDisplay('')
     }else if(value === "="){
-        if(calculatorOperator && currentInput){
-            currentInput= calculateFunc(firstOperand, currentInput, calculatorOperator)
-            updateDisplay(currentInput)
-            firstOperand = currentInput
-            currentInput = ""
+        if(currentInput !== ''){
+            let secondOperand = currentInput
+            result = calculateFunc(firstOperand, secondOperand, calculatorOperator)
+            updateDisplay(result)
+            currentInput = result
+            firstOperand = ''
             calculatorOperator = ""
+            dotAdded = result.includes(".")
         }
-    }else if(['+', '-', '*', '/']){
-        if(currentInput){
-            firstOperand = currentInput
-            calculatorOperator = value
-            currentInput = ""
+    }else if(value === "%"){
+        if(currentInput !== ''){
+            currentInput = (parseFloat(currentInput) / 100).toString()
+            updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
+            dotAdded = currentInput.includes(".")
+        }
+    }else if(['+', '-', '*', '/'].includes(value)){
+        if(currentInput !== ''){
+            if(firstOperand !== '' && calculatorOperator !== ''){
+                firstOperand = calculateFunc(firstOperand, currentInput, calculatorOperator)
+                calculatorOperator = value
+                currentInput = ''
+                dotAdded = false 
+                updateDisplay(firstOperand + ' ' + calculatorOperator)
+            }else{
+                firstOperand = currentInput
+                calculatorOperator = value
+                currentInput = ""
+                dotAdded = false
+                updateDisplay(firstOperand + ' ' + calculatorOperator)
+            }
         }
     }else if(value === "DEL"){
-        currentInput = currentInput.slice(0, -1)
-        updateDisplay(currentInput)
+        if(currentInput !== ''){
+           if(currentInput.endsWith(".")){
+               dotAdded = false
+           }
+           currentInput = currentInput.slice(0, -1)
+        }else if(calculatorOperator !== ''){
+            calculatorOperator = ''
+        }else if(firstOperand !== ''){
+            firstOperand = firstOperand.slice(0, -1)
+        }
+
+        if(calculatorOperator){
+            updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
+        }else{
+            updateDisplay(firstOperand + currentInput)
+        }
     }
 }
 
@@ -359,19 +462,22 @@ function calculateFunc(operand1, operand2, operatorCal){
     switch(operatorCal){
         case '+':
             result = operand1 + operand2
-            break
+            break;
 
         case '-':
             result = operand1 - operand2
-            break
+            break;
 
         case '*':
             result = operand1 * operand2
-            break
+            break;
 
         case '/':
             result = operand1 / operand2
-            break
+            break;
+
+        default:
+            result = ''
     }
 
     return result.toString()
@@ -384,17 +490,17 @@ calculatorButtons.forEach(btn => {
 })
 
 document.addEventListener("keydown", function(e){
-    const key = e.key
+    let key = e.key
 
-    if((key >= 0 && key <= 9) || key == "."){
+    if((key >= 0 && key <= 9) || key === '.'){
         handleButtonClick(key)
-    }else if(key === "Enter" || key === '='){
-        handleButtonClick("=")
-    }else if(key === "Escape" || key === 'c'){
+    }else if((key == 'Enter') || (key === '=')){
+        handleButtonClick('=')
+    }else if((key === 'escape') || (key === 'Escape') || key === 'c'){
         handleButtonClick("CLR")
-    }else if(key === "Backspace"){
-        handleButtonClick("DEL")
-    }else if (['+', '-', '*', '/'].includes(key)){
+    }else if((key === 'backspace') || (key === 'Backspace')){
+        handleButtonClick('DEL')
+    }else if(['+', '-', '*', '/'].includes(key)){
         handleButtonClick(key)
     }
 })

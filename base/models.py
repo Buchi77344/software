@@ -1,26 +1,25 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import post_save
+from django.dispatch import receiver
 
 
 
 class User(AbstractUser):
-   school_name =models.CharField(max_length=500,null=True)
-   recovery_code = models.CharField(max_length=100,null=True)
-   
-school_name = User.school_name
-user_school =User.objects.filter(is_staff =True,school_name=school_name)
+    school_name = models.CharField(max_length=500, null=True,blank=True)
+    recovery_code = models.CharField(max_length=100, null=True)
+
 class Name_School(models.Model):
-    school = models.CharField(max_length=345,default=user_school)
+    school = models.CharField(max_length=345)
 
     def __str__(self):
         return self.school
-def save_user_model(sender ,instance,created,**kwargs):
-    if created:
-          Name_School.objects.create(user=instance)
-  
 
-post_save.connect(save_user_model, sender=User )
+@receiver(post_save, sender=User)
+def save_user_model(sender, instance, created, **kwargs):
+    if created and instance.is_staff and instance.school_name:
+        # Create the Name_School object if it doesn't already exist
+        Name_School.objects.get_or_create(school=instance.school_name)
 
 class Subject(models.Model):
     name = models.CharField(max_length=255, unique=True, null=True)
@@ -50,6 +49,7 @@ class Answer(models.Model):
 class UserID(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     generated_id = models.CharField(max_length=100, unique=True)
+    
 
     def __str__(self):
         return self.user.username
@@ -82,20 +82,35 @@ class Suffle(models.Model):
 from django.utils import timezone
 
 class ExamSession(models.Model):
-    session_id = models.CharField(max_length=255, null=True)
+    
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
     question = models.ForeignKey(Question, on_delete=models.CASCADE)
     exam_start_time = models.DateTimeField(default=timezone.now)
     exam_duration = models.CharField(max_length=8, default='01:00:00')  # Format hh:mm:ss
     completed = models.BooleanField(default=False)
-    shuffle_order = models.PositiveIntegerField(null=True)  # Existing field for shuffle order
+    shuffle_order = models.PositiveIntegerField(null=True) 
+    submit = models.BooleanField(default=False) # Existing field for shuffle order
  
     def __str__(self):
         return f'{self.subject.name} - {self.question.text[:50]}'
     def get_questions(self):
         
         return Question.objects.filter(examsession=self).order_by('shuffle_order')
-    
+
+
+
+class UserExamSessionx(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)  # Track subject separately
+    exam_session = models.ForeignKey(ExamSession, on_delete=models.CASCADE, null=True)
+    start_time = models.DateTimeField(default=timezone.now)  # When the user starts the exam
+
+    class Meta:
+        unique_together = ('user', 'subject')  # Ensure unique sessions per user per subject
+
+    def __str__(self):
+        return f"UserExamSession - User: {self.user.username}, Subject: {self.subject.name}"
+
 class Result(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     subject = models.ForeignKey(Subject, on_delete=models.CASCADE)
@@ -123,3 +138,12 @@ def save_user_model(sender ,instance,created,**kwargs):
   
 
 post_save.connect(save_user_model, sender=UserID ) 
+
+
+class UserSelection(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)  # If using Django's user model
+    question = models.ForeignKey(Question, on_delete=models.CASCADE)
+    selected_answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now=True)
+
+    

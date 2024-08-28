@@ -215,7 +215,7 @@ from io import TextIOWrapper, StringIO
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from .forms import BulkUploadForm
-from .models import Question, Answer ,Result
+from .models import Question, Answer ,Result ,Name_School,UserExamSessionx
 
 
 
@@ -275,7 +275,8 @@ from django.contrib import auth
 from .forms import LoginForm
 
 def login(request):
-    username = 'lkmd'
+    
+    username = get_object_or_404(Name_School)
     
     error_message = None
 
@@ -289,7 +290,7 @@ def login(request):
                 return redirect('welcome')  # Redirect to a succ ess page
             else:
                 error_message = "Invalid user ID"
-    else:
+    else: 
         form = LoginForm()
         
  
@@ -299,6 +300,8 @@ def login(request):
 
 @login_required(login_url='login')
 def index(request):
+    username = get_object_or_404(UserID,user=request.user)
+    school_name = get_object_or_404(Name_School)
     subjects = Subject.objects.all()
     selected_subject_id = request.GET.get('subject_id')
     questions = []
@@ -306,6 +309,7 @@ def index(request):
     selected_subject = None
     user_answers = []
     total_questions = 0
+    start_time = None
 
     if subjects.exists():
         if selected_subject_id:
@@ -313,42 +317,48 @@ def index(request):
         else:
             selected_subject = subjects.first()
 
-        # Check if an exam session already exists for this user and subject
-        session_id = f'{request.user.id}_{selected_subject.id}'
-        exam_sessions = ExamSession.objects.filter(session_id=session_id, subject=selected_subject)
-
-        if not exam_sessions.exists():
-            # Create a new exam session with shuffled questions and start time
-            questions = list(Question.objects.filter(subject=selected_subject))
-            random.shuffle(questions)
-            start_time = timezone.now()
-            duration = '01:00:00'  # Example duration of 1 hour
-
-            for index, question in enumerate(questions):
-                ExamSession.objects.create(
-                    session_id=session_id,
-                    subject=selected_subject,
-                    question=question,
-                    exam_start_time=start_time,
-                    exam_duration=duration,
-                    shuffle_order=index,
-                )
-
-        # Fetch the user's exam session
-        exam_sessions = ExamSession.objects.filter(session_id=session_id, subject=selected_subject).order_by('shuffle_order')
+        # Retrieve questions in the stored sequential order
+        exam_sessions = ExamSession.objects.filter(subject=selected_subject).order_by('shuffle_order')
         questions = [session.question for session in exam_sessions]
         total_questions = len(questions)
 
-        # Calculate remaining time based on the user's start time
+        # Shuffle questions for display
+        seed = hash(request.user.id) % 10000  # Unique seed for shuffling based on user ID
+        random.seed(seed)
+        random.shuffle(questions)
+
+        # Manage user-specific exam start
         if exam_sessions.exists():
-            start_time = exam_sessions.first().exam_start_time
-            duration_parts = exam_sessions.first().exam_duration.split(':')
+            exam_session = exam_sessions.first()
+
+            # Check if the user has already started an exam session for any subject
+            first_user_exam_session = UserExamSessionx.objects.filter(user=request.user).first()
+            if first_user_exam_session:
+                # Use the same start time for the new subject
+                start_time = first_user_exam_session.start_time
+            else:
+                # No previous exam session, start a new one
+                start_time = timezone.now()
+
+            # Create or retrieve the user's exam session for the selected subject
+            user_exam_session, created = UserExamSessionx.objects.get_or_create(
+                user=request.user,
+                subject=selected_subject,
+                defaults={'exam_session': exam_session, 'start_time': start_time}
+            )
+
+            # Ensure start_time is not updated on subsequent loads
+            if not created:
+                user_exam_session.refresh_from_db()
+
+            # Calculate remaining time for the user based on the start time
+            duration_parts = exam_session.exam_duration.split(':')
             duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]), seconds=int(duration_parts[2]))
             end_time = start_time + duration
+
             remaining_time = max(0, (end_time - timezone.now()).total_seconds())
 
         if request.method == 'POST':
-            results = []
             for question in questions:
                 selected_answer_id = request.POST.get(f'question_{question.id}')
                 if selected_answer_id:
@@ -358,30 +368,18 @@ def index(request):
                     selected_answer = None
                     is_correct = False
 
-                # Save result to the Result model
-                result = Result(
+                Result.objects.create(
                     user=request.user,
                     subject=selected_subject,
                     question=question,
-                    selected_answer=selected_answer,
+                    selected_answer=selected_answer,  
                     is_correct=is_correct,
                     score=1.0 if is_correct else 0.0
                 )
-                result.save()
+                
 
-                results.append({
-                    'question_id': question.id,
-                    'selected_answer_id': selected_answer.id if selected_answer else None,
-                    'correct': is_correct
-                })
+            return redirect('complete')  # Redirect to login after completing the exam
 
-            # Mark the exam as completed
-            ExamSession.objects.filter(session_id=session_id, subject=selected_subject).update(completed=True)
-
-            # Redirect to the result page
-            return redirect('login')
-
-        # Retrieve user's previous answers if they exist
         if request.user.is_authenticated:
             user_results = Result.objects.filter(user=request.user, subject=selected_subject)
             user_answers = [(result.question.id, result.selected_answer.id if result.selected_answer else None) for result in user_results]
@@ -393,11 +391,45 @@ def index(request):
         'remaining_time': remaining_time,
         'user_answers': user_answers,
         'total_questions': total_questions,
+        'school_name':school_name,
+        'username':username
     })
- 
 def welcome(request):
     userprofile = get_object_or_404(Userprofile,user=request.user)
     context = {
         'userprofile':userprofile
     }
     return render (request, 'welcome.html',context) 
+
+def complete(request):
+    return render(request, 'exam_complete.html')
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from .models import UserSelection
+import json
+
+@csrf_exempt
+def save_selection(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        question_id = data.get('question_id')
+        answer_id = data.get('answer_id')
+
+        if request.user.is_authenticated:  # Ensure the user is logged in
+            selection, created = UserSelection.objects.update_or_create(
+                user=request.user,
+                question_id=question_id,
+                defaults={'selected_answer_id': answer_id},
+            )
+            return JsonResponse({'status': 'success'})
+
+    return JsonResponse({'status': 'failed'}, status=400)
+
+def get_selections(request):
+    if request.user.is_authenticated:
+        user_selections = UserSelection.objects.filter(user=request.user)
+        selected_answers = {selection.question_id: selection.selected_answer_id for selection in user_selections}
+        return JsonResponse({'selected_answers': selected_answers})
+
+    return JsonResponse({'status': 'failed'}, status=400)

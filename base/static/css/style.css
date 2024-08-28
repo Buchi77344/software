@@ -40,8 +40,8 @@ button{
 }
 
 button:active{
-    scale : .5;
-    transition : scale 1s ease
+    transform: scale(0.5);
+    transition : transform 1s ease
 }
 
 input:focus-within{
@@ -280,7 +280,7 @@ svg path{
 }
 
 .calculator-container{
-    /* margin-top: 20px; */
+    margin-top: 20px;
     padding: 10px;
 }
 
@@ -298,6 +298,7 @@ svg path{
     margin-bottom: 15px;
     border-radius: 50px;
     box-shadow: 3px 3px 9px rgb(0 0 0 / 27%);
+    min-height : 40px;
 }
 
 .calculator-btn-container{
@@ -312,6 +313,11 @@ svg path{
     background-color: hsl(164deg 30.79% 69.01% / 26%);
     box-shadow: 2px 5px 9px rgb(0 0 0 / 27%), -2px -2px 9px rgb(255 255 255 / 87%);
     font-size: .85rem;
+}
+
+.calculator-button:active{
+    transform: scale(0.8);
+    transition: transform .2s;
 }
 
 .calculator-button.large{

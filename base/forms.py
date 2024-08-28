@@ -1,8 +1,8 @@
 from django import forms
 from base.models import Subject ,Question
 class BulkUploadForm(forms.Form):
-    subject = forms.CharField(max_length=1000,label='subject')
-    file = forms.FileField(label='Select a CSV file')
+    subject = forms.CharField(max_length=255, required=True, label='Subject')
+    file = forms.FileField(required=True, label='DOCX File')
 
 
 class SearchForm(forms.Form):
