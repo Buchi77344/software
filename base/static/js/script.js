@@ -438,10 +438,10 @@ function handleButtonClick(value){
         }
     }else if(value === "DEL"){
         if(currentInput !== ''){
-           if(currentInput.endsWith(".")){
+           if(currentInput.toString().endsWith(".")){
                dotAdded = false
            }
-           currentInput = currentInput.slice(0, -1)
+           currentInput = currentInput.toString().slice(0, -1)
         }else if(calculatorOperator !== ''){
             calculatorOperator = ''
         }else if(firstOperand !== ''){
