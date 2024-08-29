@@ -19,6 +19,14 @@
                 </div>
             </div>
         </div>
+        <div class="time popup-overlay">
+            <div class="time popup-div">
+                <h3 class = "time popup-head">You Have Less Than Five minutes Left</h3>
+                <div class = "popup-btn-container">
+                    <button class = "ok-btn">Click Ok, To Continue</button>
+                </div>
+            </div>
+        </div>
         <div class = "wrapper">
             <div class = "main-sidebar">
                 <div class = "menu">
@@ -48,8 +56,8 @@
                     <div class= "user menu-content flex-column ">
                         <div class = "subjects-link-div flex-column">
                             {% for subject in subjects %}
-                            <a href = "{% url 'index' %}?subject_id={{ subject.id }}" class = "user menu-item">
-                                <div class="menu-wrapper flex gp-10">
+                           
+                                <div data-menu = "{{subject.name|upper}}" class="menu-wrapper flex gp-10">
                                     <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
                                     <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
                                     <svg fill="#f5f5f5" height="800px" width="800px" version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 512.00 512.00" xml:space="preserve" stroke="#f5f5f5" stroke-width="20">
@@ -59,36 +67,76 @@
                                     </svg>
                                     <span>{{ subject.name|upper }}</span>
                                 </div>
-                            </a>
                             {% endfor %}
                         </div>
-                    
-                        <div class = "calculator-container">
-                            <div class = "calculator">
-                                <div class = "calculator-screen">0</div>
-                                <div class="calculator-btn-container">
-                                    <button class="calculator-button">CLR</button>
-                                    <button class="calculator-button">DEL</button>
-                                    <button class="calculator-button">%</button>
-                                    <button class="calculator-button">/</button>
-                                    <button class="calculator-button">7</button>
-                                    <button class="calculator-button">8</button>
-                                    <button class="calculator-button">9</button>
-                                    <button class="calculator-button">*</button>
-                                    <button class="calculator-button">4</button>
-                                    <button class="calculator-button">5</button>
-                                    <button class="calculator-button">6</button>
-                                    <button class="calculator-button">-</button>
-                                    <button class="calculator-button">1</button>
-                                    <button class="calculator-button">2</button>
-                                    <button class="calculator-button">3</button>
-                                    <button class="calculator-button">+</button>
-                                    <button class="calculator-button">.</button>
-                                    <button class="calculator-button">0</button>
-                                    <button class="calculator-button large">=</button>
+                        
+                        <div class = "calculator-menu menu-item">
+                            <div class="menu-wrapper flex gp-10">
+                                <?xml version="1.0" encoding="utf-8"?>
+                                <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
+                                <svg width="800px" height="800px" viewBox="0 0 1024 1024" class="arrow-icon"  version="1.1" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M768 903.232l-50.432 56.768L256 512l461.568-448 50.432 56.768L364.928 512z" fill="#f5f5f5" />
+                                </svg>
+                                <span>Calculator</span>
+                            </div>
+                            
+                            <div class = "calculator-container">
+                                <div class = "calculator">
+                                    <div class = "calculator-screen">0</div>
+                                    <div class="calculator-btn-container">
+                                        <button class="calculator-button">CLR</button>
+                                        <button class="calculator-button">DEL</button>
+                                        <button class="calculator-button">%</button>
+                                        <button class="calculator-button">/</button>
+                                        <button class="calculator-button">7</button>
+                                        <button class="calculator-button">8</button>
+                                        <button class="calculator-button">9</button>
+                                        <button class="calculator-button">*</button>
+                                        <button class="calculator-button">4</button>
+                                        <button class="calculator-button">5</button>
+                                        <button class="calculator-button">6</button>
+                                        <button class="calculator-button">-</button>
+                                        <button class="calculator-button">1</button>
+                                        <button class="calculator-button">2</button>
+                                        <button class="calculator-button">3</button>
+                                        <button class="calculator-button">+</button>
+                                        <button class="calculator-button">.</button>
+                                        <button class="calculator-button">0</button>
+                                        <button class="calculator-button large">=</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
+
+                        <div class = "key-shrt-container">
+                            <div class="carousel-shrt">
+                                <div class = "active questions-shortcut-container shrt-container">
+                                    <strong class = "shortcut-list-strong">Keyboard Shortcuts For Questions:</strong>
+                                    <ul class="shortcut-list">
+                                        <li>Press <span class="shortcut">N</span> for "Next" question</li>
+                                        <li>Press <span class="shortcut">R</span> for "Previous" question</li>
+                                        <li>Press <span class="shortcut">A</span> for option "A"</li>
+                                        <li>Press <span class="shortcut">B</span> for option "B"</li>
+                                        <li>Press <span class="shortcut">C</span> for option "C"</li>
+                                        <li>Press <span class="shortcut">D</span> for option "D"</li>
+                                        <li>Press <span class="shortcut">S</span> to submit the test</li>
+                                    </ul>
+                                </div>
+    
+                                <div class = "calculator-shorcut-container shrt-container">
+                                    <strong class = "shortcut-list-strong">Keyboard Shortcuts For Calculator:</strong>
+                                    <ul class="shortcut-list">
+                                        <li>Press any number from <span class="shortcut">0 - 9</span> for numbers selection</li>
+                                        <li>Press <span class="shortcut">ESC</span> to remove all values from the screen</li>
+                                        <li>Press <span class="shortcut">BACKSPACE</span> to delete a value or operator</li>
+                                        <li>Press <span class="shortcut"> =</span> to get the result of your operation</li>
+                                        <li>Press <span class="shortcut"> the correct keys pattern for [ + , - , * , / ]</span>to peform arithmetic operations</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    
+                    
                      
                     </div>
                 </div>
@@ -106,7 +154,7 @@
                 <div class = "main-content-items-wrapper flex gp-15">
                     <div class = "control-section flex-column gp-10">
                         <div class= "small-box-info">
-                            <h4 class = "small-box-head">sss{{ selected_subject.name|upper }}</h4>
+                            <h4 class = "control small-box-head">{{ selected_subject.name|upper }}</h4>
                             <p class = "small-box-text">Good Luck</p>
                         </div>
                         <div class= "small-box-info">
@@ -116,8 +164,10 @@
                         <div class= "Question-select-box small-box-info">
                             <h4 class = "small-box-head">Questions remaining</h4>
                             <div class = "question-numbers-div">
-                                {% for question in questions %}
-                                <span class = "question-number">{{forloop.counter}}</span>
+                                {% for subject_data in all_subjects_questions %}
+                                    {% for question in subject_data.questions %}
+                                    <span data-number = "{{subject_data.subject.name}}" class = "question-number">{{forloop.counter}}</span>
+                                    {%  endfor %}
                                 {% endfor %}
                             </div>
                         </div>
@@ -130,12 +180,12 @@
 
                     <div class = "question-section">
                         
-                        <form class="user-question-form flex-column gp-15" method="post" action="{% url 'index' %}">
+                        <form class="user-question-form" method="post" action="{% url 'index' %}">
                             {% csrf_token %}
                         
                             {% if all_subjects_questions %}
                                 {% for subject_data in all_subjects_questions %}
-                                    <div class="subject-box">
+                                    <div data-box = "{{subject_data.subject.name}}" class="subject-box  flex-column gp-15">
                                         <h3 class="subject-title">{{ subject_data.subject.name }}</h3>
                         
                                         {% for question in subject_data.questions %}
@@ -180,6 +230,32 @@
     </div>
     <script>
         let timerDiv = document.querySelector("#timer")
+        let warningMessage = ""
+        
+
+        function showTimePopup(){
+                document.querySelector(".time.popup-overlay").style.display = "grid"
+                popupVisible = true
+                setTimeout(() => {
+                    document.querySelector(".time.popup-div").classList.add("visible")
+                }, 100)
+
+        }
+
+        function removeTimePopup(){
+                document.querySelector(".time.popup-div").classList.remove("visible")
+                popupVisible = false
+                setTimeout(() => {
+                    document.querySelector(".time.popup-overlay").style.display = "none"
+                }, 100)
+        }
+
+
+        document.querySelector(".ok-btn").addEventListener("click", function(){
+            console.log("ok-btn")
+            removeTimePopup()
+        })
+
         function formatTimeFunc(seconds){
             let time_hours = Math.floor(seconds / 3600)
             let time_min = Math.floor((seconds % 3600) / 60)
@@ -191,7 +267,7 @@
 
         function startCountDown(timeSeconds){
             let remainingSeconds = timeSeconds
-            
+            console.log(remainingSeconds)
             function updateTimer(){
                 if(remainingSeconds >= 0){
                     let timeString = formatTimeFunc(remainingSeconds)
@@ -199,6 +275,17 @@
                     remainingSeconds--
                 }else{
                     clearInterval(timeInterval)
+                }
+
+                if(remainingSeconds <= 300){
+                    timerDiv.style.color = "#b51e0b"
+                }
+
+                if(remainingSeconds === 300){
+                    console.log("updateTimer")
+                    warningMessage = "You Have Five minutes Left"
+                    document.querySelector(".time.popup-head").textContent = warningMessage
+                    showTimePopup()
                 }
             }
 
@@ -208,9 +295,32 @@
 
         startCountDown("{{ remaining_time|floatformat:0 }}")
         
-        // Helper function to get the CSRF token
+        let inactivityTimeout;
+        const inactivityTime = 3 * 60 * 1000
+        let hasPopupShown = false
+
+        function showPopup(){
+            if(!hasPopupShown){
+                let warning = 'You have been inactive for 3 minutes. Please select an answer to continue.';
+                document.querySelector(".time.popup-head").textContent = warningMessage
+                showTimePopup()
+                hasPopupShown = true
+            }
+        } 
       
-        
+        function resetInactivityTimer(){
+            if(!hasPopupShown){
+                clearTimeout(inactivtyTimeout)
+                inactivtyTimeout = setTimeout(showPopup, inactivityTime)
+            }
+        }
+
+        window.addEventListener("mousemove", resetInactivityTimer)
+        window.addEventListener("keydown", resetInactivityTimer)
+        window.addEventListener("scroll", resetInactivityTimer)
+        window.addEventListener("click", resetInactivityTimer)
+
+        resetInactivityTimer()
     </script>
     <!-- <script>
         document.addEventListener('DOMContentLoaded', (event) => {
@@ -252,6 +362,56 @@
                 document.addEventListener('click', resetTimer, true);
                 document.addEventListener('keydown', resetTimer, true);
                 document.addEventListener('mousemove', resetTimer, true);
+    
+                // Check for inactivity on page load
+                checkInactivity();
+            };
+    
+            inactivityTime(); // Run the inactivity timer function
+        });
+
+        My modified
+         document.addEventListener('DOMContentLoaded', (event) => {
+            let inactivityTime = function () {
+                let time;
+                warningMessage = 'You have been inactive for 3 minutes. Please select an answer to continue.';
+    
+                // Function to display the warning message
+                function displayWarning() {
+                    document.querySelector(".time.popup-head").textContent = warningMessage
+                    showTimePopup()
+                }
+    
+                // Reset timer on user interaction
+                function resetTimer() {
+                    clearTimeout(time);
+                    sessionStorage.setItem('lastInteractionTime', new Date().getTime());
+                    time = setTimeout(displayWarning, 180000); // 180 seconds = 180000 milliseconds
+                }
+    
+                // Function to check if the user has been inactive for a while
+                function checkInactivity() {
+                    const lastInteractionTime = sessionStorage.getItem('lastInteractionTime');
+                    if (lastInteractionTime) {
+                        const now = new Date().getTime();
+                        const inactiveDuration = now - parseInt(lastInteractionTime, 10);
+                        if (inactiveDuration >= 180000) { // 10 seconds
+                            console.log("inactivity")
+                            displayWarning();
+                        }
+                    }
+                    resetTimer();
+                }
+    
+                // Initialize the last interaction time if not set
+                if (!sessionStorage.getItem('lastInteractionTime')) {
+                    sessionStorage.setItem('lastInteractionTime', new Date().getTime());
+                }
+    
+                // Event listeners to reset timer on interaction
+              /**  document.addEventListener('click', resetTimer, true);
+                document.addEventListener('keydown', resetTimer, true);
+                document.addEventListener('mousemove', resetTimer, true);**/
     
                 // Check for inactivity on page load
                 checkInactivity();

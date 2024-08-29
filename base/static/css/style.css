@@ -253,6 +253,7 @@ svg path{
     padding : 4px 7px;
     cursor: pointer;
     border-radius: 3px;
+    color : hsl(0, 0%, 95%)
 }
 
 .subjects-link-div{
@@ -268,9 +269,10 @@ svg path{
     background-color: hsla(0, 0%, 10%, 0.8);
 }
 
-.menu-item svg{
+.menu-item .arrow-icon{
     width : 25px;
     height : 25px;
+    transform: rotate(180deg);
 }
 
 .menu-item.generate svg rect{
@@ -436,6 +438,10 @@ svg path{
     border-radius: 10px;
 }
 
+.control.small-box-head{
+    text-transform: uppercase;
+}
+
 .small-box-head{
     color : var(--head-text-clr);
     font-size: 1.1rem;
@@ -465,11 +471,15 @@ svg path{
     width: 45px;
     height: 45px;
     border: 1px solid var(--q-selected-btn-clr);
-    display: grid;
     place-items: center;
     color: var(--q-selected-btn-clr);
     border-radius: 5px;
     cursor: pointer;
+    display: none;
+}
+
+.question-number.visible{
+    display: grid;
 }
 
 .question-number.answered{
@@ -501,13 +511,25 @@ svg path{
     padding: 10px;
 }
 
+.subject-box{
+    display: none;
+}
+
+.subject-box.visible{
+    display: flex;
+}
+
+.subject-title{
+    display: none;
+}
+
 .question-box{
     width : 95%;
     background-color: var(--block-clr);
     padding : 12px 15px;
     border-radius: 10px;
     font-weight: 500;
-    display: none;
+    /* display: none; */
 }
 
 .question-box.highlight{
@@ -1086,6 +1108,10 @@ svg path{
     background-color : rgb(15, 129, 26);
 }
 
+.ok-btn{
+    background-color : rgb(15, 129, 26);
+}
+
 .No-btn:hover{
     background-color : rgb(10, 80, 17);
 }
@@ -1249,6 +1275,8 @@ svg path{
 .launch-form-container{
     max-width: 700px;
     width: 90%;
+    padding: 20px;
+    background-color: white;
 }
 
 .launch-form-container-head{
@@ -1259,6 +1287,87 @@ svg path{
 
 .launch-form p:nth-of-type(1) label{
     font-size : 1.2rem;
+}
+
+#id_subjects label{
+    display: flex;
+    align-items: center;
+    width: fit-content;
+    gap : 10px;
+    font-size: 1.1rem;
+    margin-top: 10px;
+}
+
+#id_subjects input[type = "checkbox"]{
+    appearance: none;
+    width : 40px;
+    height : 20px;
+    border-radius: 10px;
+    background-color: lightgray;
+    position: relative;
+    padding: 0;
+    margin: 0;
+    border: none;
+    outline-color: transparent;
+    cursor: pointer;
+}
+
+#id_subjects input[type = "checkbox"]::before{
+    content: "";
+    position: absolute;
+    /* display: block; */
+    height: 14px;
+    border-radius: 50px;
+    width: 14px;
+    left: 2px;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: white;
+    transition: left .2s ease;
+}
+
+#id_subjects input[type = "checkbox"]:checked::before{
+    left: 24px;
+}
+
+#id_subjects input[type = "checkbox"]:checked{
+    background-color: #0d6453;
+}
+
+#id_subjects input[type = "checkbox"]:focus-visible{
+    outline: 1px solid var(--main-sb-hv-clr);
+}
+
+input#id_exam_duration{
+    display: block;
+    padding: 5px 12px;
+    font-size: 1rem;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: 1px solid rgb(0 0 0 / 36%);
+}
+
+span#id_exam_duration_helptext{
+    color: rgba(0,0,0,.8);
+    font-size: .85rem; 
+}
+
+.launch-form input[type = "number"]{
+    display: block;
+    padding: 5px 12px;
+    font-size: 1rem;
+    margin-top: 10px;
+    margin-bottom: 10px;
+    border: 1px solid rgb(0 0 0 / 36%);
+}
+
+.launch-form-btn{
+    background-color: var(--variant-clr);
+    padding: 10px 40px;
+    color: white;
+    font-size: 1rem;
+    letter-spacing: 1px;
+    border-radius: 10px;
 }
 
 .user-login-page{
@@ -1438,11 +1547,12 @@ input#id_user_id{
 }
 
 .start-exam-btn:hover{
-    background-color : hsl(212, 72%, 29%)
+    background-color : hsl(212, 72%, 29%);
+    
 }
 
 .complete.page{
-    background-color: hsla(170, 71%, 47%, 0.2)
+    background-color: hsla(165, 40%, 98%, 0.8)
 }
 
 .complete-content-wrapper{
@@ -1457,7 +1567,7 @@ input#id_user_id{
     padding : 20px;
     text-align: center;
     border-radius: 20px;
-    box-shadow: 0px 2px 20px 10px hsla(168, 81%, 23%, 0.302);
+    box-shadow: 0px 2px 30px 10px hsl(168deg 4.06% 5.16% / 10%);
 }
 
 .complete-content-head{
