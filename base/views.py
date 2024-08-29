@@ -229,7 +229,7 @@ import random
 import string
 from django.shortcuts import render
 from .models import User
-from .models import UserID
+from .models import UserID ,Loding
 from .forms import UsernameForm
 from django.db import IntegrityError, transaction
 
@@ -281,7 +281,11 @@ def login(request):
     error_message = None
 
     if request.method == "POST":
+        load =  get_object_or_404(Loding)
         form = LoginForm(request.POST)
+        if load.login is True:
+            messages.error(request, 'you can not login again')
+            return redirect('login') 
         if form.is_valid():
             user_id = form.cleaned_data['user_id']
             user = auth.authenticate(request, username=user_id)
@@ -365,8 +369,12 @@ def index(request):
                     selected_answer=selected_answer,
                     is_correct=is_correct,
                     score=1.0 if is_correct else 0.0
+                   
                 )
-                
+                los , created=Loding.objects.update_or_create(login=True)
+                los.save()
+               
+                  
         return redirect('complete')
 
     return render(request, 'index.html', {
@@ -383,7 +391,7 @@ def welcome(request):
         'userprofile':userprofile
     }
     return render (request, 'welcome.html',context) 
-
+ 
 def complete(request):
     return render(request, 'exam_complete.html')
 

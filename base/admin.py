@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User,Question, Answer,UserID ,Userprofile ,Subject,Suffle,ExamSession ,Result ,User_result ,Name_School,UserExamSessionx,UserSelection
+from .models import User,Question, Answer,UserID ,Userprofile ,Subject,Suffle,ExamSession ,Result ,User_result ,Name_School,UserExamSessionx,UserSelection ,Loding
 
 admin.site.register(User)
 admin.site.register(Question)
@@ -14,4 +14,5 @@ admin.site.register(User_result)
 admin.site.register(Name_School)
 admin.site.register(UserExamSessionx)
 admin.site.register(UserSelection)
+admin.site.register(Loding)
 # Register your models here.

@@ -119,6 +119,7 @@ class Result(models.Model):
     is_correct = models.BooleanField(default=False)
     score = models.FloatField(default=0.0)
     date_taken = models.DateTimeField(default=timezone.now)
+    
 
     def __str__(self):
         return f'{self.user.username} - {self.subject.name} - {self.score}'
@@ -146,4 +147,8 @@ class UserSelection(models.Model):
     selected_answer = models.ForeignKey(Answer, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(auto_now=True)
 
-    
+class Loding(models.Model):
+    login = models.BooleanField(default=False)
+
+
+  
