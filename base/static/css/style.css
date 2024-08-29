@@ -226,6 +226,10 @@ svg path{
     border-radius: 10px;
 }
 
+.user.menu-content{
+    height : 85vh;
+}
+
 .user.menu-content.flex-column{
     gap : 0px;
 }
@@ -279,18 +283,39 @@ svg path{
     font-weight: 400;
 }
 
+.calculator-menu.menu-item{
+    background-color: transparent;
+    margin-top: 16px;
+    position: relative;
+}
+
 .calculator-container{
+    max-width: 100%;
     margin-top: 20px;
     padding: 10px;
+    position: absolute;
+    top: 20%;
+    min-width: 100%;
+    left: 0;
+    z-index: 999;
+    transform: translateX(-100%);
+    transition: transform .5s ease-in-out;
+}
+
+.calculator-container.slideIn{
+    transform: translateX(0);
 }
 
 .calculator{
     background-color : hsl(0deg 0% 98% / 90%);
     padding : 15px 12px;
     border-radius: 10px;
+    max-width: 100%;
 }
 
 .calculator-screen{
+    max-width: 100%;
+    overflow-x: auto;
     padding : 10px;
     font-size : 1.1rem;
     color : hsl(0, 0%, 20%);
@@ -299,6 +324,17 @@ svg path{
     border-radius: 50px;
     box-shadow: 3px 3px 9px rgb(0 0 0 / 27%);
     min-height : 40px;
+}
+
+.calculator-screen::-webkit-scrollbar{
+    height: 5px;
+    background-color: hsla(0, 0%, 20%, 0.3);
+    border-radius: 10px;
+}
+
+.calculator-screen::-webkit-scrollbar-thumb{
+    background-color: hsla(0, 0%, 20%, 0.5);
+    border-radius: 10px;
 }
 
 .calculator-btn-container{
@@ -323,6 +359,42 @@ svg path{
 .calculator-button.large{
     grid-column: span 2;
     border-radius: 20px;
+}
+
+.key-shrt-container{
+    padding-left: 20px;
+    padding-right: 20px;
+    margin-top: 20px;
+    /* justify-content: center;
+    align-items: center; */
+
+}
+
+.carousel-shrt{
+    overflow-x: hidden;
+    position: relative;
+    display: flex;
+    width : 100%;
+    height : 60vh;
+}
+
+.shrt-container{
+    min-width: 100%;
+    z-index: 100;
+    position: absolute;
+    color : hsl(0,0%,96%);
+}
+
+.shrt-container.active{
+    transform: translateX(0);
+}
+
+.shrt-container:not(.active){
+    transform: translateX(100%);
+}
+
+.key-shrt-container .shortcut-list{
+    list-style-type: none;
 }
 
 .main-content-header{
@@ -1205,11 +1277,12 @@ svg path{
 }
 
 .user-login-wrapper{
-    /* height : 100vh; */
+    height : 70vh;
     width : 100%;
     display: flex;
     justify-content: center;
     align-items: center;
+    position: relative;
 }
 
 .user-login-container{
@@ -1219,7 +1292,6 @@ svg path{
     background-color: var(--variant-clr);
     padding : 12px 40px;
     height: 350px;
-    position: relative;
 }
 
 .user-login-head{
@@ -1258,11 +1330,14 @@ input#id_user_id{
 
 .user-login-error-message{
     position: absolute;
-    top: 0;
+    top: -10px;
+    left: 50%;
     width: 90%;
+    max-width: 500px;
+    transform: translateX(-50%);
     text-align: center;
     background-color: rgb(248 1 1 / 13%);
-    color: rgb(255 204 204);
+    color: rgb(134 32 32);
     border: 1px solid rgb(139 25 25);
     padding: 5px;
     border-radius: 10px;
@@ -1364,4 +1439,65 @@ input#id_user_id{
 
 .start-exam-btn:hover{
     background-color : hsl(212, 72%, 29%)
+}
+
+.complete.page{
+    background-color: hsla(170, 71%, 47%, 0.2)
+}
+
+.complete-content-wrapper{
+    height : 100vh;
+}
+
+.complete-content-container{
+    width : 90%;
+    height : 60vh;
+    max-width : 700px;
+    background-color: hsl(0, 0%, 98%);
+    padding : 20px;
+    text-align: center;
+    border-radius: 20px;
+    box-shadow: 0px 2px 20px 10px hsla(168, 81%, 23%, 0.302);
+}
+
+.complete-content-head{
+    font-size : 5rem;
+    color :hsl(173, 80%, 12%);
+    text-align: center;
+}
+
+.complete-content-text{
+    font-size : 1.3rem;
+    color: hsl(0, 0%, 25%);
+}
+
+.complete-content-container hr{
+    height: 1px;
+    width: 100%;
+    margin-block: 20px;
+}
+
+.complete-content-sub-text{
+    font-size: 1rem;
+    color: hsl(0, 0%, 30%);
+}
+
+@keyframes next1 {
+    from{
+        transform: translateX(0%)
+    }
+
+    to{
+        transform : translateX(-100%);
+    }
+}
+
+@keyframes next2 {
+    from{
+        transform : translateX(100%);
+    }
+
+    to{
+        transform : translateX(0%);
+    }
 }

@@ -106,7 +106,7 @@
                 <div class = "main-content-items-wrapper flex gp-15">
                     <div class = "control-section flex-column gp-10">
                         <div class= "small-box-info">
-                            <h4 class = "small-box-head">{{ selected_subject.name|upper }}</h4>
+                            <h4 class = "small-box-head">sss{{ selected_subject.name|upper }}</h4>
                             <p class = "small-box-text">Good Luck</p>
                         </div>
                         <div class= "small-box-info">
@@ -130,47 +130,47 @@
 
                     <div class = "question-section">
                         
-                        <form class = "user-question-form flex-column gp-15" method="post" action="{% url 'index' %}?subject_id={{ selected_subject.id }}">
+                        <form class="user-question-form flex-column gp-15" method="post" action="{% url 'index' %}">
                             {% csrf_token %}
-                            {% if questions %}
-                            {% for question in questions %}
-                                <div class = "question-box">
-                                    <div class = "question-box-head flex-center">
-                                        <h4 class= "small-box-head">Question {{ total_questions }}</h4>
-                                    </div>
-        
-                                    <div class="question-text">
-                                        <p>{{ question.text }}</p>
-                                    </div>
-        
-                                    <div class = "answers-wrapper flex-column">
-                                        <div class ="answers-container flex-column">
-                                            {% if question.diagram %}
-                                            <img src="{{ question.diagram.url }}" alt="Diagram">
-                                          {% endif %}
-                                            {% for answer in question.answers.all %}
-                                            <div class = "answer-item">
-                                                <input type = "radio" name="question_{{ question.id }}" value="{{ answer.id }}" id="answer_{{ answer.id }}" class = "check-answer"/>
-                                                <label for="answer_{{ answer.id }}">{{ answer.text }}</label>
+                        
+                            {% if all_subjects_questions %}
+                                {% for subject_data in all_subjects_questions %}
+                                    <div class="subject-box">
+                                        <h3 class="subject-title">{{ subject_data.subject.name }}</h3>
+                        
+                                        {% for question in subject_data.questions %}
+                                            <div class="question-box">
+                                                <div class="question-box-head flex-center">
+                                                    <h4 class="small-box-head">Question {{ forloop.counter }}</h4>
+                                                </div>
+                        
+                                                <div class="question-text">
+                                                    <p>{{ question.text }}</p>
+                                                </div>
+                        
+                                                <div class="answers-wrapper flex-column">
+                                                    <div class="answers-container flex-column">
+                                                        {% if question.diagram %}
+                                                            <img src="{{ question.diagram.url }}" alt="Diagram">
+                                                        {% endif %}
+                                                        {% for answer in question.answers.all %}
+                                                            <div class="answer-item">
+                                                                <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" id="answer_{{ answer.id }}" class="check-answer"
+                                                                {% if user_answers.question.id == answer.id %} checked{% endif %}/>
+                                                                <label for="answer_{{ answer.id }}">{{ answer.text }}</label>
+                                                            </div>
+                                                        {% endfor %}
+                                                    </div>
+                                                </div>
                                             </div>
-                                            {% endfor %}
-                                        </div>
-                                        
+                                        {% endfor %}
                                     </div>
-                                </div>
-                            {% endfor %}
-                           
+                                {% endfor %}
                             {% endif %}
+                        
                             <div class="user-question-btn-container flex-between">
-                                <button type = "button" class = "answer-submit-btn">Submit Answer</button>
-                                <div class = "pag-btn-container">
-                                    <button type = "button" id = "pag-prev" class = "pag-prev-btn">Prev</button>
-                                    <span id = "current-page" class = "pag-page-span"></span>
-                                    <button type = "button" id = "pag-next" class = "pag-next-btn">Next</button>
-                                </div>
+                                <button type="submit" class="answer-submit-btn">Submit Answers</button>
                             </div>
-
-                            <h3 class = "no-questions">No Questions Yet</h3>
                         </form>
                  
                     </div>

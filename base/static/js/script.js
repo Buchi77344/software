@@ -375,7 +375,7 @@ let currentInput = ""
 let calculatorOperator = ""
 let firstOperand = ""
 let dotAdded = false
-
+let result = ""
 function updateDisplay(value){
     calculatorScreen.textContent = value
 }
@@ -402,14 +402,16 @@ function handleButtonClick(value){
         firstOperand = ""
         updateDisplay('')
     }else if(value === "="){
-        if(currentInput !== ''){
+        if(currentInput !== '' && calculatorOperator !== ''){
             let secondOperand = currentInput
             result = calculateFunc(firstOperand, secondOperand, calculatorOperator)
             updateDisplay(result)
             currentInput = result
             firstOperand = ''
             calculatorOperator = ""
-            dotAdded = result.includes(".")
+            dotAdded = result.toString().includes(".")
+        }else{
+            updateDisplay(currentInput)
         }
     }else if(value === "%"){
         if(currentInput !== ''){
@@ -435,10 +437,10 @@ function handleButtonClick(value){
         }
     }else if(value === "DEL"){
         if(currentInput !== ''){
-           if(currentInput.endsWith(".")){
+           if(currentInput.toString().endsWith(".")){
                dotAdded = false
            }
-           currentInput = currentInput.slice(0, -1)
+           currentInput = currentInput.toString().slice(0, -1)
         }else if(calculatorOperator !== ''){
             calculatorOperator = ''
         }else if(firstOperand !== ''){
@@ -451,35 +453,35 @@ function handleButtonClick(value){
             updateDisplay(firstOperand + currentInput)
         }
     }
+    
 }
 
 function calculateFunc(operand1, operand2, operatorCal){
-    let result = 0
-    operand1 = parseFloat(operand1)
-    operand2 = parseFloat(operand2)
+    let num1 = parseFloat(operand1)
+    let num2 = parseFloat(operand2)
 
     switch(operatorCal){
         case '+':
-            result = operand1 + operand2
-            break;
+            return  (num1 + num2)
+            
 
         case '-':
-            result = operand1 - operand2
-            break;
+            return  (num1 - num2)
+            
 
         case '*':
-            result = operand1 * operand2
-            break;
+            return  (num1 * num2)
+            
 
         case '/':
-            result = operand1 / operand2
-            break;
+            return  (num1 / num2)
+            
 
         default:
-            result = ''
+            return '0'
     }
 
-    return result.toString()
+    // return result.toString()
 }
 
 calculatorButtons.forEach(btn => {
@@ -490,16 +492,57 @@ calculatorButtons.forEach(btn => {
 
 document.addEventListener("keydown", function(e){
     let key = e.key
+    if((key ==="Enter") || (key === "enter") || (key === "ENTER")){
+        e.preventDefault()
+        handleButtonClick("=")
+    }
 
     if((key >= 0 && key <= 9) || key === '.'){
         handleButtonClick(key)
-    }else if((key == 'Enter') || (key === '=')){
+    }else if((key === '=')){
         handleButtonClick('=')
     }else if((key === 'escape') || (key === 'Escape') || key === 'c'){
         handleButtonClick("CLR")
     }else if((key === 'backspace') || (key === 'Backspace')){
         handleButtonClick('DEL')
+    }else if((key === '=')){
+        handleButtonClick("=")
     }else if(['+', '-', '*', '/'].includes(key)){
         handleButtonClick(key)
+    }else if(key === '%'){
+        handleButtonClick("%")
     }
+
+    
 })
+
+// Script to open and close calculator
+
+let calculatorShowCtl = document.querySelector(".calculator-menu .menu-wrapper")
+let calculatorContainer = document.querySelector(".calculator-container")
+
+calculatorShowCtl.addEventListener("click", function(){
+    calculatorContainer.classList.toggle("slideIn")
+})
+
+// Animate Instrutions
+let counter = 0
+let carouselItems = document.querySelectorAll(".shrt-container")
+function nextInstruction(){
+    carouselItems[counter].style.animation = "next1 .5s ease forwards"
+
+    if(counter >= carouselItems.length - 1){
+        counter = 0
+    }else{
+        counter++
+    }
+
+    // console.log(counter)
+    carouselItems[counter].style.animation = "next2 .5s ease forwards"
+}
+
+function autoslide(){
+    setInterval(nextInstruction, 10000)
+}
+
+autoslide()
