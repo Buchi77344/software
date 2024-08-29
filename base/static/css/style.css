@@ -1053,6 +1053,7 @@ svg path{
 
 .popup-head{
     font-size: 1.8rem;
+    text-align: center;
     color : hsl(0, 0%, 25%);
 }
 
