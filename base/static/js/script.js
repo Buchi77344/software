@@ -12,119 +12,125 @@ let popupBtn = document.querySelectorAll(".popup-btn-container button")
 let yesbtn = document.querySelector(".Yes-btn")
 let answerBtn = document.querySelector(".answer-submit-btn")
 let popupVisible;
-function ShowPopup(){
-    popupOverlay.style.display = "grid"
-    popupVisible = true
-    setTimeout(() => {
-        popupDiv.classList.add("visible")
-    }, 100)
 
-}
-
-function removePopup(){
-    popupDiv.classList.remove("visible")
-    popupVisible = false
-    setTimeout(() => {
-        popupOverlay.style.display = "none"
-    }, 100)
-}
-
-function submitAnswer(){
-    answerBtn.type = "submit"
-    answerBtn.click()
-}
-
-if(document.querySelector(".Yes-btn.exam")){
-    document.querySelector(".Yes-btn.exam").addEventListener("click", function(){
-        submitAnswer()
-    })
-}
-
-Array.from(deleteBtn).forEach(el => {
-    el.onclick = function(){
-        let delLink = this.dataset.link
-        if(this.dataset.link !== ""){
-            yesbtn.querySelector("a").href = delLink
-        }
-        ShowPopup()
+if(document.querySelector(".popup-overlay") || document.querySelector(".user_id-submit-btn")){
+    function ShowPopup(){
+        popupOverlay.style.display = "grid"
+        popupVisible = true
+        setTimeout(() => {
+            popupDiv.classList.add("visible")
+        }, 100)
+    
     }
-})
-
-let arrayPopupBtn = Array.from(popupBtn)
-arrayPopupBtn.forEach(el => {
-    el.onclick = function(){
-        removePopup()
-        if(this.classList.contains("yes-link")){
-            this.querySelector("a").click()
-        }
+    
+    function removePopup(){
+        popupDiv.classList.remove("visible")
+        popupVisible = false
+        setTimeout(() => {
+            popupOverlay.style.display = "none"
+        }, 100)
     }
-})
-
-function emptyValueLength(el_input){
-    let value;
-    el_input.forEach(el => {
-        if(el.value.length == 0){
-            value = true
-        }else {
-            value = false
+    
+    function submitAnswer(){
+        answerBtn.type = "submit"
+        answerBtn.click()
+    }
+    
+    if(document.querySelector(".Yes-btn.exam")){
+        document.querySelector(".Yes-btn.exam").addEventListener("click", function(){
+            submitAnswer()
+        })
+    }
+    
+    Array.from(deleteBtn).forEach(el => {
+        el.onclick = function(){
+            let delLink = this.dataset.link
+            if(this.dataset.link !== ""){
+                yesbtn.querySelector("a").href = delLink
+            }
+            ShowPopup()
         }
-       
     })
     
-    return value
-}
-
-function startLoadingAnim(el_input, el = "", btnSpan = ""){
-    let emptyValue = emptyValueLength(el_input)
-    if (emptyValue == false){
-        el.classList.add("active")
-
-        setTimeout(() => {
-            el.classList.remove("active")
-            btnSpan.textContent = "Successful"
-        }, 4000)
-    }
-}
-
-if (submitBtn){
-    submitBtn.addEventListener("click", (e) => startLoadingAnim(createInput, e.target, btnSpan))
-}
-
-
-if (useridSubmitBtn){
-    useridSubmitBtn.addEventListener("click", () =>{
-        console.log("hi")
-        
-        startLoadingAnim(useridInput, overlay, useridBtnSpan)
+    let arrayPopupBtn = Array.from(popupBtn)
+    arrayPopupBtn.forEach(el => {
+        el.onclick = function(){
+            removePopup()
+            if(this.classList.contains("yes-link")){
+                this.querySelector("a").click()
+            }
+        }
     })
+    
+    function emptyValueLength(el_input){
+        let value;
+        el_input.forEach(el => {
+            if(el.value.length == 0){
+                value = true
+            }else {
+                value = false
+            }
+           
+        })
+        
+        return value
+    }
+    
+    function startLoadingAnim(el_input, el = "", btnSpan = ""){
+        let emptyValue = emptyValueLength(el_input)
+        if (emptyValue == false){
+            el.classList.add("active")
+    
+            setTimeout(() => {
+                el.classList.remove("active")
+                btnSpan.textContent = "Successful"
+            }, 4000)
+        }
+    }
+    
+    if (submitBtn){
+        submitBtn.addEventListener("click", (e) => startLoadingAnim(createInput, e.target, btnSpan))
+    }
+    
+    
+    if (useridSubmitBtn){
+        useridSubmitBtn.addEventListener("click", () =>{
+            console.log("hi")
+            
+            startLoadingAnim(useridInput, overlay, useridBtnSpan)
+        })
+    }
+
 }
 
 
 //Script to sort Results by Category of Subjects
-let categoryLinks = document.querySelectorAll(".category-link")
-let subjectResultDivs = document.querySelectorAll(".subject-result-div")
-Array.from(categoryLinks).forEach(link => {
-    link.addEventListener("click", (e) => {
-        categorizeResults(e, link)
-    })
-})
-
-function categorizeResults(e, link){
-    e.preventDefault()
-    if(link.dataset.category == "all"){
-        subjectResultDivs.forEach(el => {
-            el.classList.remove("hide")
+if(document.querySelector(".category-link")){
+    let categoryLinks = document.querySelectorAll(".category-link")
+    let subjectResultDivs = document.querySelectorAll(".subject-result-div")
+    Array.from(categoryLinks).forEach(link => {
+        link.addEventListener("click", (e) => {
+            categorizeResults(e, link)
         })
-
-    }else{
-        subjectResultDivs.forEach(el => {
-            if(link.dataset.category.toLowerCase() == el.dataset.select.toLowerCase()){
+    })
+    
+    function categorizeResults(e, link){
+        e.preventDefault()
+        if(link.dataset.category == "all"){
+            subjectResultDivs.forEach(el => {
                 el.classList.remove("hide")
-                console.log(el)
-            }else{
-                el.classList.add("hide")
-            }
-        })  
+            })
+    
+        }else{
+            subjectResultDivs.forEach(el => {
+                if(link.dataset.category.toLowerCase() == el.dataset.select.toLowerCase()){
+                    el.classList.remove("hide")
+                    console.log(el)
+                }else{
+                    el.classList.add("hide")
+                }
+            })  
+        }
     }
 }
 
@@ -134,16 +140,49 @@ let questionNumbers = document.querySelectorAll(".question-number")
 let smallBoxHead = document.querySelectorAll(".question-box .small-box-head")
 let currentPage = 1;
 const itemsPerPage = 5;
+let currentQuestion = 0
+
 
 if(document.querySelector(".user-question-btn-container")){
 
+
+    // Fetch existing selections when the page loads
+    fetch('/get_selections/')
+    .then(response => response.json())
+    .then(data => {
+        const selectedAnswers = data.selected_answers;
+        for (const [questionId, answerId] of Object.entries(selectedAnswers)) {
+            const radio = document.querySelector(`input[name="question_${questionId}"][value="${answerId}"]`);
+            if (radio) {
+                radio.checked = true;
+            }
+        }
+
+        questionBoxes.forEach((box, index) => {
+            box.querySelectorAll(".check-answer").forEach((checkEl => {
+                console.log(checkEl.checked)
+                if(checkEl.checked){
+                    questionNumbers[index].classList.add("answered")
+                }
+            }))
+        })
+    });
+
     function selectNumber(){
         questionBoxes.forEach((box, index) => {
-            box.onchange = () => {
-                console.log("hi")
-                questionNumbers[index].classList.add("answered")
-            }
-        
+            console.log(box)
+            // box.onchange = () => {
+            //     questionNumbers[index].classList.add("answered")
+            // }
+
+            box.addEventListener("change", function(e){
+                if(e.target.matches("input")){
+                    questionNumbers[index].classList.add("answered")
+                    highlightQuestion(index)
+                    currentQuestion = index
+                }
+            })
+
             smallBoxHead.forEach((el, index) => {
                 el.textContent = `Question ${index + 1}`
             })
@@ -233,7 +272,6 @@ if(document.querySelector(".user-question-btn-container")){
 
     //Script to highlight questions and add keyboard shortcuts
     
-    let currentQuestion = 0
     let questionsLength = questionBoxes.length
     let optionKeys = ['a', 'b', 'c', 'd']
     let questionPerPage = 5
@@ -313,237 +351,230 @@ if(document.querySelector(".user-question-btn-container")){
 
 // Script to persist answers on refresh
 
-// Fetch existing selections when the page loads
-fetch('/get_selections/')
-    .then(response => response.json())
-    .then(data => {
-        const selectedAnswers = data.selected_answers;
-        console.log(`selectedAnswers: ${selectedAnswers}`)
-        for (const [questionId, answerId] of Object.entries(selectedAnswers)) {
-            const radio = document.querySelector(`input[name="question_${questionId}"][value="${answerId}"]`);
-            if (radio) {
-                radio.checked = true;
-            }
-        }
-    });
+
         
 // Add event listener to save selection on change
-document.querySelectorAll('.check-answer').forEach(radio => {
-    radio.addEventListener('change', function() {
-        const questionId = this.name.split('_')[1];
-        const answerId = this.value;
-        console.log(`Answer Id: ${answerId}`)
-        fetch('/save_selection/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')  // Add CSRF token for security
-            },
-            body: JSON.stringify({
-                question_id: questionId,
-                answer_id: answerId
+if(document.querySelector('.check-answer')){
+    document.querySelectorAll('.check-answer').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const questionId = this.name.split('_')[1];
+            const answerId = this.value;
+            fetch('/save_selection/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')  // Add CSRF token for security
+                },
+                body: JSON.stringify({
+                    question_id: questionId,
+                    answer_id: answerId
+                })
             })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status !== 'success') {
-                console.log('Failed to save selection');
-            }
+            .then(response => response.json())
+            .then(data => {
+                if (data.status !== 'success') {
+                    console.log('Failed to save selection');
+                }
+            });
         });
     });
-});
-
-function getCookie(name) {
-        let cookieValue = null;
-        if (document.cookie && document.cookie !== '') {
-            const cookies = document.cookie.split(';');
-            for (let i = 0; i < cookies.length; i++) {
-                const cookie = cookies[i].trim();
-                // Does this cookie string begin with the name we want?
-                if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                    break;
+    
+    function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    // Does this cookie string begin with the name we want?
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
                 }
             }
-        }
-        return cookieValue;
+            return cookieValue;
+    }
 }
 // Script for calculator
-
-let calculatorScreen = document.querySelector(".calculator-screen")
-let calculatorButtons = document.querySelectorAll(".calculator-button")
-let currentInput = ""
-let calculatorOperator = ""
-let firstOperand = ""
-let dotAdded = false
-let result = ""
-function updateDisplay(value){
-    calculatorScreen.textContent = value
-}
-
-function handleButtonClick(value){
-    if(value >= 0 && value <= 9){
-        currentInput += value
-        if(calculatorOperator){
-            updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
-        }else{
-            updateDisplay(currentInput)
-        }
-
-    }else if(value === "." && !dotAdded){
-        if(currentInput === ''){
-            currentInput = '0'
-        }
-        currentInput += '.'
-        dotAdded = true
-        updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
-    }else if(value === "CLR"){
-        currentInput = ""
-        calculatorOperator = "" 
-        firstOperand = ""
-        updateDisplay('')
-    }else if(value === "="){
-        if(currentInput !== '' && calculatorOperator !== ''){
-            let secondOperand = currentInput
-            result = calculateFunc(firstOperand, secondOperand, calculatorOperator)
-            updateDisplay(result)
-            currentInput = result
-            firstOperand = ''
-            calculatorOperator = ""
-            dotAdded = result.toString().includes(".")
-        }else{
-            updateDisplay(currentInput)
-        }
-    }else if(value === "%"){
-        if(currentInput !== ''){
-            currentInput = (parseFloat(currentInput) / 100).toString()
-            updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
-            dotAdded = currentInput.includes(".")
-        }
-    }else if(['+', '-', '*', '/'].includes(value)){
-        if(currentInput !== ''){
-            if(firstOperand !== '' && calculatorOperator !== ''){
-                firstOperand = calculateFunc(firstOperand, currentInput, calculatorOperator)
-                calculatorOperator = value
-                currentInput = ''
-                dotAdded = false 
-                updateDisplay(firstOperand + ' ' + calculatorOperator)
+if(document.querySelector(".calculator-screen")){
+    let calculatorScreen = document.querySelector(".calculator-screen")
+    let calculatorButtons = document.querySelectorAll(".calculator-button")
+    let currentInput = ""
+    let calculatorOperator = ""
+    let firstOperand = ""
+    let dotAdded = false
+    let result = ""
+    function updateDisplay(value){
+        calculatorScreen.textContent = value
+    }
+    
+    function handleButtonClick(value){
+        if(value >= 0 && value <= 9){
+            currentInput += value
+            if(calculatorOperator){
+                updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
             }else{
-                firstOperand = currentInput
-                calculatorOperator = value
-                currentInput = ""
-                dotAdded = false
-                updateDisplay(firstOperand + ' ' + calculatorOperator)
+                updateDisplay(currentInput)
+            }
+    
+        }else if(value === "." && !dotAdded){
+            if(currentInput === ''){
+                currentInput = '0'
+            }
+            currentInput += '.'
+            dotAdded = true
+            updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
+        }else if(value === "CLR"){
+            currentInput = ""
+            calculatorOperator = "" 
+            firstOperand = ""
+            updateDisplay('')
+        }else if(value === "="){
+            if(currentInput !== '' && calculatorOperator !== ''){
+                let secondOperand = currentInput
+                result = calculateFunc(firstOperand, secondOperand, calculatorOperator)
+                dotAdded = result.toString().includes(".")
+                result = dotAdded ? parseFloat(result).toFixed(4) : result
+                updateDisplay(result)
+                currentInput = result
+                firstOperand = ''
+                calculatorOperator = ""
+            }else{
+                updateDisplay(currentInput)
+            }
+        }else if(value === "%"){
+            if(currentInput !== ''){
+                currentInput = (parseFloat(currentInput) / 100).toString()
+                updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
+                dotAdded = currentInput.includes(".")
+            }
+        }else if(['+', '-', '*', '/'].includes(value)){
+            if(currentInput !== ''){
+                if(firstOperand !== '' && calculatorOperator !== ''){
+                    firstOperand = calculateFunc(firstOperand, currentInput, calculatorOperator)
+                    calculatorOperator = value
+                    currentInput = ''
+                    dotAdded = false 
+                    updateDisplay(firstOperand + ' ' + calculatorOperator)
+                }else{
+                    firstOperand = currentInput
+                    calculatorOperator = value
+                    currentInput = ""
+                    dotAdded = false
+                    updateDisplay(firstOperand + ' ' + calculatorOperator)
+                }
+            }
+        }else if(value === "DEL"){
+            if(currentInput !== ''){
+               if(currentInput.toString().endsWith(".")){
+                   dotAdded = false
+               }
+               currentInput = currentInput.toString().slice(0, -1)
+            }else if(calculatorOperator !== ''){
+                calculatorOperator = ''
+            }else if(firstOperand !== ''){
+                firstOperand = firstOperand.toString().slice(0, -1)
+            }
+    
+            if(calculatorOperator){
+                updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
+            }else{
+                updateDisplay(firstOperand + currentInput)
             }
         }
-    }else if(value === "DEL"){
-        if(currentInput !== ''){
-           if(currentInput.toString().endsWith(".")){
-               dotAdded = false
-           }
-           currentInput = currentInput.toString().slice(0, -1)
-        }else if(calculatorOperator !== ''){
-            calculatorOperator = ''
-        }else if(firstOperand !== ''){
-            firstOperand = firstOperand.slice(0, -1)
-        }
-
-        if(calculatorOperator){
-            updateDisplay(firstOperand + ' ' + calculatorOperator + ' ' + currentInput)
-        }else{
-            updateDisplay(firstOperand + currentInput)
-        }
+        
     }
     
-}
-
-function calculateFunc(operand1, operand2, operatorCal){
-    let num1 = parseFloat(operand1)
-    let num2 = parseFloat(operand2)
-
-    switch(operatorCal){
-        case '+':
-            return  (num1 + num2)
-            
-
-        case '-':
-            return  (num1 - num2)
-            
-
-        case '*':
-            return  (num1 * num2)
-            
-
-        case '/':
-            return  (num1 / num2)
-            
-
-        default:
-            return '0'
+    function calculateFunc(operand1, operand2, operatorCal){
+        let num1 = parseFloat(operand1)
+        let num2 = parseFloat(operand2)
+    
+        switch(operatorCal){
+            case '+':
+                return  (num1 + num2)
+                
+    
+            case '-':
+                return  (num1 - num2)
+                
+    
+            case '*':
+                return  (num1 * num2)
+                
+    
+            case '/':
+                return  (num1 / num2)
+                
+    
+            default:
+                return '0'
+        }
+    
+        // return result.toString()
     }
-
-    // return result.toString()
-}
-
-calculatorButtons.forEach(btn => {
-    btn.addEventListener("click", function(){
-        handleButtonClick(btn.textContent)
+    
+    calculatorButtons.forEach(btn => {
+        btn.addEventListener("click", function(){
+            handleButtonClick(btn.textContent)
+        })
     })
-})
-
-document.addEventListener("keydown", function(e){
-    let key = e.key
-    if((key ==="Enter") || (key === "enter") || (key === "ENTER")){
-        e.preventDefault()
-        handleButtonClick("=")
-    }
-
-    if((key >= 0 && key <= 9) || key === '.'){
-        handleButtonClick(key)
-    }else if((key === '=')){
-        handleButtonClick('=')
-    }else if((key === 'escape') || (key === 'Escape') || key === 'c'){
-        handleButtonClick("CLR")
-    }else if((key === 'backspace') || (key === 'Backspace')){
-        handleButtonClick('DEL')
-    }else if((key === '=')){
-        handleButtonClick("=")
-    }else if(['+', '-', '*', '/'].includes(key)){
-        handleButtonClick(key)
-    }else if(key === '%'){
-        handleButtonClick("%")
-    }
-
     
-})
-
-// Script to open and close calculator
-
-let calculatorShowCtl = document.querySelector(".calculator-menu .menu-wrapper")
-let calculatorContainer = document.querySelector(".calculator-container")
-
-calculatorShowCtl.addEventListener("click", function(){
-    calculatorContainer.classList.toggle("slideIn")
-})
+    document.addEventListener("keydown", function(e){
+        let key = e.key
+        if((key ==="Enter") || (key === "enter") || (key === "ENTER")){
+            e.preventDefault()
+            handleButtonClick("=")
+        }
+    
+        if((key >= 0 && key <= 9) || key === '.'){
+            handleButtonClick(key)
+        }else if((key === '=')){
+            handleButtonClick('=')
+        }else if((key === 'escape') || (key === 'Escape') || key === 'c'){
+            handleButtonClick("CLR")
+        }else if((key === 'backspace') || (key === 'Backspace')){
+            handleButtonClick('DEL')
+        }else if((key === '=')){
+            handleButtonClick("=")
+        }else if(['+', '-', '*', '/'].includes(key)){
+            handleButtonClick(key)
+        }else if(key === '%'){
+            handleButtonClick("%")
+        }
+    
+        
+    })
+    
+    // Script to open and close calculator
+    
+    let calculatorShowCtl = document.querySelector(".calculator-menu .menu-wrapper")
+    let calculatorContainer = document.querySelector(".calculator-container")
+    
+    calculatorShowCtl.addEventListener("click", function(){
+        calculatorContainer.classList.toggle("slideIn")
+    })
+}
 
 // Animate Instrutions
 let counter = 0
 let carouselItems = document.querySelectorAll(".shrt-container")
-function nextInstruction(){
-    carouselItems[counter].style.animation = "next1 .5s ease forwards"
-
-    if(counter >= carouselItems.length - 1){
-        counter = 0
-    }else{
-        counter++
+if(document.querySelector(".shrt-container")){
+    function nextInstruction(){
+        carouselItems[counter].style.animation = "next1 .5s ease forwards"
+    
+        if(counter >= carouselItems.length - 1){
+            counter = 0
+        }else{
+            counter++
+        }
+    
+        // console.log(counter)
+        carouselItems[counter].style.animation = "next2 .5s ease forwards"
     }
-
-    // console.log(counter)
-    carouselItems[counter].style.animation = "next2 .5s ease forwards"
+    
+    function autoslide(){
+        setInterval(nextInstruction, 10000)
+    }
+    
+    autoslide()
 }
-
-function autoslide(){
-    setInterval(nextInstruction, 10000)
-}
-
-autoslide()
