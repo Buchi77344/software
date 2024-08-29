@@ -1432,6 +1432,59 @@ input#id_user_id{
     font-size: 1.1rem;
 }
 
+.profile-wrapper{
+    padding-top: 30px;
+}
+
+.profile-card{
+    width : 40vw;
+}
+
+.profile-card-header{
+    background-color: hsl(0, 0%, 92%);
+    text-align: center;
+    padding: 10px 15px;
+}
+
+.profile-card-header-text{
+    font-size: 2.5rem;
+    color :hsl(0, 0%, 20%)
+}
+
+.profile-card-body{
+    background-color: hsl(0, 0%, 98%);
+    padding: 20px;
+}
+
+.profile-form-group.flex-column{
+    gap: 10px
+}
+
+.profile-form-group-label{
+    font-size: 1.1rem;
+}
+
+.profile-form-group-input{
+    padding: 7px 12px;
+    font-size: 1rem;
+    background-color: transparent;
+    border: 1px solid rgba(0,0,0,.3);
+    border-radius: 5px;
+}
+
+.profile-form-btn-container{
+    margin-top: 20px;
+}
+
+.profile-form-btn{
+    background-color: var(--variant-clr);
+    color : hsl(0, 0%, 96%);
+    padding : 10px 20px;
+    font-size: 1.1rem;
+    letter-spacing: 1px;
+    border-radius: 5px;
+}
+
 .welcome-page{
     background-color: hsl(168deg 85% 37% / 5%);
     padding : 20px;
