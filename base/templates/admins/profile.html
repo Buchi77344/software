@@ -152,13 +152,13 @@
                     <span>{{school_name.school}}</span>
                     <a class = "logout-link" href="{% url 'admins:logout' %}">Logout</a>
                 </div>
-                <!DOCTYPE html>
+                <!-- <!DOCTYPE html>
                 <html lang="en">
                 <head>
                     <meta charset="UTF-8">
                     <meta name="viewport" content="width=device-width, initial-scale=1.0">
                     <title>Edit School Name</title>
-                    <!-- Bootstrap CSS -->
+                     Bootstrap CSS 
                     <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
                 </head>
                 <body>
@@ -186,13 +186,33 @@
                         </div>
                     </div>
                 
-                    <!-- Bootstrap JS and dependencies -->
+                     Bootstrap JS and dependencies 
                     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
                     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
                     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
                 </body>
-                </html>
-                
+                </html> -->
+                <div class="profile-wrapper flex-center">
+                    <div class="profile-container">
+                            <div class="profile-card flex-column">
+                                <div class="profile-card-header">
+                                    <h3 class = "profile-card-header-text">Edit School Name</h3>
+                                </div>
+                                <div class="profile-card-body">
+                                    <form class="profile-form"  method="POST">
+                                        {% csrf_token %}
+                                        <div class="profile-form-group flex-column">
+                                            <label class = "profile-form-group-label" for="schoolName">School Name</label>
+                                            <input class = "profile-form-group-input" type="text" class="form-control" id="schoolName" name="school" placeholder="Enter new school name" value="{{school_name.school}}">
+                                        </div>
+                                        <div class="profile-form-btn-container">
+                                            <button type="submit" class="profile-form-btn">Save Changes</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
