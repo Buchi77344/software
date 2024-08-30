@@ -338,11 +338,11 @@ if(document.querySelector(".user-question-btn-container")){
     
     
     function highlightQuestion(index){
-        currentPage = Math.ceil((index + 1) / questionPerPage);
+        //currentPage = Math.ceil((index + 1) / questionPerPage);
         // updatePagination();
     
         // Scroll to the specific item
-        let targetIndex = index > questionBoxes.length ? (index - 1) : index
+        let targetIndex = index > questionBoxes.length ? (index - questionBoxes.length) : index
         const targetItem = document.querySelectorAll(".question-box")[targetIndex];
         targetItem.scrollIntoView({ behavior: "smooth" });
     
@@ -643,12 +643,37 @@ if(document.querySelector(".shrt-container")){
 // Theme Customization
 const colorButtons = document.querySelectorAll('.color-choice')
 
-function changeThemeColor(color){
-    document.documentElement.setProperty('--page-clr', color)
+function changeThemeColor(pageColor, sidebarColor, sbHoverClr, headTextClr, selectedClr){
+    document.documentElement.setProperty('--page-clr', pageColor)
+    document.documentElement.setProperty('--main-sidebar-clr', sidebarColor)
+    document.documentElement.setProperty('--main-sb-hv-clr', sbHoverClr)
+    document.documentElement.setProperty('--head-text-clr', headTextClr)
+    document.documentElement.setProperty('--q-selected-btn-clr', selectedClr)
 }
 
-const savedColor  = localStorage.getItem('themeColor')
-if(savedColor){
-    
-    changeThemeColor(savedColor)
+const savedPageColor  = localStorage.getItem('chosenPageColor')
+const savedSidebarColor  = localStorage.getItem('chosenSidebarColor')
+const savedSbHoverClr  = localStorage.getItem('chosenSbHoverClr')
+const savedHeadTextClr  = localStorage.getItem('chosenHeadTextClr')
+const savedSelectedClr  = localStorage.getItem('chosenSelectedClr')
+if(savedPageColor, savedSidebarColor, savedSbHoverClr, savedHeadTextClr, savedSelectedClr){
+    changeThemeColor(savedPageColor, savedSidebarColor,  savedSbHoverClr,savedHeadTextClr, savedSelectedClr)
 }
+
+colorButtons.forEach((btn, index) => {
+    btn.addEventListener('click', function(){
+        const chosenPageColor = this.getAttribute("data-page-clr")
+        const chosenSidebarColor = this.getAttribute("data-side-bar-clr")
+        const chosenSbHoverClr = this.getAttribute("data-sb-hv-clr")
+        const chosenHeadTextClr = this.getAttribute("data-head-text-clr")
+        const chosenSelectedClr = this.getAttribute("data-selected-btn-clr")
+
+        changeThemeColor(chosenPageColor, chosenSidebarColor, chosenSbHoverClr, chosenHeadTextClr, chosenSelectedClr)
+
+        localStorage.setItem("chosenPageColor", chosenPageColor)
+        localStorage.setItem("chosenSidebarColor", chosenSidebarColor)
+        localStorage.setItem("chosenSbHoverClr", chosenSbHoverClr)
+        localStorage.setItem("chosenHeadTextClr", chosenHeadTextClr)
+        localStorage.setItem("chosenSelectedClr", chosenSelectedClr)
+    })
+})

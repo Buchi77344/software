@@ -250,8 +250,9 @@
                 }, 100)
         }
 
-        function submitAnswer(){
+        function logoutSubmitAnswer(){
             answerBtn.type = "submit"
+            document.querySelector(".popup-overlay").style.visibility = "hidden"
             answerBtn.click()
         }
 
@@ -279,7 +280,9 @@
                     remainingSeconds--
                 }else{
                     clearInterval(timeInterval)
-                    submitAnswer()
+                    if(document.querySelectorAll(".question-box").length > 0){
+                        logoutSubmitAnswer()
+                    }
                 }
 
                 if(remainingSeconds <= 300){
@@ -306,7 +309,7 @@
         const inactivityTime = 3 * 60 * 1000
         let hasPopupShown = false
 
-        function showPopup(){
+        function showInactivityPopup(){
             if(!hasPopupShown){
                 warningMessage = 'You have been inactive for 3 minutes. Please select an answer to continue.';
                 document.querySelector(".time.popup-head").textContent = warningMessage
@@ -318,7 +321,7 @@
         function resetInactivityTimer(){
             if(!hasPopupShown){
                 clearTimeout(inactivityTimeout)
-                inactivityTimeout = setTimeout(showPopup, inactivityTime)
+                inactivityTimeout = setTimeout(showInactivityPopup, inactivityTime)
             }
         }
 
