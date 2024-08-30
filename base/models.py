@@ -29,6 +29,7 @@ class TermOrSemester(models.Model):
         ('third_term', 'Third Term'),
         ('first_semester', 'First Semester'),
         ('second_semester', 'Second Semester'),
+        ('general exam', 'General Exam'),
     ]
     
     name = models.CharField(max_length=20, choices=TERM_CHOICES)

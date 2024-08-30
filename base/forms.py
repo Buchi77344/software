@@ -21,8 +21,10 @@ SEMESTER_CHOICES = [
     ('first_semester', 'First Semester'),
     ('second_semester', 'Second Semester'),
 ]
-
-TERM_SEMESTER_CHOICES = TERM_CHOICES + SEMESTER_CHOICES
+GENERAL  = [
+    ('general exam', 'General Exam'),
+]
+TERM_SEMESTER_CHOICES = TERM_CHOICES + SEMESTER_CHOICES + GENERAL 
 
 CLASS_LEVEL_CHOICES = [
     ('jss1', 'JSS 1'),
