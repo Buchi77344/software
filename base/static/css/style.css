@@ -4,10 +4,10 @@
 
 :root{
     --page-clr : #9ddcd1;
-    --main-sidebar-clr : #0ead8d;
-    --main-sb-hv-clr : #0d6453;
-    --head-text-clr : #63c9b5;
-    --q-selected-btn-clr : #15a987;
+    --main-sidebar-clr : hsl(168, 85%, 37%);
+    --main-sb-hv-clr : hsl(168, 77%, 22%);
+    --head-text-clr : hsl(168, 49%, 59%);
+    --q-selected-btn-clr : hsl(166, 78%, 37%);
     --block-clr : hsl(0, 0%, 98%);
     --variant-clr : hsl(189, 56%, 34%);
     --darker-variant-clr : hsl(189.71deg 55.9% 27.77%);
@@ -745,6 +745,19 @@ svg path{
     color:hsl(0, 0%, 95%)
 }
 
+.delete-userId-btn{
+    padding : 10px;
+    border : 1px solid rgb(190, 16, 16);
+    color :rgb(126, 11, 11);
+    border-radius: 5px;
+    transition : background-color .2s ease, color .2s ease;
+}
+
+.delete-userId-btn:hover{
+    background-color: rgb(190, 16, 16);
+    color:hsl(0, 0%, 95%)
+}
+
 .logout-link{
     --logout-clr : rgb(185, 31, 31);
     padding : 10px 20px;
@@ -808,7 +821,7 @@ svg path{
 }
 
 .candidate-info h2{
-    font-size: 2.5rem;
+    font-size: 2rem;
 
 }
 
@@ -821,15 +834,13 @@ svg path{
 }
 
 .user-search-form{
-    margin-left : auto;
-    margin-right : 20px;
     width : 45%;
 }
 
 .user-search-input{
     width : 85%;
     padding : 12px 10px 12px 20px;
-    background-color: hsl(0, 0%, 92%);
+    background-color: hsl(0, 0%, 89%);
     font-size: 1.2rem;
     border-top-left-radius: var(--border-rd-in);
     border-bottom-left-radius: var(--border-rd-in);
