@@ -509,6 +509,20 @@ svg path{
     width : 0;
 }
 
+.no-questions{
+    position: absolute;
+    top : 50%;
+    left : 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+}
+
+.no-questions h3{
+    font-size: 4rem;
+    color : hsla(0, 0%, 77%, .5);
+    text-align: center;
+}
+
 .user-question-form{
     width : 100%;
     padding: 10px;
@@ -624,7 +638,7 @@ svg path{
     background-color: var(--darker-variant-clr);
 }
 
-.no-questions{
+/* .no-questions{
     font-size: 4rem;
     color: hsla(0, 0%, 77%, 0.9);
     position: absolute;
@@ -634,7 +648,7 @@ svg path{
     left: 50%;
     transform: translate(-50%, -50%);
     display: none;
-}
+} */
 
 .user-question-btn-container{
     width : 100%;
@@ -1150,7 +1164,7 @@ svg path{
 
 .upload-cta-container{
     background-color: hsl(0, 0%, 100%);
-    width: 50%;
+    width: 60%;
     min-width: 400px;
     margin: auto;
     padding: 12px 30px 20px;
