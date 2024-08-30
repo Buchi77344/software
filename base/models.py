@@ -21,6 +21,44 @@ def save_user_model(sender, instance, created, **kwargs):
         # Create the Name_School object if it doesn't already exist
         Name_School.objects.get_or_create(school=instance.school_name)
 
+
+class TermOrSemester(models.Model):
+    TERM_CHOICES = [
+        ('first_term', 'First Term'),
+        ('second_term', 'Second Term'),
+        ('third_term', 'Third Term'),
+        ('first_semester', 'First Semester'),
+        ('second_semester', 'Second Semester'),
+    ]
+    
+    name = models.CharField(max_length=20, choices=TERM_CHOICES)
+
+    def __str__(self):
+        return self.get_name_display()
+
+from django.db import models
+
+class ClassOrLevel(models.Model):
+    CLASS_LEVEL_CHOICES = [
+        ('jss1', 'JSS 1'),
+        ('jss2', 'JSS 2'),
+        ('jss3', 'JSS 3'),
+        ('sss1', 'SSS 1'),
+        ('sss2', 'SSS 2'),
+        ('sss3', 'SSS 3'),
+        ('cbt', 'CBT'),
+        ('level_100', 'Level 100'),
+        ('level_200', 'Level 200'),
+        ('level_300', 'Level 300'),
+        ('level_400', 'Level 400'),
+    ]
+    
+    name = models.CharField(max_length=20, choices=CLASS_LEVEL_CHOICES)
+
+    def __str__(self):
+        return self.get_name_display()
+
+
 class Subject(models.Model):
     name = models.CharField(max_length=255, unique=True, null=True)
 
@@ -29,13 +67,13 @@ class Subject(models.Model):
 
 class Question(models.Model):
     text = models.TextField()
-    diagram = models.ImageField(upload_to='questions/diagrams/', blank=True, null=True) 
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE, related_name='questions',null=True)
-
-
+    subject = models.ForeignKey(Subject, on_delete=models.CASCADE,null=True)
+    term_or_semester = models.ForeignKey(TermOrSemester, on_delete=models.CASCADE, null=True, blank=True)
+    class_or_level = models.ForeignKey(ClassOrLevel, on_delete=models.CASCADE, null=True, blank=True)
+    diagram = models.ImageField(upload_to='questions/diagrams/', null=True, blank=True)
 
     def __str__(self):
-        return self.text
+        return self.text[:50] 
 
 class Answer(models.Model):
     question = models.ForeignKey(Question, related_name='answers', on_delete=models.CASCADE)
@@ -148,6 +186,7 @@ class UserSelection(models.Model):
     timestamp = models.DateTimeField(auto_now=True)
 
 class Loding(models.Model):
+    user =  models.ForeignKey(User,on_delete=models.CASCADE , null= True)
     login = models.BooleanField(default=False)
 
 

@@ -99,13 +99,16 @@ def generate_random_id():
 
 def userid(request):
     error_message = None
-    userprofile = get_object_or_404(Userprofile ,user=request.user)
+    userprofile = get_object_or_404(Userprofile, user=request.user)
+    
     if request.method == "POST": 
-        username= request.POST.get('username')
+        username = request.POST.get('username')
         last_name = request.POST.get('last_name')
+        
         if User.objects.filter(username=username).exists():
-            messages.error(request, 'this Userid has already been generated before, plesase try another name')
+            messages.error(request, 'This UserID has already been generated before, please try another name.')
             return redirect("admins:userid") 
+        
         try:
             with transaction.atomic():
                 user, created = User.objects.get_or_create(username=username, last_name=last_name)
@@ -114,7 +117,8 @@ def userid(request):
                     user.save()
 
                 unique_id = generate_random_id()
-                while UserID.objects.filter(generated_id=unique_id).exists():
+                # Case-insensitive check for existing generated_id
+                while UserID.objects.filter(generated_id__iexact=unique_id).exists():
                     unique_id = generate_random_id()
 
                 user_id, created = UserID.objects.get_or_create(user=user)
@@ -127,18 +131,16 @@ def userid(request):
             error_message = "There was an error creating the user. Please try again."  
         except Exception as e:
             error_message = f"An unexpected error occurred: {str(e)}"
+    
     else:
-        school_name =get_object_or_404(Name_School)
+        school_name = get_object_or_404(Name_School)
         context = {
-            'school_name':school_name,
-            'error_message':error_message,
-            'userprofile':userprofile
+            'school_name': school_name,
+            'error_message': error_message,
+            'userprofile': userprofile
         }
 
-    return render(request, 'admins/userid.html',context)  
-
-# views.py
-
+    return render(request, 'admins/userid.html', context)  
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from docx import Document
@@ -159,52 +161,64 @@ import time
 
 @login_required(login_url='login')
 def upload(request):
-    userprofile = get_object_or_404(Userprofile,user=request.user)
+    userprofile = get_object_or_404(Userprofile, user=request.user)
+    
     if request.method == 'POST':
         form = BulkUploadForm(request.POST, request.FILES)
+        
         if form.is_valid():
-            subject_text = form.cleaned_data['subject']
-            file = request.FILES['file']
+            subjects_list = form.cleaned_data['subjects'].splitlines()
+            files = request.FILES.getlist('files')
+            term_semester = form.cleaned_data['term_semester']
+            class_or_level = form.cleaned_data['class_or_level']
 
-            if not file.name.endswith('.docx'):
-                messages.error(request, 'Please upload a DOCX file.')
+            # Ensure the number of subjects matches the number of files
+            if len(subjects_list) != len(files):
+                messages.error(request, "The number of subjects must match the number of files uploaded.")
                 return redirect('admins:upload')
 
-            try:
-                document = Document(file)
-                cleaned_document = clean_document(document)
-                subject, created = Subject.objects.get_or_create(name=subject_text) 
-                questions_data = parse_document(cleaned_document)
+            for subject_text, file in zip(subjects_list, files):
+                if not file.name.endswith('.docx'):
+                    messages.error(request, f'Please upload DOCX files only. {file.name} is not valid.')
+                    continue
 
-                if not questions_data:
-                    messages.error(request, "No valid questions found. Please ensure your document is properly formatted.")
-                    return redirect('admins:upload')
+                try:
+                    document = Document(file)
+                    cleaned_document = clean_document(document)
+                    subject, created = Subject.objects.get_or_create(name=subject_text.strip())
+                    questions_data = parse_document(cleaned_document)
 
-                with transaction.atomic():
-                    for question_data in questions_data:
-                        success = save_question_and_answers(
-                            question_text=question_data['question_text'],
-                            options=question_data['options'],
-                            correct_option=question_data['correct_option'],
-                            diagram_image_path=question_data['diagram_image_path'],
-                            subject=subject
-                        )
-                        if not success:
-                            messages.error(request, f"Failed to save question: {question_data['question_text']}")
-                            return redirect('admins:upload')
+                    if not questions_data:
+                        messages.error(request, f"No valid questions found in {file.name}. Please ensure your document is properly formatted.")
+                        continue
 
-                messages.success(request, "Questions uploaded successfully!")
-                return redirect('admins:question')
+                    with transaction.atomic():
+                        for question_data in questions_data:
+                            success = save_question_and_answers(
+                                question_text=question_data['question_text'],
+                                options=question_data['options'],
+                                correct_option=question_data['correct_option'],
+                                diagram_image_path=question_data['diagram_image_path'],
+                                subject=subject,
+                                term_semester=term_semester,
+                                class_or_level=class_or_level
+                            )
+                            if not success:
+                                messages.error(request, f"Failed to save question: {question_data['question_text']} from {file.name}")
+                                continue
 
-            except Exception as e:
-                messages.error(request, f"Error processing the file: {e}")
-                return redirect('admins:upload')
+                    messages.success(request, f"Questions from {file.name} for subject '{subject_text.strip()}' uploaded successfully!")
+
+                except Exception as e:
+                    messages.error(request, f"Error processing {file.name}: {e}")
+
+            return redirect('admins:upload')
 
     else:
         school_name = get_object_or_404(Name_School)
         form = BulkUploadForm()
 
-    return render(request, 'admins/upload.html', {'form': form, 'school_name': school_name,'userprofile':userprofile})
+    return render(request, 'admins/upload.html', {'form': form, 'school_name': school_name, 'userprofile': userprofile})
 
 def clean_document(document):
     cleaned_paragraphs = []

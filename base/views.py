@@ -268,7 +268,7 @@ def userid(request):
         form = UsernameForm()
 
     return render(request, 'userid.html', {'form': form, 'error_message': error_message})
-# views.py
+
 
 from django.shortcuts import render, redirect
 from django.contrib import auth
@@ -281,17 +281,17 @@ def login(request):
     error_message = None
 
     if request.method == "POST":
-        load =  get_object_or_404(Loding)
         form = LoginForm(request.POST)
-        if load.login is True:
+        if Loding.objects.filter(login=True ,user =request.user).exists():
             messages.error(request, 'you can not login again')
             return redirect('login') 
-        if form.is_valid():
+        if form.is_valid(): 
             user_id = form.cleaned_data['user_id']
+            user_id = ''.join([char.upper() if char.isalpha() else char for char in user_id])
             user = auth.authenticate(request, username=user_id)
             if user is not None: 
                 auth.login(request, user)
-                return redirect('welcome')  # Redirect to a succ ess page
+                return redirect('welcome')  
             else:
                 error_message = "Invalid user ID"
     else: 
@@ -371,12 +371,12 @@ def index(request):
                     score=1.0 if is_correct else 0.0
                    
                 )
-                los , created=Loding.objects.update_or_create(login=True)
+                los , created=Loding.objects.update_or_create(login=True ,user =request.user)
                 los.save()
                
                   
-        return redirect('complete')
-
+                return redirect('complete')
+    
     return render(request, 'index.html', {
         'subjects': subjects,
         'all_subjects_questions': all_subjects_questions,

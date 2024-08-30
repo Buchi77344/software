@@ -313,6 +313,7 @@ svg path{
     padding : 15px 12px;
     border-radius: 10px;
     max-width: 100%;
+    backdrop-filter: blur(10px);
 }
 
 .calculator-screen{
@@ -1644,6 +1645,13 @@ input#id_user_id{
 .complete-content-sub-text{
     font-size: 1rem;
     color: hsl(0, 0%, 30%);
+}
+
+.complete-link{
+    color: var(--main-sidebar-clr);
+    text-decoration: underline;
+    margin-top: 30px;
+    font-size: 1.1rem;
 }
 
 @keyframes next1 {

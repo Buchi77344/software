@@ -1,10 +1,57 @@
 from django import forms
 from base.models import Subject ,Question
+from django.forms.widgets import ClearableFileInput
+
+class MultiFileInput(ClearableFileInput):
+    allow_multiple_selected = True
+
+    def value_from_datadict(self, data, files, name):
+        if isinstance(files.get(name), list):
+            return files.getlist(name)
+        return files.get(name)
+
+
+TERM_CHOICES = [
+    ('first_term', 'First Term'),
+    ('second_term', 'Second Term'),
+    ('third_term', 'Third Term'),
+]
+
+SEMESTER_CHOICES = [
+    ('first_semester', 'First Semester'),
+    ('second_semester', 'Second Semester'),
+]
+
+TERM_SEMESTER_CHOICES = TERM_CHOICES + SEMESTER_CHOICES
+
+CLASS_LEVEL_CHOICES = [
+    ('jss1', 'JSS 1'),
+    ('jss2', 'JSS 2'),
+    ('jss3', 'JSS 3'),
+    ('sss1', 'SSS 1'),
+    ('sss2', 'SSS 2'),
+    ('sss3', 'SSS 3'),
+    ('cbt', 'CBT'),
+    ('level_100', 'Level 100'),
+    ('level_200', 'Level 200'),
+    ('level_300', 'Level 300'),
+    ('level_400', 'Level 400'),
+]
+
 class BulkUploadForm(forms.Form):
-    subject = forms.CharField(max_length=255, required=True, label='Subject')
-    file = forms.FileField(required=True, label='DOCX File')
-
-
+    term_semester = forms.ChoiceField(choices=TERM_SEMESTER_CHOICES, required=True, label='Term/Semester')
+    class_or_level = forms.ChoiceField(choices=CLASS_LEVEL_CHOICES, required=True, label='Class/Level')
+    subjects = forms.CharField(
+        max_length=255,
+        required=True,
+        widget=forms.Textarea(attrs={'rows': 10}),
+        label='Subjects (One per line, corresponding to each file)'
+    )
+    files = forms.FileField(
+        widget=MultiFileInput(attrs={'multiple': True}),
+        required=True,
+        label='DOCX Files (Attach files in the same order as subjects)'
+    )
 class SearchForm(forms.Form):
     query = forms.CharField(max_length=500)
 

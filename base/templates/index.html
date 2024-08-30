@@ -174,7 +174,7 @@
 
                         <div class= "small-box-info">
                             <h4 class = "small-box-head">Number Of Questions</h4>
-                            <p class = "small-box-text"> Questions Total: {{total_questions}}</p>
+                            <p class = "number_of_questions small-box-text"> Questions Total: {{total_questions}}</p>
                         </div>
                     </div>
 
@@ -231,7 +231,7 @@
     <script>
         let timerDiv = document.querySelector("#timer")
         let warningMessage = ""
-        
+        // let answerBtn = document.querySelector(".answer-submit-btn")
 
         function showTimePopup(){
                 document.querySelector(".time.popup-overlay").style.display = "grid"
@@ -248,6 +248,11 @@
                 setTimeout(() => {
                     document.querySelector(".time.popup-overlay").style.display = "none"
                 }, 100)
+        }
+
+        function submitAnswer(){
+            answerBtn.type = "submit"
+            answerBtn.click()
         }
 
 
@@ -267,7 +272,6 @@
 
         function startCountDown(timeSeconds){
             let remainingSeconds = timeSeconds
-            console.log(remainingSeconds)
             function updateTimer(){
                 if(remainingSeconds >= 0){
                     let timeString = formatTimeFunc(remainingSeconds)
@@ -275,6 +279,7 @@
                     remainingSeconds--
                 }else{
                     clearInterval(timeInterval)
+                    submitAnswer()
                 }
 
                 if(remainingSeconds <= 300){
@@ -287,6 +292,8 @@
                     document.querySelector(".time.popup-head").textContent = warningMessage
                     showTimePopup()
                 }
+
+                
             }
 
             updateTimer()
@@ -301,7 +308,7 @@
 
         function showPopup(){
             if(!hasPopupShown){
-                let warning = 'You have been inactive for 3 minutes. Please select an answer to continue.';
+                warningMessage = 'You have been inactive for 3 minutes. Please select an answer to continue.';
                 document.querySelector(".time.popup-head").textContent = warningMessage
                 showTimePopup()
                 hasPopupShown = true
@@ -310,8 +317,8 @@
       
         function resetInactivityTimer(){
             if(!hasPopupShown){
-                clearTimeout(inactivtyTimeout)
-                inactivtyTimeout = setTimeout(showPopup, inactivityTime)
+                clearTimeout(inactivityTimeout)
+                inactivityTimeout = setTimeout(showPopup, inactivityTime)
             }
         }
 
