@@ -314,6 +314,7 @@ svg path{
     border-radius: 10px;
     max-width: 100%;
     backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
 }
 
 .calculator-screen{
@@ -696,6 +697,7 @@ svg path{
     background-color: hsl(0deg 0% 77% / 49%);
     z-index: 100;
     backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
     display: none;
     place-items: center;
 }
@@ -1057,6 +1059,7 @@ svg path{
     height : 100vh;
     background : hsla(0, 0%, 50%, .6);
     backdrop-filter: blur(5px);
+    -webkit-backdrop-filter: blur(5px);
     place-items : center;
     display : none;
     z-index : 900;
@@ -1254,7 +1257,8 @@ svg path{
     transition: background-color .2s ease, color .2s ease;
 }
 
-.category-link:hover{
+
+.category-link:focus{
     background-color: var(--variant-clr);
     color : hsl(0, 0%, 96%);
 }
@@ -1313,6 +1317,7 @@ svg path{
 
 #id_subjects input[type = "checkbox"]{
     appearance: none;
+    -webkit-appearance: none;
     width : 40px;
     height : 20px;
     border-radius: 10px;
