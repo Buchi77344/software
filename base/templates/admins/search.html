@@ -152,14 +152,15 @@
                 </div>
             </div>
             <div class = "main-content">
-                <div class="main-content-header flex">
-                    <span>{{userprofile.user.school_name}}</span>
+                <div class="main-content-header flex-between">
+                    <span>{{school_name.school}}</span>
+                    <a class = "logout-link" href="{% url 'admins:logout' %}">Logout</a>
                 </div>
                 
                 <div class="user-get-container">
                     <div class="candidate-info flex-between">
                         <h2>Candidate Info</h2>
-                        <form method="get"   action="{% url 'admins:search' %}" class = "user-search-form flex">
+                        <form method="get" action="{% url 'admins:search' %}" class = "user-search-form flex">
                             <input type = "text" placeholder="Search..." name = "query" class = "user-search-input"/>
                             <button type="submit" class ="user-search-btn">
                                 <?xml version="1.0" encoding="utf-8"?><!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
@@ -170,7 +171,7 @@
                         </form>
                         <a href="{% url 'admins:userid' %}"> <button class="generate-btn">Generate</button></a>
                     </div>
-                    <table class="user-get-table">
+                    <table class="user-get-table table">
                         <thead class="thead">
                             <tr>
                                 <th scope="col">First Name</th>
@@ -179,7 +180,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            {% for user_id in result %}
+                            {% for user_id in user_id %}
                             <tr>
                                 <td>{{user_id.user.username}}</td>
                                 <td>{{user_id.user.last_name}}</td>
