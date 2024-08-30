@@ -282,18 +282,20 @@ def login(request):
 
     if request.method == "POST":
         form = LoginForm(request.POST)
-        if Loding.objects.filter(login=True ,user =request.user).exists():
-            messages.error(request, 'you can not login again')
-            return redirect('login') 
+      
         if form.is_valid(): 
             user_id = form.cleaned_data['user_id']
             user_id = ''.join([char.upper() if char.isalpha() else char for char in user_id])
+           
             user = auth.authenticate(request, username=user_id)
             if user is not None: 
-                auth.login(request, user)
-                return redirect('welcome')  
+               if Loding.objects.filter(login=True ,user =request.user).exists():
+                 messages.error(request, 'you can not login again')
+                 return redirect('login')
+               auth.login(request, user)
+               return redirect('welcome')  
             else:
-                error_message = "Invalid user ID"
+                error_message = "Invalid user ID"  
     else: 
         form = LoginForm()
         
@@ -391,7 +393,8 @@ def welcome(request):
         'userprofile':userprofile
     }
     return render (request, 'welcome.html',context) 
- 
+
+@login_required(login_url='login')
 def complete(request):
     return render(request, 'exam_complete.html')
 

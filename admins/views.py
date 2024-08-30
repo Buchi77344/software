@@ -148,7 +148,7 @@ from io import BytesIO
 import os
 import time
 from  base.forms import BulkUploadForm
-from base.models import Question, Answer ,Subject ,TermOrSemester ,ClassOrLevel
+from base.models import Question, Answer ,Subject
   
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -162,16 +162,17 @@ import time
 @login_required(login_url='login')
 def upload(request):
     userprofile = get_object_or_404(Userprofile, user=request.user)
-
+    
     if request.method == 'POST':
         form = BulkUploadForm(request.POST, request.FILES)
-
+        
         if form.is_valid():
             subjects_list = form.cleaned_data['subjects'].splitlines()
             files = request.FILES.getlist('files')
             term_semester = form.cleaned_data['term_semester']
             class_or_level = form.cleaned_data['class_or_level']
 
+            # Ensure the number of subjects matches the number of files
             if len(subjects_list) != len(files):
                 messages.error(request, "The number of subjects must match the number of files uploaded.")
                 return redirect('admins:upload')
@@ -185,7 +186,7 @@ def upload(request):
                     document = Document(file)
                     cleaned_document = clean_document(document)
                     subject, created = Subject.objects.get_or_create(name=subject_text.strip())
-                    questions_data = parse_document(cleaned_document, term_semester, class_or_level)
+                    questions_data = parse_document(cleaned_document)
 
                     if not questions_data:
                         messages.error(request, f"No valid questions found in {file.name}. Please ensure your document is properly formatted.")
@@ -241,7 +242,7 @@ def clean_document(document):
 
     return cleaned_document
 
-def parse_document(document, term_semester, class_or_level):
+def parse_document(document):
     questions_data = []
     question_text = None
     options = []
@@ -249,44 +250,40 @@ def parse_document(document, term_semester, class_or_level):
     diagram_image_path = None
     expecting_diagram = False
 
-    for table in document.tables:
-        for row in table.rows:
-            for cell in row.cells:
-                paragraphs = cell.paragraphs
-                for para in paragraphs:
-                    text = para.text.strip()
+    for para in document.paragraphs:
+        text = para.text.strip()
 
-                    if text.startswith("Q:"):
-                        if question_text:
-                            if all([options, correct_option]):
-                                questions_data.append({
-                                    'question_text': question_text,
-                                    'options': options,
-                                    'correct_option': correct_option,
-                                    'diagram_image_path': diagram_image_path
-                                })
-                            else:
-                                messages.warning(request, f"Incomplete question ignored: {question_text}")
+        if text.startswith("Q:"):
+            if question_text:
+                if all([options, correct_option]):
+                    questions_data.append({
+                        'question_text': question_text,
+                        'options': options,
+                        'correct_option': correct_option,
+                        'diagram_image_path': diagram_image_path
+                    })
+                else:
+                    messages.warning(request, f"Incomplete question ignored: {question_text}")
 
-                            options = []
-                            correct_option = None
-                            diagram_image_path = None
+                options = []
+                correct_option = None
+                diagram_image_path = None
 
-                        question_text = text.replace("Q:", "").strip()
+            question_text = text.replace("Q:", "").strip()
 
-                    elif text.startswith("Correct:"):
-                        correct_option = text.replace("Correct:", "").strip()
+        elif text.startswith("Correct:"):
+            correct_option = text.replace("Correct:", "").strip()
 
-                    elif text.startswith(("A.", "B.", "C.", "D.")):
-                        options.append(text.strip())
+        elif text.startswith(("A.", "B.", "C.", "D.")):
+            options.append(text.strip())
 
-                    elif "DA:" in text:
-                        expecting_diagram = True
-                        diagram_image_path = extract_and_save_diagram_or_shape(document, para)
+        elif "DA:" in text:
+            expecting_diagram = True
+            diagram_image_path = extract_and_save_diagram_or_shape(document, para)
 
-                    if expecting_diagram and diagram_image_path is None:
-                        diagram_image_path = extract_and_save_diagram_or_shape(document, para)
-                        expecting_diagram = False
+        if expecting_diagram and diagram_image_path is None:
+            diagram_image_path = extract_and_save_diagram_or_shape(document, para)
+            expecting_diagram = False
 
     if question_text:
         if all([options, correct_option]):
@@ -306,7 +303,7 @@ def extract_and_save_diagram_or_shape(document, paragraph):
 
     try:
         para_index = document.paragraphs.index(paragraph)
-
+        
         if paragraph._element.xpath('.//pic:pic'):
             images += extract_images_from_paragraph(paragraph)
 
@@ -348,13 +345,8 @@ def save_image(image_stream):
         print(f"Error saving image: {e}")
         return None
 
-def save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject, term_semester, class_or_level):
-    question, created = Question.objects.get_or_create(
-        text=question_text,
-        subject=subject,
-        term_or_semester=term_semester,
-        class_or_level=class_or_level
-    )
+def save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject):
+    question, created = Question.objects.get_or_create(text=question_text, subject=subject)
 
     if diagram_image_path:
         question.diagram = diagram_image_path
