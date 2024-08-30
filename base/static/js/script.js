@@ -336,76 +336,79 @@ if(document.querySelector(".user-question-btn-container")){
     let optionKeys = ['a', 'b', 'c', 'd']
     let questionPerPage = 5
     
-    
-    function highlightQuestion(index){
-        //currentPage = Math.ceil((index + 1) / questionPerPage);
-        // updatePagination();
-    
-        // Scroll to the specific item
-        let targetIndex = index > questionBoxes.length ? (index - questionBoxes.length) : index
-        const targetItem = document.querySelectorAll(".question-box")[targetIndex];
-        targetItem.scrollIntoView({ behavior: "smooth" });
-    
-        //highlight Questions
-        questionBoxes.forEach((el, i) =>{
-            el.classList.toggle("highlight", i === index)
-        })
-    
-    }
-    
-    function selectOption(optionKey){
-        let optionIndex = optionKeys.indexOf(optionKey)
-        if(optionIndex == -1) return;
-        let currentOption = questionBoxes[currentQuestion].querySelectorAll('.check-answer')
-        currentOption.forEach((el, index) => {
-            el.parentElement.classList.remove("selected")
-            
-            if(index == optionIndex){
-                el.click()
-                selectNumber()
-            }
-        })
-    }
-    
-    function nextQuestion(){
-        if(currentQuestion < (questionsLength - 1)){
-            currentQuestion++
-        }
-        highlightQuestion(currentQuestion)
-    }
-    
-    function prevQuestion(){
-        if(currentQuestion > 0){
-            currentQuestion--
-        }
-        highlightQuestion(currentQuestion)
-    }
-    
-    document.addEventListener("keydown", (e) => {
-        highlightQuestion(currentQuestion)
-        let key = e.key.toLowerCase()
-        if(popupVisible){
-            if(key === "y" || key === "Y"){
-                submitAnswer()
-            }else if(key == "n" || key == "N"){
-                removePopup()
-            }
-        }else{
-            if(optionKeys.includes(key)){
-                selectOption(key)
-            }else if(key == "n" || key == "N"){
-                nextQuestion()
-            }else if(key == "r" || key == "R"){
-                prevQuestion()
-            }else if(key == "s" || key == "S"){
-                ShowPopup()
-            }
-        }
-    
+    if(document.querySelector(".question-box")){
         
-    })
-
-    highlightQuestion(currentQuestion)
+        function highlightQuestion(index){
+            //currentPage = Math.ceil((index + 1) / questionPerPage);
+            // updatePagination();
+        
+            // Scroll to the specific item
+            let targetIndex = index > questionBoxes.length ? (index - questionBoxes.length) : index
+            const targetItem = document.querySelectorAll(".question-box")[targetIndex];
+            targetItem.scrollIntoView({ behavior: "smooth" });
+        
+            //highlight Questions
+            questionBoxes.forEach((el, i) =>{
+                el.classList.toggle("highlight", i === index)
+            })
+        
+        }
+        
+        function selectOption(optionKey){
+            let optionIndex = optionKeys.indexOf(optionKey)
+            if(optionIndex == -1) return;
+            let currentOption = questionBoxes[currentQuestion].querySelectorAll('.check-answer')
+            currentOption.forEach((el, index) => {
+                el.parentElement.classList.remove("selected")
+                
+                if(index == optionIndex){
+                    el.click()
+                    selectNumber()
+                }
+            })
+        }
+        
+        function nextQuestion(){
+            if(currentQuestion < (questionsLength - 1)){
+                currentQuestion++
+            }
+            highlightQuestion(currentQuestion)
+        }
+        
+        function prevQuestion(){
+            if(currentQuestion > 0){
+                currentQuestion--
+            }
+            highlightQuestion(currentQuestion)
+        }
+        
+        document.addEventListener("keydown", (e) => {
+            highlightQuestion(currentQuestion)
+            let key = e.key.toLowerCase()
+            if(popupVisible){
+                if(key === "y" || key === "Y"){
+                    submitAnswer()
+                }else if(key == "n" || key == "N"){
+                    removePopup()
+                }
+            }else{
+                if(optionKeys.includes(key)){
+                    selectOption(key)
+                }else if(key == "n" || key == "N"){
+                    nextQuestion()
+                }else if(key == "r" || key == "R"){
+                    prevQuestion()
+                }else if(key == "s" || key == "S"){
+                    ShowPopup()
+                }
+            }
+        
+            
+        })
+    
+        highlightQuestion(currentQuestion)
+        
+    }
 
 }    
 
