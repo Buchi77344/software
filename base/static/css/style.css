@@ -108,6 +108,12 @@ svg path{
     scroll-behavior: smooth;
 }
 
+.grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
 .gp-10{
     gap : 10px;
 }
@@ -1016,20 +1022,16 @@ svg path{
 }
 
 .question-pdf-box-wrapper{
-    width : 85%;
-    margin-inline : auto;
-    padding : 20px 0px 20px; 
-}
-
-.question-pdf-box-wrapper.flex-wrap{
-    gap : 25px;
-    justify-content: center;
+    width: 85%;
+    margin-inline: auto;
+    padding: 20px 0px 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
 }
 
 .question-pdf-box{
-    min-width : 280px;
     height : 250px;
-    
 }
 
 .pdf-graphics{
@@ -1039,10 +1041,16 @@ svg path{
     border-top-right-radius: 5px;
 }
 
+.pdf-graphics svg{
+    width : 60px;
+    height : 60px;
+    stroke: transparent;
+}
+
 .pdf-graphics span{
     font-size: 4rem;
     font-weight: bold;
-    color: hsla(0, 0%, 97%, .6);
+    color: hsla(0, 0%, 97%, 0.6);
 }
 
 .question-pdf-details{
@@ -1124,7 +1132,6 @@ svg path{
 
 .Yes-btn{
     background-color : rgb(168, 23, 23);
-    
 }
 
 .Yes-btn a{
