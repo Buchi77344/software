@@ -148,6 +148,7 @@ if(document.querySelector(".user-question-btn-container")){
     const subjectBoxes = document.querySelectorAll(".subject-box")
     const subjectMenu = document.querySelectorAll(".menu-wrapper")
     let subjectNumberDiv = document.querySelector(".question-numbers-div")
+    let numberOfQuestions = document.querySelector(".number_of_questions")
     // Fetch existing selections when the page loads
     fetch('/get_selections/')
     .then(response => response.json())
@@ -162,7 +163,6 @@ if(document.querySelector(".user-question-btn-container")){
 
         questionBoxes.forEach((box, index) => {
             box.querySelectorAll(".check-answer").forEach((checkEl => {
-                console.log(checkEl.checked)
                 if(checkEl.checked){
                 questionNumbers[index].classList.add("answered")
                 }
@@ -171,7 +171,7 @@ if(document.querySelector(".user-question-btn-container")){
     });
 
     subjectBoxes[0].classList.add("visible")
-
+    numberOfQuestions.textContent = `Questions Total: ${subjectBoxes[0].querySelectorAll(".question-box").length}`
     // function initializeSubNumber(){
     //     subjectBoxes[0].querySelectorAll(".question-box").forEach((box, index) => {
     //         let span = `<span class = "question-number">${index + 1}</span>`
@@ -193,7 +193,6 @@ if(document.querySelector(".user-question-btn-container")){
     })
 
     questionNumbers.forEach((el, index) => {
-        console.log(el.dataset.number)
         if(subjectMenu[0].dataset.menu.toLowerCase() == el.dataset.number.toLowerCase()){
             el.classList.add("visible")
         }else{
@@ -208,6 +207,8 @@ if(document.querySelector(".user-question-btn-container")){
                 if(menu.dataset.menu.toLowerCase() == el.dataset.box.toLowerCase()){
                     el.classList.add("visible")
                     controlSmallHead.textContent = el.querySelector(".subject-title").textContent
+                    let questionBoxesLength = el.querySelectorAll(".question-box").length
+                    numberOfQuestions.textContent = `Questions Total: ${questionBoxesLength}`
                   
                 }else{
                     el.classList.remove("visible")
@@ -220,6 +221,7 @@ if(document.querySelector(".user-question-btn-container")){
                 console.log(el.dataset.number)
                 if(menu.dataset.menu.toLowerCase() == el.dataset.number.toLowerCase()){
                     el.classList.add("visible")
+
                 }else{
                     el.classList.remove("visible")
                 }
@@ -636,4 +638,17 @@ if(document.querySelector(".shrt-container")){
     }
     
     autoslide()
+}
+
+// Theme Customization
+const colorButtons = document.querySelectorAll('.color-choice')
+
+function changeThemeColor(color){
+    document.documentElement.setProperty('--page-clr', color)
+}
+
+const savedColor  = localStorage.getItem('themeColor')
+if(savedColor){
+    
+    changeThemeColor(savedColor)
 }
