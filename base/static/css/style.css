@@ -408,6 +408,7 @@ svg path{
     position: sticky;
     top: 0;
     left: 0;
+    z-index : 99;
 }
 
 .main-content-header.flex-between{
@@ -1144,7 +1145,7 @@ svg path{
 }
 
 .upload-cta-wrapper{
-    height : calc(100vh - 60px); 
+    padding : 20px 10px;
 }
 
 .upload-cta-container{
@@ -1152,10 +1153,10 @@ svg path{
     width: 50%;
     min-width: 400px;
     margin: auto;
-    padding: 0px 30px;
-    height: 75%;
+    padding: 12px 30px 20px;
     border-radius: 10px;
     position: relative;
+    
 }
 
 .upload-cta-head{
@@ -1283,10 +1284,10 @@ svg path{
 }
 
 .launch-form-wrapper{
-    height : calc(100vh - 60px);
     display : flex;
     align-items: center;
     justify-content: center;
+    margin-top: 20px;
 }
 
 .launch-form-container{
