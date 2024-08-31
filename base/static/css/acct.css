@@ -84,7 +84,6 @@ svg path{
 }
 
 .page{
-    min-width : 100vw;
     min-height : 100vh;
     background-color: var(--page-clr);
     display: grid;
@@ -99,6 +98,11 @@ svg path{
     border-radius: 20px;
     padding: 15px 30px 15px 30px;
     position: relative;
+    margin: 30px auto;
+}
+
+.create-act-form.flex-column{
+    gap : 10px;
 }
 
 .create-act-head{
@@ -183,15 +187,16 @@ svg path{
 .login{
     max-width: 660px;
     width: 90%;
-    height: 400px;
     background-color: hsl(0, 0%, 96%);
     border-radius: 20px;
-    padding-inline : 30px;
-    padding-bottom: 10px;
+    padding: 20px 30px;
+    margin: 20px auto;
+    min-height: 400px;
 }
 
 .login.flex-column{
     justify-content: space-around;
+    gap:  15px;
 }
 
 .login .input-wrapper.flex-column{

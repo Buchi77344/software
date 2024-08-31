@@ -46,7 +46,7 @@ if(document.querySelector(".popup-overlay") || document.querySelector(".user_id-
         el.onclick = function(){
             let delLink = this.dataset.link
             if(this.dataset.link !== ""){
-                yesbtn.querySelector("a").href = delLink
+                yesbtn.href = delLink
             }
             ShowPopup()
         }

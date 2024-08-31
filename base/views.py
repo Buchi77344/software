@@ -289,10 +289,11 @@ def login(request):
            
             user = auth.authenticate(request, username=user_id)
             if user is not None: 
+              
+               auth.login(request, user)
                if Loding.objects.filter(login=True ,user =request.user).exists():
                  messages.error(request, 'you can not login again')
                  return redirect('login')
-               auth.login(request, user)
                return redirect('welcome')  
             else:
                 error_message = "Invalid user ID"  
