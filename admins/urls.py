@@ -9,7 +9,7 @@ urlpatterns = [
     path('login',views.login,name= "login"),
     path('userid',views.userid,name= "userid"),
     path('user',views.user,name='user'),
-    path('launch',views.launch,name='launch'),
+    path('launch/<int:pk>/',views.launch,name='launch'),
     path('upload',views.upload,name= "upload"),
     path('logout',views.logout,name= "logout"),
     path('question_list',views.question_list,name= "question_list"),
@@ -19,6 +19,6 @@ urlpatterns = [
     path('delete/<str:pk>/', views.delete, name='delete'),
     path('profile',views.profile,name='profile'),
     path('result',views.result,name='result'),
-    path('term',views.term,name='term'),
-    path('subject',views.subject,name='subject')
+    path('term/<str:pk>/',views.term,name='term'),
+    path('subject/<str:pk>/',views.subject,name='subject')
 ]

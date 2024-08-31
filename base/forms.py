@@ -69,10 +69,9 @@ class LoginForm(forms.Form):
 
 class MultiSubjectQuestionSelectionForm(forms.Form):
     subjects = forms.ModelMultipleChoiceField(
-        queryset=Subject.objects.all(),
+        queryset=Subject.objects.none(),  # Start with an empty queryset
         widget=forms.CheckboxSelectMultiple,
         label='Select Subjects'
-        
     )
     exam_duration = forms.CharField(
         max_length=8,
@@ -82,9 +81,15 @@ class MultiSubjectQuestionSelectionForm(forms.Form):
     )
 
     def __init__(self, *args, **kwargs):
+        term_or_semester = kwargs.pop('term_or_semester', None)  # Get the term_or_semester argument
         super().__init__(*args, **kwargs)
-        # Dynamically add a number_of_questions field for each subject
-        for subject in Subject.objects.all():
+        
+        # Filter the subjects based on the selected term_or_semester
+        if term_or_semester:
+            self.fields['subjects'].queryset = Subject.objects.filter(term_or_semester=term_or_semester)
+        
+        # Dynamically add a number_of_questions field for each filtered subject
+        for subject in self.fields['subjects'].queryset:
             self.fields[f'number_of_questions_{subject.id}'] = forms.IntegerField(
                 min_value=1,
                 label=f'Number of Questions for {subject.name}',

@@ -1043,6 +1043,7 @@ svg path{
 
 .question-pdf-box{
     height : 250px;
+    max-width : 350px;
 }
 
 .pdf-graphics{

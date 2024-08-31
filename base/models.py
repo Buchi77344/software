@@ -24,7 +24,7 @@ def save_user_model(sender, instance, created, **kwargs):
 
 class TermOrSemester(models.Model):
     TERM_CHOICES = [
-        ('first_term', 'First Term'),
+        ('First Term', 'First Term'),
         ('second_term', 'Second Term'),
         ('third_term', 'Third Term'),
         ('first_semester', 'First Semester'),
@@ -33,6 +33,7 @@ class TermOrSemester(models.Model):
     ]
     
     name = models.CharField(max_length=20, choices=TERM_CHOICES)
+    class_or_level = models.ForeignKey("ClassOrLevel", on_delete=models.CASCADE , null=True)
 
     def __str__(self):
         return self.get_name_display()
@@ -61,7 +62,8 @@ class ClassOrLevel(models.Model):
 
 
 class Subject(models.Model):
-    name = models.CharField(max_length=255, unique=True, null=True)
+    name = models.CharField(max_length=255, null=True)
+    term_or_semester = models.ForeignKey(TermOrSemester, on_delete=models.CASCADE, null=True)
 
     def __str__(self):
         return self.name
