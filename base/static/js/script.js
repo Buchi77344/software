@@ -255,7 +255,6 @@ if(document.querySelector(".user-question-btn-container")){
     
     if(questionBoxes.length == 0){
             document.querySelector(".user-question-btn-container").style.display = "none"
-            document.querySelector(".no-questions").style.display = "block"
     }
     
     function displayItems(container, itemsPerPage, page) {
@@ -610,7 +609,7 @@ if(document.querySelector(".calculator-screen")){
     
     // Script to open and close calculator
     
-    let calculatorShowCtl = document.querySelector(".calculator-menu .menu-wrapper")
+    let calculatorShowCtl = document.querySelector(".calculator-menu .calculator-menu-wrapper")
     let calculatorContainer = document.querySelector(".calculator-container")
     
     calculatorShowCtl.addEventListener("click", function(){

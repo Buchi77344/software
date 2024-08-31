@@ -116,10 +116,10 @@ def userid(request):
                     user.set_password(User.objects.make_random_password())
                     user.save()
 
-                unique_id = generate_random_id()
+                unique_id = generate_random_id().upper()
                 # Case-insensitive check for existing generated_id
                 while UserID.objects.filter(generated_id__iexact=unique_id).exists():
-                    unique_id = generate_random_id()
+                    unique_id = generate_random_id().upper()
 
                 user_id, created = UserID.objects.get_or_create(user=user)
                 user_id.generated_id = unique_id
@@ -148,7 +148,7 @@ from io import BytesIO
 import os
 import time
 from  base.forms import BulkUploadForm
-from base.models import Question, Answer ,Subject
+from base.models import Question, Answer ,Subject ,TermOrSemester, ClassOrLevel
   
 from django.shortcuts import render, redirect
 from django.contrib import messages
@@ -158,34 +158,42 @@ from io import BytesIO
 from PIL import Image
 import os
 import time
+import re
 
 @login_required(login_url='login')
 def upload(request):
-    userprofile = get_object_or_404(Userprofile, user=request.user)
-    
     if request.method == 'POST':
         form = BulkUploadForm(request.POST, request.FILES)
-        
         if form.is_valid():
-            subjects_list = form.cleaned_data['subjects'].splitlines()
-            files = request.FILES.getlist('files')
-            term_semester = form.cleaned_data['term_semester']
-            class_or_level = form.cleaned_data['class_or_level']
+            term_or_semester_value = form.cleaned_data['term_semester']
+            class_or_level_value = form.cleaned_data['class_or_level']
 
-            # Ensure the number of subjects matches the number of files
-            if len(subjects_list) != len(files):
-                messages.error(request, "The number of subjects must match the number of files uploaded.")
+            try:
+                term_or_semester = TermOrSemester.objects.get(name=term_or_semester_value)
+                class_or_level = ClassOrLevel.objects.get(name=class_or_level_value)
+            except TermOrSemester.DoesNotExist:
+                messages.error(request, "Invalid term/semester selected.")
+                return redirect('admins:upload')
+            except ClassOrLevel.DoesNotExist:
+                messages.error(request, "Invalid class/level selected.")
                 return redirect('admins:upload')
 
-            for subject_text, file in zip(subjects_list, files):
+            subjects = form.cleaned_data['subjects'].splitlines()
+            files = request.FILES.getlist('files')
+
+            if len(subjects) != len(files):
+                messages.error(request, 'The number of subjects must match the number of files.')
+                return redirect('admins:upload')
+
+            for subject_text, file in zip(subjects, files):
                 if not file.name.endswith('.docx'):
-                    messages.error(request, f'Please upload DOCX files only. {file.name} is not valid.')
-                    continue
+                    messages.error(request, 'Please upload a DOCX file.')
+                    return redirect('admins:upload')
 
                 try:
                     document = Document(file)
                     cleaned_document = clean_document(document)
-                    subject, created = Subject.objects.get_or_create(name=subject_text.strip())
+                    subject, _ = Subject.objects.get_or_create(name=subject_text)
                     questions_data = parse_document(cleaned_document)
 
                     if not questions_data:
@@ -200,153 +208,106 @@ def upload(request):
                                 correct_option=question_data['correct_option'],
                                 diagram_image_path=question_data['diagram_image_path'],
                                 subject=subject,
-                                term_semester=term_semester,
+                                term_or_semester=term_or_semester,
                                 class_or_level=class_or_level
                             )
                             if not success:
-                                messages.error(request, f"Failed to save question: {question_data['question_text']} from {file.name}")
-                                continue
+                                messages.error(request, f"Failed to save question: {question_data['question_text']}")
+                                return redirect('admins:upload')
 
-                    messages.success(request, f"Questions from {file.name} for subject '{subject_text.strip()}' uploaded successfully!")
-
+                    messages.success(request, f"Questions from {file.name} uploaded successfully!")
                 except Exception as e:
-                    messages.error(request, f"Error processing {file.name}: {e}")
+                    messages.error(request, f"Error processing the file {file.name}: {e}")
+                    return redirect('admins:upload')
 
-            return redirect('admins:upload')
+            return redirect('admins:question')
 
     else:
         school_name = get_object_or_404(Name_School)
         form = BulkUploadForm()
 
-    return render(request, 'admins/upload.html', {'form': form, 'school_name': school_name, 'userprofile': userprofile})
+    return render(request, 'admins/upload.html', {'form': form, 'school_name': school_name})
 
 def clean_document(document):
     cleaned_paragraphs = []
-    last_label = None
-
     for para in document.paragraphs:
         text = para.text.strip()
-
-        if text.startswith(("Q:", "A.", "B.", "C.", "D.", "Correct:", "DA:")):
-            last_label = text[:2]
+        if text:
             cleaned_paragraphs.append(text)
-        else:
-            if last_label and not text.startswith("Q:"):
-                cleaned_paragraphs[-1] += " " + text
-            else:
-                cleaned_paragraphs.append(text)
+    return cleaned_paragraphs
 
-    cleaned_document = Document()
-    for cleaned_text in cleaned_paragraphs:
-        cleaned_document.add_paragraph(cleaned_text)
-
-    return cleaned_document
-
-def parse_document(document):
+def parse_document(cleaned_paragraphs):
     questions_data = []
-    question_text = None
-    options = []
+    current_question = ""
+    current_options = []
     correct_option = None
-    diagram_image_path = None
-    expecting_diagram = False
+    capturing_question = False
 
-    for para in document.paragraphs:
-        text = para.text.strip()
+    # Regular expressions to match the patterns
+    question_regex = re.compile(r"^\d+\.\s")  # Matches "1. ", "2. ", etc.
+    option_regex = re.compile(r"^[A-D]\.\s")  # Matches "A. ", "B. ", etc.
+    correct_regex = re.compile(r"^Correct:\s")  # Matches "Correct: "
 
-        if text.startswith("Q:"):
-            if question_text:
-                if all([options, correct_option]):
+    print("\n--- Begin Parsing ---\n")
+    
+    for idx, paragraph in enumerate(cleaned_paragraphs):
+        paragraph = paragraph.strip()
+        print(f"Processing Paragraph {idx + 1}: {paragraph}")
+
+        if question_regex.match(paragraph):
+            if capturing_question and current_question:
+                if current_options and correct_option:
                     questions_data.append({
-                        'question_text': question_text,
-                        'options': options,
+                        'question_text': current_question.strip(),
+                        'options': current_options,
                         'correct_option': correct_option,
-                        'diagram_image_path': diagram_image_path
+                        'diagram_image_path': None
                     })
+                    print(f"Captured Question: {current_question.strip()}")
                 else:
-                    messages.warning(request, f"Incomplete question ignored: {question_text}")
+                    print(f"Incomplete question ignored: {current_question.strip()}")
 
-                options = []
-                correct_option = None
-                diagram_image_path = None
+            # Start capturing a new question
+            current_question = question_regex.sub("", paragraph).strip() + " "
+            current_options = []
+            correct_option = None
+            capturing_question = True
 
-            question_text = text.replace("Q:", "").strip()
+        elif capturing_question and option_regex.match(paragraph):
+            current_options.append(paragraph.strip())
+            print(f"Captured Option: {paragraph.strip()}")
 
-        elif text.startswith("Correct:"):
-            correct_option = text.replace("Correct:", "").strip()
+        elif capturing_question and correct_regex.match(paragraph):
+            correct_option = correct_regex.sub("", paragraph).strip()
+            print(f"Captured Correct Option: {correct_option}")
 
-        elif text.startswith(("A.", "B.", "C.", "D.")):
-            options.append(text.strip())
+        elif capturing_question:
+            # Continue capturing multi-line question text
+            current_question += paragraph + " "
+            print(f"Continuing Question Text: {current_question.strip()}")
 
-        elif "DA:" in text:
-            expecting_diagram = True
-            diagram_image_path = extract_and_save_diagram_or_shape(document, para)
-
-        if expecting_diagram and diagram_image_path is None:
-            diagram_image_path = extract_and_save_diagram_or_shape(document, para)
-            expecting_diagram = False
-
-    if question_text:
-        if all([options, correct_option]):
+    # Add the last question to the list
+    if capturing_question and current_question:
+        if current_options and correct_option:
             questions_data.append({
-                'question_text': question_text,
-                'options': options,
+                'question_text': current_question.strip(),
+                'options': current_options,
                 'correct_option': correct_option,
-                'diagram_image_path': diagram_image_path
+                'diagram_image_path': None
             })
+            print(f"Captured Question: {current_question.strip()}")
         else:
-            messages.warning(request, f"Incomplete question ignored: {question_text}")
+            print(f"Incomplete question ignored: {current_question.strip()}")
 
+    print("\n--- Parsing Complete ---\n")
     return questions_data
-
-def extract_and_save_diagram_or_shape(document, paragraph):
-    images = []
-
-    try:
-        para_index = document.paragraphs.index(paragraph)
-        
-        if paragraph._element.xpath('.//pic:pic'):
-            images += extract_images_from_paragraph(paragraph)
-
-        if para_index > 0:
-            prev_para = document.paragraphs[para_index - 1]
-            if prev_para._element.xpath('.//pic:pic'):
-                images += extract_images_from_paragraph(prev_para)
-
-        if para_index < len(document.paragraphs) - 1:
-            next_para = document.paragraphs[para_index + 1]
-            if next_para._element.xpath('.//pic:pic'):
-                images += extract_images_from_paragraph(next_para)
-
-    except ValueError:
-        pass
-
-    return images[0] if images else None
-
-def extract_images_from_paragraph(paragraph):
-    images = []
-    for rel in paragraph.part.rels.values():
-        if "image" in rel.target_ref:
-            image_stream = BytesIO(rel.target_part.blob)
-            image_filename = save_image(image_stream)
-            if image_filename:
-                images.append(f'questions/diagrams/{image_filename}')
-    return images
-
-def save_image(image_stream):
-    image = Image.open(image_stream)
-    image_filename = f'diagram_{int(time.time())}.png'
-    image_path = os.path.join('media', 'questions', 'diagrams', image_filename)
-    os.makedirs(os.path.dirname(image_path), exist_ok=True)
-
-    try:
-        image.save(image_path, format='PNG')
-        return image_filename
-    except Exception as e:
-        print(f"Error saving image: {e}")
-        return None
-
-def save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject):
-    question, created = Question.objects.get_or_create(text=question_text, subject=subject)
+def save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject, term_or_semester, class_or_level):
+    question, created = Question.objects.get_or_create(
+        text=question_text, 
+        subject=subject, 
+        term_or_semester=term_or_semester, 
+        class_or_level=class_or_level
+    )
 
     if diagram_image_path:
         question.diagram = diagram_image_path
@@ -358,20 +319,6 @@ def save_question_and_answers(question_text, options, correct_option, diagram_im
 
     return True
 
-def user(request):
-    userprofile = get_object_or_404(Userprofile, user=request.user)
-    
-    user_id = UserID.objects.all()
-    context = {
-        'userprofile': userprofile,   
-        "user_id": user_id
-    }
-    return render(request, 'admins/userget.html', context)
-
-import pandas as pd
-from django.http import HttpResponse
-from django.template.loader import get_template
-from xhtml2pdf import pisa
 
 def export_user_data_to_pdf(request):
     userprofile = get_object_or_404(Userprofile, user=request.user)
@@ -637,3 +584,9 @@ def result(request):
     #     'userprofile':userprofile,
     # }
     return render(request, 'admins/result.html', context)
+
+def term (request):
+    return render (request, 'term-semester.html')
+
+def subject(request):
+    return render (request, 'subject.html')

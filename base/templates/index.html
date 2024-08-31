@@ -71,7 +71,7 @@
                         </div>
                         
                         <div class = "calculator-menu menu-item">
-                            <div class="menu-wrapper flex gp-10">
+                            <div class="calculator-menu-wrapper flex gp-10">
                                 <?xml version="1.0" encoding="utf-8"?>
                                 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Generator: SVG Repo Mixer Tools -->
                                 <svg width="800px" height="800px" viewBox="0 0 1024 1024" class="arrow-icon"  version="1.1" xmlns="http://www.w3.org/2000/svg">
@@ -187,7 +187,7 @@
                                 {% for subject_data in all_subjects_questions %}
                                     <div data-box = "{{subject_data.subject.name}}" class="subject-box  flex-column gp-15">
                                         <h3 class="subject-title">{{ subject_data.subject.name }}</h3>
-                        
+                                    
                                         {% for question in subject_data.questions %}
                                             <div class="question-box">
                                                 <div class="question-box-head flex-center">
@@ -219,12 +219,12 @@
                             {% endif %}
                         
                             <div class="user-question-btn-container flex-between">
-                                <button type="submit" class="answer-submit-btn">Submit Answers</button>
+                                <button type="button" class="answer-submit-btn">Submit Answers</button>
                             </div>
                         </form>
                         
                         <div class = "no-questions">
-                            <h3>No Questions Yet</h3>
+                            <h3></h3>
                         </div>
                     </div>
                 </div>
@@ -232,25 +232,28 @@
         </div>
     </div>
     <script>
-        let timerDiv = document.querySelector("#timer")
-        let warningMessage = ""
-        // let answerBtn = document.querySelector(".answer-submit-btn")
-
-        function showTimePopup(){
-                document.querySelector(".time.popup-overlay").style.display = "grid"
-                popupVisible = true
-                setTimeout(() => {
-                    document.querySelector(".time.popup-div").classList.add("visible")
-                }, 100)
-
+        let timerDiv = document.querySelector("#timer");
+        let warningMessage = "";
+        let inactivityTimeout;
+        const inactivityDuration = 3 * 60 * 1000; // 3 minutes in milliseconds
+        let indexindexPopupVisible = false;
+        {% comment %} let answerBtn = document.querySelector(".answer-submit-btn") {% endcomment %}
+        // Function to show the popup
+        function showTimePopup() {
+            document.querySelector(".time.popup-overlay").style.display = "grid";
+            indexPopupVisible = true;
+            setTimeout(() => {
+                document.querySelector(".time.popup-div").classList.add("visible");
+            }, 100);
         }
 
-        function removeTimePopup(){
-                document.querySelector(".time.popup-div").classList.remove("visible")
-                popupVisible = false
-                setTimeout(() => {
-                    document.querySelector(".time.popup-overlay").style.display = "none"
-                }, 100)
+        // Function to remove the popup
+        function removeTimePopup() {
+            document.querySelector(".time.popup-div").classList.remove("visible");
+            indexPopupVisible = false;
+            setTimeout(() => {
+                document.querySelector(".time.popup-overlay").style.display = "none";
+            }, 100);
         }
 
         function logoutSubmitAnswer(){
@@ -259,83 +262,85 @@
             answerBtn.click()
         }
 
+        // Event listener for the OK button
+        document.querySelector(".ok-btn").addEventListener("click", function () {
+            console.log("ok-btn");
+            removeTimePopup();
+            resetInactivityTimer(); // Reset inactivity timer after user clicks OK
+        });
 
-        document.querySelector(".ok-btn").addEventListener("click", function(){
-            console.log("ok-btn")
-            removeTimePopup()
-        })
+        // Function to format time into HH:MM:SS
+        function formatTimeFunc(seconds) {
+            let time_hours = Math.floor(seconds / 3600);
+            let time_min = Math.floor((seconds % 3600) / 60);
+            let time_secs = seconds % 60;
 
-        function formatTimeFunc(seconds){
-            let time_hours = Math.floor(seconds / 3600)
-            let time_min = Math.floor((seconds % 3600) / 60)
-            let time_secs = seconds % 60
-
-            let formatedTime = String(time_hours).padStart(2, "0") + ":" + String(time_min).padStart(2, "0") + ":" + String(time_secs).padStart(2, "0")
-            return formatedTime
+            let formatedTime = String(time_hours).padStart(2, "0") + ":" + String(time_min).padStart(2, "0") + ":" + String(time_secs).padStart(2, "0");
+            return formatedTime;
         }
 
-        function startCountDown(timeSeconds){
-            let remainingSeconds = timeSeconds
-            function updateTimer(){
-                if(remainingSeconds >= 0){
-                    let timeString = formatTimeFunc(remainingSeconds)
-                    timerDiv.textContent = timeString
-                    remainingSeconds--
-                }else{
-                    clearInterval(timeInterval)
-                    if(document.querySelectorAll(".question-box").length > 0){
-                        logoutSubmitAnswer()
+        // Function to start countdown timer
+        function startCountDown(timeSeconds) {
+            let remainingSeconds = timeSeconds;
+            function updateTimer() {
+                if (remainingSeconds >= 0) {
+                    let timeString = formatTimeFunc(remainingSeconds);
+                    timerDiv.textContent = timeString;
+                    remainingSeconds--;
+                } else {
+                    clearInterval(timeInterval);
+                    if (document.querySelectorAll(".question-box").length > 0) {
+                        logoutSubmitAnswer();
                     }
                 }
 
-                if(remainingSeconds <= 300){
-                    timerDiv.style.color = "#b51e0b"
+                if (remainingSeconds <= 300) {
+                    timerDiv.style.color = "#b51e0b";
                 }
 
-                if(remainingSeconds === 300){
-                    console.log("updateTimer")
-                    warningMessage = "You Have Five minutes Left"
-                    document.querySelector(".time.popup-head").textContent = warningMessage
-                    showTimePopup()
+                if (remainingSeconds === 300) {
+                    console.log("updateTimer");
+                    warningMessage = "You Have Five minutes Left";
+                    document.querySelector(".time.popup-head").textContent = warningMessage;
+                    showTimePopup();
                 }
-
-                
             }
 
-            updateTimer()
-            let timeInterval = setInterval(updateTimer, 1000)
+            updateTimer();
+            let timeInterval = setInterval(updateTimer, 1000);
         }
 
-        startCountDown("{{ remaining_time|floatformat:0 }}")
-        
-        let inactivityTimeout;
-        const inactivityTime = 3 * 60 * 1000
-        let hasPopupShown = false
+        startCountDown("{{ remaining_time|floatformat:0 }}");
 
-        function showInactivityPopup(){
-            if(!hasPopupShown){
-                warningMessage = 'You have been inactive for 3 minutes. Please select an answer to continue.';
-                document.querySelector(".time.popup-head").textContent = warningMessage
-                showTimePopup()
-                hasPopupShown = true
-            }
-        } 
-      
-        function resetInactivityTimer(){
-            if(!hasPopupShown){
-                clearTimeout(inactivityTimeout)
-                inactivityTimeout = setTimeout(showInactivityPopup, inactivityTime)
-            }
+        // Function to show inactivity popup
+        function showInactivityPopup() {
+            warningMessage = 'You have been inactive for 3 minutes. Please select an answer to continue.';
+            document.querySelector(".time.popup-head").textContent = warningMessage;
+            showTimePopup();
         }
 
-        window.addEventListener("mousemove", resetInactivityTimer)
-        window.addEventListener("keydown", resetInactivityTimer)
-        window.addEventListener("scroll", resetInactivityTimer)
-        window.addEventListener("click", resetInactivityTimer)
+        // Function to reset inactivity timer
+        function resetInactivityTimer() {
+            clearTimeout(inactivityTimeout);
+            inactivityTimeout = setTimeout(showInactivityPopup, inactivityDuration);
+        }
 
-        resetInactivityTimer()
+        // Add event listeners for user interaction to reset the inactivity timer
+        window.addEventListener("mousemove", resetInactivityTimer);
+        window.addEventListener("keydown", resetInactivityTimer);
+        window.addEventListener("scroll", resetInactivityTimer);
+        window.addEventListener("click", resetInactivityTimer);
+
+        // Initialize the inactivity timer
+        resetInactivityTimer();
+
     </script>
     <!-- <script>
+       function logoutSubmitAnswer(){
+            answerBtn.type = "submit"
+            document.querySelector(".popup-overlay").style.visibility = "hidden"
+            answerBtn.click()
+        }
         document.addEventListener('DOMContentLoaded', (event) => {
             let inactivityTime = function () {
                 let time;

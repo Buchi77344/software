@@ -18,6 +18,7 @@ urlpatterns = [
     path('export-to-excel/',views.export_user_data_to_pdf, name='export_user_data_to_pdf'),
     path('delete/<str:pk>/', views.delete, name='delete'),
     path('profile',views.profile,name='profile'),
-    path('result',views.result,name='result')
-
+    path('result',views.result,name='result'),
+    path('term',views.term,name='term'),
+    path('subject',views.subject,name='subject')
 ]
