@@ -157,18 +157,19 @@
                 <div class = "upload-cta-wrapper flex-center">
                     <div class = "upload-cta-container flex-column">
                         <h1 class="upload-cta-head">Bulk Upload Questions</h1>
+                         {% if messages %}
+                            <ul class="alert-ul">
+                                {% for message in messages %} 
+                                    <li class="alert alert-info">hgj{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                         {% endif %}
                         <form method="post" class = "upload-cta-form flex-column" enctype="multipart/form-data">
                             {% csrf_token %}
                             {{ form.as_p }}
                             <button type="submit" class="upload-btn">Upload</button>
                         </form>
-                        {% if messages %}
-                            <ul class="alert-ul">
-                                {% for message in messages %}
-                                    <li class="alert alert-info">{{ message }}</li>
-                                {% endfor %}
-                            </ul>
-                        {% endif %}
+                           
                     </div>
                 </div>
             </div>

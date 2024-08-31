@@ -29,9 +29,11 @@ ul{
 }
 
 button,
-input{
+input,
+select,
+textarea{
     border : none;
-    outline : none;
+    outline : 1px solid transparent;
     font-family: var(--font-family);
 }
 
@@ -40,12 +42,12 @@ button{
 }
 
 button:active{
-    transform: scale(0.5);
-    transition : transform 1s ease
+    transform: scale(0.7);
+    transition : transform .4s ease
 }
 
 input:focus-within{
-    outline: 1px solid hsl(263 24% 52% / .3);
+    outline: 1px solid hsla(263, 24%, 52%, 0.11);
 }
 
 h1,h2,h3,h4,p{
@@ -871,6 +873,10 @@ svg path{
     width : 45%;
 }
 
+.user-search-form.flex{
+    align-items: stretch;
+}
+
 .user-search-input{
     width : 85%;
     padding : 12px 10px 12px 20px;
@@ -1043,6 +1049,7 @@ svg path{
 
 .question-pdf-box{
     height : 250px;
+    max-width : 400px;
 }
 
 .pdf-graphics{
@@ -1231,6 +1238,7 @@ svg path{
     border : 1px solid hsl(0deg 0% 30% / 44%);
     margin-top: 10px;
     border-radius: 5px;
+    font-size: 1.1rem;
 }
 
 .upload-cta-form select:focus{
@@ -1241,8 +1249,10 @@ svg path{
     margin-top: 10px;
     width : 100%;
     border-radius: 5px;
-    height : 100px;
+    height : 150px;
     border : 1px solid hsl(0deg 0% 30% / 44%);
+    padding: 10px 12px;
+    font-size: 1.1rem;
 }
 
 .upload-cta-form #id_subject{
@@ -1279,13 +1289,6 @@ svg path{
     color: hsl(0, 0%, 95%);
     border-radius: 5px;
     letter-spacing: 1px;
-}
-
-.alert-ul{
-    position: absolute;
-    top: 0;
-    width: 90%;
-    padding-top: 10px;
 }
 
 .alert{
@@ -1350,28 +1353,43 @@ svg path{
     margin-top: 15px;
 }
 
+.launch-form{
+    margin-top: 20px;
+}
+
 .launch-form-wrapper{
     display : flex;
     align-items: center;
     justify-content: center;
-    margin-top: 20px;
+    margin: 20px auto;
 }
 
 .launch-form-container{
     max-width: 700px;
     width: 90%;
-    padding: 20px;
+    padding: 20px 30px;
     background-color: white;
 }
 
 .launch-form-container-head{
-    font-size : 2.5rem;
+    font-size : 2.3rem;
     text-align : center;
     margin-top : 5px; 
+    color: hsl(0, 0%, 97%);
+    padding: 5px 10px;
+    border-radius: 10px;
+    background-color: var(--main-sidebar-clr);
 }
 
-.launch-form p:nth-of-type(1) label{
-    font-size : 1.2rem;
+.launch-form label{
+    font-size: 1.13rem;
+    color: hsl(0, 0%, 10%);
+}
+
+div#id_subjects label{
+    color : hsl(0, 0%, 20%);
+    text-transform: capitalize;
+    letter-spacing: 1px;
 }
 
 #id_subjects label{
@@ -1498,7 +1516,7 @@ span#id_exam_duration_helptext{
 }
 
 .user-login-head{
-    font-size : 2.5rem;
+    font-size : 3rem;
     text-align: center;
     color : hsl(0, 0%, 97%);
 }

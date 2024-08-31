@@ -237,7 +237,7 @@
         let inactivityTimeout;
         const inactivityDuration = 3 * 60 * 1000; // 3 minutes in milliseconds
         let indexindexPopupVisible = false;
-        {% comment %} let answerBtn = document.querySelector(".answer-submit-btn") {% endcomment %}
+        //let answerBtn = document.querySelector(".answer-submit-btn")
         // Function to show the popup
         function showTimePopup() {
             document.querySelector(".time.popup-overlay").style.display = "grid";
@@ -311,29 +311,31 @@
         }
 
         startCountDown("{{ remaining_time|floatformat:0 }}");
+        if(subjectBoxes.length > 0){
+            // Function to show inactivity popup
+            function showInactivityPopup() {
+                warningMessage = 'You have been inactive for 3 minutes. Please select an answer to continue.';
+                document.querySelector(".time.popup-head").textContent = warningMessage;
+                showTimePopup();
+            }
+    
+            // Function to reset inactivity timer
+            function resetInactivityTimer() {
+                clearTimeout(inactivityTimeout);
+                inactivityTimeout = setTimeout(showInactivityPopup, inactivityDuration);
+            }
+    
+            // Add event listeners for user interaction to reset the inactivity timer
+            window.addEventListener("mousemove", resetInactivityTimer);
+            window.addEventListener("keydown", resetInactivityTimer);
+            window.addEventListener("scroll", resetInactivityTimer);
+            window.addEventListener("click", resetInactivityTimer);
+    
+            // Initialize the inactivity timer
+            resetInactivityTimer();
 
-        // Function to show inactivity popup
-        function showInactivityPopup() {
-            warningMessage = 'You have been inactive for 3 minutes. Please select an answer to continue.';
-            document.querySelector(".time.popup-head").textContent = warningMessage;
-            showTimePopup();
-        }
 
-        // Function to reset inactivity timer
-        function resetInactivityTimer() {
-            clearTimeout(inactivityTimeout);
-            inactivityTimeout = setTimeout(showInactivityPopup, inactivityDuration);
-        }
-
-        // Add event listeners for user interaction to reset the inactivity timer
-        window.addEventListener("mousemove", resetInactivityTimer);
-        window.addEventListener("keydown", resetInactivityTimer);
-        window.addEventListener("scroll", resetInactivityTimer);
-        window.addEventListener("click", resetInactivityTimer);
-
-        // Initialize the inactivity timer
-        resetInactivityTimer();
-
+        }    
     </script>
     <!-- <script>
        function logoutSubmitAnswer(){
