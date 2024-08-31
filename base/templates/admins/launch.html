@@ -79,7 +79,7 @@
                             </div>
                         </a>
 
-                        <a href = "{% url 'admins:launch' %}" class = "menu-item">
+                        <a href = "" class = "menu-item">
                             <div class="menu-wrapper flex gp-10">
                                 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
                                 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
@@ -158,7 +158,7 @@
                 <div class="launch-form-wrapper">
                     <div class ="launch-form-container">
                         <h2 class = "launch-form-container-head">Launch For JSS 1 First Term</h2>
-                        <form class = "launch-form flex-column" method="post"action="{% url 'admins:launch' %}">
+                        <form class = "launch-form flex-column" method="post">
                             {% csrf_token %}
                             {{ form.as_p }}
                             <button class = "launch-form-btn" type="submit">Submit</button>

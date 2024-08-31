@@ -168,15 +168,8 @@ def upload(request):
             term_or_semester_value = form.cleaned_data['term_semester']
             class_or_level_value = form.cleaned_data['class_or_level']
 
-            try:
-                term_or_semester = TermOrSemester.objects.get(name=term_or_semester_value)
-                class_or_level = ClassOrLevel.objects.get(name=class_or_level_value)
-            except TermOrSemester.DoesNotExist:
-                messages.error(request, "Invalid term/semester selected.")
-                return redirect('admins:upload')
-            except ClassOrLevel.DoesNotExist:
-                messages.error(request, "Invalid class/level selected.")
-                return redirect('admins:upload')
+            class_or_level, _ = ClassOrLevel.objects.get_or_create(name=class_or_level_value)
+            term_or_semester, _ = TermOrSemester.objects.get_or_create(name=term_or_semester_value,class_or_level=class_or_level)
 
             subjects = form.cleaned_data['subjects'].splitlines()
             files = request.FILES.getlist('files')
@@ -193,7 +186,7 @@ def upload(request):
                 try:
                     document = Document(file)
                     cleaned_document = clean_document(document)
-                    subject, _ = Subject.objects.get_or_create(name=subject_text)
+                    subject, _ = Subject.objects.get_or_create(name=subject_text,term_or_semester=term_or_semester)
                     questions_data = parse_document(cleaned_document)
 
                     if not questions_data:
@@ -301,6 +294,7 @@ def parse_document(cleaned_paragraphs):
 
     print("\n--- Parsing Complete ---\n")
     return questions_data
+
 def save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject, term_or_semester, class_or_level):
     question, created = Question.objects.get_or_create(
         text=question_text, 
@@ -384,19 +378,23 @@ from django.utils import timezone
 
 import uuid
 @login_required(login_url='login')
-def launch(request):
+def launch(request, pk=None):
     school_name = get_object_or_404(Name_School)
+
+    # Get the selected TermOrSemester
+    term_or_semester = get_object_or_404(TermOrSemester, pk=pk) if pk else None
+
     if request.method == 'POST':
-        form = MultiSubjectQuestionSelectionForm(request.POST)
+        form = MultiSubjectQuestionSelectionForm(request.POST, term_or_semester=term_or_semester)
         if form.is_valid():
             subject_question_counts = form.cleaned_data['subject_question_counts']
             exam_duration = form.cleaned_data['exam_duration']
 
             for subject, number_of_questions in subject_question_counts.items():
-                questions = list(Question.objects.filter(subject=subject).order_by('id'))  # Order by ID
+                questions = list(Question.objects.filter(subject=subject, term_or_semester=term_or_semester).order_by('id'))  # Filter by TermOrSemester
                 if len(questions) < number_of_questions:
                     messages.error(request, f"Not enough questions for {subject.name}.")
-                    return redirect('admins:launch')
+                    return redirect('admins:launch', term_id=pk)  # Pass term_id in redirect
 
                 selected_questions = questions[:number_of_questions]  # Select first N questions
 
@@ -410,13 +408,13 @@ def launch(request):
                     )
 
             messages.success(request, 'Exam session has been successfully started.')
-            return redirect('admins:launch')
+            return redirect('admins:launch', term_id=pk)  # Pass term_id in redirect
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
-        form = MultiSubjectQuestionSelectionForm()
+        form = MultiSubjectQuestionSelectionForm(term_or_semester=term_or_semester)
 
-    return render(request, 'admins/launch.html', {'form': form, 'school_name': school_name})
+    return render(request, 'admins/launch.html', {'form': form, 'school_name': school_name, 'term_or_semester': term_or_semester})
 def logout(request):
     auth.logout(request)
     return redirect('admins:login')
@@ -480,10 +478,11 @@ def search(request):
 
 def question(request):
     school_name =get_object_or_404(Name_School)
-    subject  = Subject.objects.all()[:10]
+    classes = ClassOrLevel.objects.all()
     context ={
         'subject':subject,
-        'school_name':school_name
+        'school_name':school_name,
+        'classes':classes,
     }
     return render (request, 'admins/question.html',context)
 
@@ -585,8 +584,18 @@ def result(request):
     # }
     return render(request, 'admins/result.html', context)
 
-def term (request):
-    return render (request, 'term-semester.html')
+def term (request,pk):
+    class_or_level = get_object_or_404(ClassOrLevel, pk=pk)
+    terms = TermOrSemester.objects.filter(class_or_level=class_or_level)
+    context = {
+        'terms':terms
+    }
+    return render (request, 'admins/term.html',context)
 
-def subject(request):
-    return render (request, 'subject.html')
+def subject(request,pk):
+    term_or_semester = get_object_or_404(TermOrSemester, pk=pk)
+    subjects = Subject.objects.filter(term_or_semester=term_or_semester)
+    context = {
+        'subjects':subjects
+    }
+    return render (request, 'admins/subject.html',context) 
