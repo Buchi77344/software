@@ -108,6 +108,12 @@ svg path{
     scroll-behavior: smooth;
 }
 
+.grid{
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
+}
+
 .gp-10{
     gap : 10px;
 }
@@ -1027,20 +1033,16 @@ svg path{
 }
 
 .question-pdf-box-wrapper{
-    width : 85%;
-    margin-inline : auto;
-    padding : 20px 0px 20px; 
-}
-
-.question-pdf-box-wrapper.flex-wrap{
-    gap : 25px;
-    justify-content: center;
+    width: 85%;
+    margin-inline: auto;
+    padding: 20px 0px 20px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 20px;
 }
 
 .question-pdf-box{
-    min-width : 280px;
     height : 250px;
-    
 }
 
 .pdf-graphics{
@@ -1050,10 +1052,16 @@ svg path{
     border-top-right-radius: 5px;
 }
 
+.pdf-graphics svg{
+    width : 60px;
+    height : 60px;
+    stroke: transparent;
+}
+
 .pdf-graphics span{
     font-size: 4rem;
     font-weight: bold;
-    color: hsla(0, 0%, 97%, .6);
+    color: hsla(0, 0%, 97%, 0.6);
 }
 
 .question-pdf-details{
@@ -1140,10 +1148,13 @@ svg path{
 
 .Yes-btn{
     background-color : rgb(168, 23, 23);
-    
 }
 
-.Yes-btn a{
+.yes-link{
+    padding : 12px 40px;
+    border-radius: 10px;
+    color : hsl(0, 0%, 90%);
+    font-size : 1.1rem;
     color : hsl(0, 0%, 90%);
 }
 
@@ -1206,8 +1217,7 @@ svg path{
 .upload-cta-form label{
     font-size: 1.1rem;
     text-transform: capitalize;
-    color: hsl(0, 0%, 20%);
-
+    color : hsl(0, 0%, 20%);
 }
 
 .upload-cta-form input{
@@ -1466,7 +1476,7 @@ span#id_exam_duration_helptext{
 }
 
 .user-login-wrapper{
-    height : 70vh;
+    /* height : 70vh; */
     width : 100%;
     display: flex;
     justify-content: center;
@@ -1480,7 +1490,11 @@ span#id_exam_duration_helptext{
     border-radius: 10px;
     background-color: var(--variant-clr);
     padding : 12px 40px;
-    height: 350px;
+    min-height: 350px;
+}
+
+.user-login-container.flex-column{
+    gap : 10px
 }
 
 .user-login-head{
@@ -1518,19 +1532,19 @@ input#id_user_id{
 }
 
 .user-login-error-message{
-    position: absolute;
+    /* position: absolute;
     top: -10px;
-    left: 50%;
+    left: 50%; */
     width: 90%;
     max-width: 500px;
-    transform: translateX(-50%);
     text-align: center;
     background-color: rgb(248 1 1 / 13%);
-    color: rgb(134 32 32);
+    color: rgb(233 220 220 / 93%);
     border: 1px solid rgb(139 25 25);
     padding: 5px;
     border-radius: 10px;
     font-size: 1.1rem;
+    margin : 0 auto;
 }
 
 .profile-wrapper{
