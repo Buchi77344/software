@@ -182,153 +182,7 @@ if(document.querySelector(".user-question-btn-container")){
 
     // initializeSubNumber()
 
-    let controlSmallHead = document.querySelector(".control.small-box-head")
-    controlSmallHead.textContent = document.querySelector(".subject-title").textContent
-    Array.from(subjectMenu).forEach(menu => {
-        menu.addEventListener("click", () => {
-            
-            console.log(document.querySelector(".subject-title").textContent)
-            categorizeSubjects(menu)
-        })
-    })
-
-    questionNumbers.forEach((el, index) => {
-        if(subjectMenu[0].dataset.menu.toLowerCase() == el.dataset.number.toLowerCase()){
-            el.classList.add("visible")
-        }else{
-            el.classList.remove("visible")
-        }
-
-        
-    })
-
-    function categorizeSubjects(menu){
-            subjectBoxes.forEach((el, index) => {
-                if(menu.dataset.menu.toLowerCase() == el.dataset.box.toLowerCase()){
-                    el.classList.add("visible")
-                    controlSmallHead.textContent = el.querySelector(".subject-title").textContent
-                    let questionBoxesLength = el.querySelectorAll(".question-box").length
-                    numberOfQuestions.textContent = `Questions Total: ${questionBoxesLength}`
-                  
-                }else{
-                    el.classList.remove("visible")
-                }
-
-                
-            })  
-
-            questionNumbers.forEach((el, index) => {
-                console.log(el.dataset.number)
-                if(menu.dataset.menu.toLowerCase() == el.dataset.number.toLowerCase()){
-                    el.classList.add("visible")
-
-                }else{
-                    el.classList.remove("visible")
-                }
-
-                
-            })
-    }
-
-    function selectNumber(){
-        questionBoxes.forEach((box, index) => {
-            // box.onchange = () => {
-            //     questionNumbers[index].classList.add("answered")
-            // }
-            box.addEventListener("change", function(e){
-                if(e.target.matches("input")){
-                    console.log(index)
-                    questionNumbers[index].classList.add("answered")
-                    highlightQuestion(index)
-                    currentQuestion = index
-                }
-            })
-
-            // smallBoxHead.forEach((el, index) => {
-            //     el.textContent = `Question ${index + 1}`
-            // })
-        
-        })
-    }
-
-    selectNumber()
     
-    if(questionBoxes.length == 0){
-            document.querySelector(".user-question-btn-container").style.display = "none"
-    }
-    
-    function displayItems(container, itemsPerPage, page) {
-        const start = (page - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-      
-        container.querySelectorAll(".question-box").forEach((item, index) => {
-          if (index >= start && index < end) {
-            item.style.display = "block";
-          } else {
-            item.style.display = "none";
-          }
-        });
-      
-        // document.getElementById("current-page").textContent = `Page ${page}`;
-    }
-
-  
-    // document.getElementById("current-page").textContent = `Page ${currentPage}`;
-
-    function updatePagination() {
-        const container = document.querySelector(".question-section");
-        displayItems(container, itemsPerPage, currentPage);
-      
-        const pageCount = Math.ceil(questionBoxes.length / itemsPerPage);
-        document.getElementById("pag-prev").disabled = currentPage === 1;
-        document.getElementById("pag-next").disabled = currentPage === pageCount;
-    }
-    
-    // updatePagination();
-    
-    // document.getElementById("pag-prev").addEventListener("click", function () {
-    //   if (currentPage > 1) {
-    //     currentPage--;
-    //     updatePagination();
-    //   }
-    // });
-    
-    // document.getElementById("pag-next").addEventListener("click", function () {
-    //   const pageCount = Math.ceil(questionBoxes.length / itemsPerPage);
-    //   if (currentPage < pageCount) {
-    //     currentPage++;
-    //     updatePagination();
-    //   }
-    // });
-    
-    questionNumbers.forEach((el, index) => {
-        el.addEventListener("click", () => {
-            // currentPage = Math.ceil((index + 1) / itemsPerPage);
-            // updatePagination();
-    
-            // Scroll to the specific item
-            let targetIndex = index > questionBoxes.length ? (index - 1) : index
-            const targetItem = document.querySelectorAll(".question-box")[targetIndex];
-            targetItem.scrollIntoView({ behavior: "smooth" });
-        })
-
-        
-    })
-
-    answerBtn.addEventListener("click", (e) => {
-        ShowPopup()
-    })
-    
-    if(document.querySelector(".user-login-error-message")){
-        let errorMessage = document.querySelector(".user-login-error-message")
-        console.log(errorMessage)
-        if(errorMessage.textContent != ""){
-            setTimeout(() => {
-                errorMessage.style.display = "none"
-            }, 5000)
-        }
-    }
-
     //Script to highlight questions and add keyboard shortcuts
     
     let questionsLength = questionBoxes.length
@@ -407,7 +261,162 @@ if(document.querySelector(".user-question-btn-container")){
     
         highlightQuestion(currentQuestion)
         
+        let controlSmallHead = document.querySelector(".control.small-box-head")
+        controlSmallHead.textContent = document.querySelector(".subject-title").textContent
+        Array.from(subjectMenu).forEach(menu => {
+            menu.addEventListener("click", () => {
+                
+                console.log(document.querySelector(".subject-title").textContent)
+                categorizeSubjects(menu)
+                
+            })
+        })
+    
+        questionNumbers.forEach((el, index) => {
+            if(subjectMenu[0].dataset.menu.toLowerCase() == el.dataset.number.toLowerCase()){
+                el.classList.add("visible")
+                
+            }else{
+                el.classList.remove("visible")
+            }
+    
+            
+        })
+    
+        
+    
+        function categorizeSubjects(menu){
+                subjectBoxes.forEach((el, index) => {
+                    if(menu.dataset.menu.toLowerCase() == el.dataset.box.toLowerCase()){
+                        el.classList.add("visible")
+                        el.querySelectorAll(".question-box").forEach((box, index) => {
+                            highlightQuestion(index)
+                        })
+                        controlSmallHead.textContent = el.querySelector(".subject-title").textContent
+                        let questionBoxesLength = el.querySelectorAll(".question-box").length
+                        numberOfQuestions.textContent = `Questions Total: ${questionBoxesLength}`
+                        
+                    }else{
+                        el.classList.remove("visible")
+                    }
+    
+                    
+                })  
+    
+                questionNumbers.forEach((el, index) => {
+                    console.log(el.dataset.number)
+                    if(menu.dataset.menu.toLowerCase() == el.dataset.number.toLowerCase()){
+                        el.classList.add("visible")
+    
+                    }else{
+                        el.classList.remove("visible")
+                    }
+    
+                    
+                })
+        }
+    
+        function selectNumber(){
+            questionBoxes.forEach((box, index) => {
+                // box.onchange = () => {
+                //     questionNumbers[index].classList.add("answered")
+                // }
+                box.addEventListener("change", function(e){
+                    if(e.target.matches("input")){
+                        console.log(index)
+                        questionNumbers[index].classList.add("answered")
+                        highlightQuestion(index)
+                        currentQuestion = index
+                    }
+                })
+    
+                // smallBoxHead.forEach((el, index) => {
+                //     el.textContent = `Question ${index + 1}`
+                // })
+            
+            })
+        }
+    
+        selectNumber()
+        
+        if(questionBoxes.length == 0){
+                document.querySelector(".user-question-btn-container").style.display = "none"
+        }
+        
+        function displayItems(container, itemsPerPage, page) {
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+          
+            container.querySelectorAll(".question-box").forEach((item, index) => {
+              if (index >= start && index < end) {
+                item.style.display = "block";
+              } else {
+                item.style.display = "none";
+              }
+            });
+          
+            // document.getElementById("current-page").textContent = `Page ${page}`;
+        }
     }
+
+
+  
+    // document.getElementById("current-page").textContent = `Page ${currentPage}`;
+
+    function updatePagination() {
+        const container = document.querySelector(".question-section");
+        displayItems(container, itemsPerPage, currentPage);
+      
+        const pageCount = Math.ceil(questionBoxes.length / itemsPerPage);
+        document.getElementById("pag-prev").disabled = currentPage === 1;
+        document.getElementById("pag-next").disabled = currentPage === pageCount;
+    }
+    
+    // updatePagination();
+    
+    // document.getElementById("pag-prev").addEventListener("click", function () {
+    //   if (currentPage > 1) {
+    //     currentPage--;
+    //     updatePagination();
+    //   }
+    // });
+    
+    // document.getElementById("pag-next").addEventListener("click", function () {
+    //   const pageCount = Math.ceil(questionBoxes.length / itemsPerPage);
+    //   if (currentPage < pageCount) {
+    //     currentPage++;
+    //     updatePagination();
+    //   }
+    // });
+    
+    questionNumbers.forEach((el, index) => {
+        el.addEventListener("click", () => {
+            // currentPage = Math.ceil((index + 1) / itemsPerPage);
+            // updatePagination();
+    
+            // Scroll to the specific item
+            let targetIndex = index > questionBoxes.length ? (index - 1) : index
+            const targetItem = document.querySelectorAll(".question-box")[targetIndex];
+            targetItem.scrollIntoView({ behavior: "smooth" });
+        })
+
+        
+    })
+
+    answerBtn.addEventListener("click", (e) => {
+        ShowPopup()
+    })
+    
+    if(document.querySelector(".user-login-error-message")){
+        let errorMessage = document.querySelector(".user-login-error-message")
+        console.log(errorMessage)
+        if(errorMessage.textContent != ""){
+            setTimeout(() => {
+                errorMessage.style.display = "none"
+            }, 5000)
+        }
+    }
+
 
 }    
 

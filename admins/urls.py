@@ -20,5 +20,6 @@ urlpatterns = [
     path('profile',views.profile,name='profile'),
     path('result',views.result,name='result'),
     path('term/<str:pk>/',views.term,name='term'),
-    path('subject/<str:pk>/',views.subject,name='subject')
+    path('subject/<str:pk>/',views.subject,name='subject'),
+    path('status/<str:pk>/',views.status,name='status'),
 ]

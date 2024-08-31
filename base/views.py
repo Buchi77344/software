@@ -348,9 +348,10 @@ def index(request):
             if request.user.is_authenticated:
                 user_results = Result.objects.filter(user=request.user, subject=subject)
                 for result in user_results:
-                    user_answers[question.id] = result.selected_answer.id if result.selected_answer else None
+                    user_answers[result.question.id] = result.selected_answer.id if result.selected_answer else None
 
     if request.method == 'POST':
+        results_to_create = []
         for subject_data in all_subjects_questions:
             subject = subject_data['subject']
             questions = subject_data['questions']
@@ -363,21 +364,28 @@ def index(request):
                     selected_answer = None
                     is_correct = False
 
-                Result.objects.create(
-                    user=request.user,
-                    subject=subject,
-                    question=question,
-                    selected_answer=selected_answer,
-                    is_correct=is_correct,
-                    score=1.0 if is_correct else 0.0
-                   
+                results_to_create.append(
+                    Result(
+                        user=request.user,
+                        subject=subject,
+                        question=question,
+                        selected_answer=selected_answer,
+                        is_correct=is_correct,
+                        score=1.0 if is_correct else 0.0
+                    )
                 )
-                los , created=Loding.objects.update_or_create(login=True ,user =request.user)
-                los.save()
-               
-                  
-                return redirect('complete')
-    
+
+        # Bulk create all results at once
+        Result.objects.bulk_create(results_to_create)
+
+        # Update or create the Loding entry
+        Loding.objects.update_or_create(
+            login=True,
+            user=request.user
+        )
+
+        return redirect('complete')
+
     return render(request, 'index.html', {
         'subjects': subjects,
         'all_subjects_questions': all_subjects_questions,
@@ -386,6 +394,7 @@ def index(request):
         'school_name': school_name,
         'username': username
     })
+
 def welcome(request):
     userprofile = get_object_or_404(Userprofile,user=request.user)
     context = {

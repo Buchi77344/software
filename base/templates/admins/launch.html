@@ -157,7 +157,7 @@
                 
                 <div class="launch-form-wrapper">
                     <div class ="launch-form-container">
-                        <h2 class = "launch-form-container-head">Launch For JSS 1 First Term</h2>
+                    <h2 class = "launch-form-container-head">Launch For {{term_or_semester.class_or_level.name|upper}} {{term_or_semester.name|upper}}</h2>
                         <form class = "launch-form flex-column" method="post">
                             {% csrf_token %}
                             {{ form.as_p }}
