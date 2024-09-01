@@ -142,6 +142,13 @@ let currentPage = 1;
 const itemsPerPage = 5;
 let currentQuestion = 0
 
+let navigationBtn = document.querySelector(".navigation-link-container button")
+
+navigationBtn.addEventListener("click", function(){
+    history.back()
+    console.log("hi")
+})
+
 
 if(document.querySelector(".user-question-btn-container")){
 
@@ -181,32 +188,45 @@ if(document.querySelector(".user-question-btn-container")){
     
     function highlightQuestion(index) {
         // Get all subject-box elements
-        const subjectBoxes = document.querySelectorAll('.subject-box');
+        // const subjectBoxes = document.querySelectorAll('.subject-box');
     
         // Iterate through each subject-box
-        let cumulativeIndex = 0;
-        for (const subjectBox of subjectBoxes) {
-            const questionBoxes = subjectBox.querySelectorAll('.question-box');
+        // let cumulativeIndex = 0;
+        // for (const subjectBox of subjectBoxes) {
+        //     const questionBoxes = subjectBox.querySelectorAll('.question-box');
     
-            // If the index falls within the current subjectBox
-            if (index < cumulativeIndex + questionBoxes.length) {
-                const targetIndex = index - cumulativeIndex;
-                const targetItem = questionBoxes[targetIndex];
+        //     // If the index falls within the current subjectBox
+        //     if (index < cumulativeIndex + questionBoxes.length) {
+        //         const targetIndex = index - cumulativeIndex;
+        //         const targetItem = questionBoxes[targetIndex];
     
-                // Scroll to the specific item
-                targetItem.scrollIntoView({ behavior: 'smooth' });
+        //         // Scroll to the specific item
+        //         targetItem.scrollIntoView({ behavior: 'smooth' });
     
-                // Highlight the correct question
-                questionBoxes.forEach((el, i) => {
-                    el.classList.toggle('highlight', i === targetIndex);
-                });
+        //         // Highlight the correct question
+        //         questionBoxes.forEach((el, i) => {
+        //             el.classList.toggle('highlight', i === targetIndex);
+        //         });
     
-                break;
-            }
+        //         break;
+        //     }
     
-            // Update cumulativeIndex to include the questions in the current subjectBox
-            cumulativeIndex += questionBoxes.length;
-        }
+        //     // Update cumulativeIndex to include the questions in the current subjectBox
+        //     cumulativeIndex += questionBoxes.length;
+        // }
+
+        currentPage = Math.ceil((index + 1) / questionPerPage);
+        updatePagination();
+    
+        // Scroll to the specific item
+        let targetIndex = index > questionBoxes.length ? (index - 1) : index
+        const targetItem = document.querySelectorAll(".question-box")[targetIndex];
+        targetItem.scrollIntoView({ behavior: "smooth" });
+    
+        //highlight Questions
+        questionBoxes.forEach((el, i) =>{
+            el.classList.toggle("highlight", i === index)
+        })
     }
     
 

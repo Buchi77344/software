@@ -1038,6 +1038,27 @@ svg path{
     margin-top: 10px;
 }
 
+.navigation-link-container{
+    margin: 30px 0px 30px 20px;
+}
+
+.navigation-link-container svg{
+    fill : var(--main-sb-hv-clr);
+}
+
+.navigation-link-container button{
+    display: flex;
+    align-items: center;
+    gap : 5px;
+    color : var(--main-sb-hv-clr);
+    font-size : 1.1rem;
+}
+
+.navigation-link-container button:active{
+    transform : scale(1);
+    opacity: 0.8;
+}
+
 .question-pdf-box-wrapper{
     width: 85%;
     margin-inline: auto;
@@ -1069,6 +1090,13 @@ svg path{
     font-size: 4rem;
     font-weight: bold;
     color: hsla(0, 0%, 97%, 0.6);
+}
+
+.launch-link{
+    padding : 7px 12px;
+    color : hsl(0, 0%, 95%);
+    background-color: var(--variant-clr);
+    border-radius: 5px;
 }
 
 .question-pdf-details{
@@ -1384,6 +1412,16 @@ svg path{
 .launch-form label{
     font-size: 1.13rem;
     color: hsl(0, 0%, 10%);
+}
+
+.launch-form select{
+        display: block;
+        width : 100%;
+        padding: 10px;
+        border : 1px solid hsl(0deg 0% 30% / 44%);
+        margin-top: 10px;
+        border-radius: 5px;
+        font-size: 1.1rem;
 }
 
 div#id_subjects label{
