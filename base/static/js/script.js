@@ -279,20 +279,7 @@ if(document.querySelector(".user-question-btn-container")){
             document.querySelector(".user-question-btn-container").style.display = "none"
     }
     
-    function displayItems(container, itemsPerPage, page) {
-        const start = (page - 1) * itemsPerPage;
-        const end = start + itemsPerPage;
-      
-        container.querySelectorAll(".question-box").forEach((item, index) => {
-          if (index >= start && index < end) {
-            item.style.display = "block";
-          } else {
-            item.style.display = "none";
-          }
-        });
-      
-        // document.getElementById("current-page").textContent = `Page ${page}`;
-    }
+  
   
     
     // updatePagination();
@@ -662,3 +649,18 @@ if(document.querySelector(".user-question-btn-container")){
 //         localStorage.setItem("chosenSelectedClr", chosenSelectedClr)
 //     })
 // })
+
+  // function displayItems(container, itemsPerPage, page) {
+    //     const start = (page - 1) * itemsPerPage;
+    //     const end = start + itemsPerPage;
+      
+    //     container.querySelectorAll(".question-box").forEach((item, index) => {
+    //       if (index >= start && index < end) {
+    //         item.style.display = "block";
+    //       } else {
+    //         item.style.display = "none";
+    //       }
+    //     });
+      
+    //     // document.getElementById("current-page").textContent = `Page ${page}`;
+    // }
