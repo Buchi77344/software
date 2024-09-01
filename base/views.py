@@ -15,56 +15,56 @@ from datetime import timedelta
 @login_required(login_url='login')
 @login_required(login_url='login')
 def userpage(request):
-    subjects = Subject.objects.all()
-    selected_subject_id = request.GET.get('subject_id')
-    questions = []
+    username = get_object_or_404(UserID, user=request.user)
+    school_name = get_object_or_404(Name_School)
+    
+    # Get only subjects associated with an ExamSession
+    subjects = Subject.objects.filter(examsession__isnull=False).distinct()
+
+    all_subjects_questions = []
     remaining_time = None
-    selected_subject = None
-    user_answers = []
-    total_questions = 0
+    user_answers = defaultdict(dict)
 
     if subjects.exists():
-        if selected_subject_id:
-            selected_subject = get_object_or_404(Subject, id=selected_subject_id)
-        else:
-            selected_subject = subjects.first()
+        for subject in subjects:
+            exam_sessions = ExamSession.objects.filter(subject=subject).order_by('shuffle_order')
+            questions = [session.question for session in exam_sessions]
 
-        # Check if an exam session already exists for this user and subject
-        session_id = f'{request.user.id}_{selected_subject.id}'
-        exam_sessions = ExamSession.objects.filter(session_id=session_id, subject=selected_subject)
-
-        if not exam_sessions.exists():
-            # Create a new exam session with shuffled questions and start time
-            questions = list(Question.objects.filter(subject=selected_subject))
+            # Shuffle questions uniquely for each user and subject
+            seed = hash(request.user.id) % 10000
+            random.seed(seed)
             random.shuffle(questions)
-            start_time = timezone.now()
-            duration = '01:00:00'  # Example duration of 1 hour
 
-            for index, question in enumerate(questions):
-                ExamSession.objects.create(
-                    session_id=session_id,
-                    subject=selected_subject,
-                    question=question,
-                    exam_start_time=start_time,
-                    exam_duration=duration,
-                    shuffle_order=index,
+            all_subjects_questions.append({
+                'subject': subject,
+                'questions': questions
+            })
+
+            if exam_sessions.exists():
+                exam_session = exam_sessions.first()
+
+                user_exam_session, created = UserExamSessionx.objects.get_or_create(
+                    user=request.user,
+                    subject=subject,
+                    defaults={'exam_session': exam_session, 'start_time': timezone.now()}
                 )
 
-        # Fetch the user's exam session
-        exam_sessions = ExamSession.objects.filter(session_id=session_id, subject=selected_subject).order_by('shuffle_order')
-        questions = [session.question for session in exam_sessions]
-        total_questions = len(questions)
+                duration_parts = exam_session.exam_duration.split(':')
+                duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]), seconds=int(duration_parts[2]))
+                end_time = user_exam_session.start_time + duration
 
-        # Calculate remaining time based on the user's start time
-        if exam_sessions.exists():
-            start_time = exam_sessions.first().exam_start_time
-            duration_parts = exam_sessions.first().exam_duration.split(':')
-            duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]), seconds=int(duration_parts[2]))
-            end_time = start_time + duration
-            remaining_time = max(0, (end_time - timezone.now()).total_seconds())
+                remaining_time = max(0, (end_time - timezone.now()).total_seconds())
 
-        if request.method == 'POST':
-            results = []
+            if request.user.is_authenticated:
+                user_results = Result.objects.filter(user=request.user, subject=subject)
+                for result in user_results:
+                    user_answers[result.question.id] = result.selected_answer.id if result.selected_answer else None
+
+    if request.method == 'POST':
+        results_to_create = []
+        for subject_data in all_subjects_questions:
+            subject = subject_data['subject']
+            questions = subject_data['questions']
             for question in questions:
                 selected_answer_id = request.POST.get(f'question_{question.id}')
                 if selected_answer_id:
@@ -74,42 +74,38 @@ def userpage(request):
                     selected_answer = None
                     is_correct = False
 
-                # Save result to the Result model
-                result = Result(
-                    user=request.user,
-                    subject=selected_subject,
-                    question=question,
-                    selected_answer=selected_answer,
-                    is_correct=is_correct,
-                    score=1.0 if is_correct else 0.0
+                results_to_create.append(
+                    Result(
+                        user=request.user,
+                        subject=subject,
+                        question=question,
+                        selected_answer=selected_answer,
+                        is_correct=is_correct,
+                        score=1.0 if is_correct else 0.0
+                    )
                 )
-                result.save()
 
-                results.append({
-                    'question_id': question.id,
-                    'selected_answer_id': selected_answer.id if selected_answer else None,
-                    'correct': is_correct
-                })
+        # Bulk create all results at once
+        Result.objects.bulk_create(results_to_create)
 
-            # Mark the exam as completed
-            ExamSession.objects.filter(session_id=session_id, subject=selected_subject).update(completed=True)
+        # Update or create the Loding entry
+        Loding.objects.update_or_create(
+            login=True,
+            user=request.user
+        )
 
-            # Redirect to the result page
-            return redirect('login')
-
-        # Retrieve user's previous answers if they exist
-        if request.user.is_authenticated:
-            user_results = Result.objects.filter(user=request.user, subject=selected_subject)
-            user_answers = [(result.question.id, result.selected_answer.id if result.selected_answer else None) for result in user_results]
-
+        return redirect('complete')
+  
     return render(request, 'user-page.html', {
         'subjects': subjects,
-        'selected_subject': selected_subject,
-        'questions': questions,
+        'all_subjects_questions': all_subjects_questions,
         'remaining_time': remaining_time,
         'user_answers': user_answers,
-        'total_questions': total_questions,
+        'school_name': school_name,
+        'username': username
     })
+
+
 
    
 @login_required(login_url='login')
@@ -170,7 +166,7 @@ def result(request):
     # Get the subjects the user has taken quizzes for
     subjects = Subject.objects.filter(result__user=request.user).distinct()
     subjects_results = {}  # This dictionary will store results per subject
-
+    
     # Loop through each subject the user has taken the quiz for
     for subject in subjects:
         user_results = []  
@@ -309,7 +305,9 @@ from collections import defaultdict
 def index(request):
     username = get_object_or_404(UserID, user=request.user)
     school_name = get_object_or_404(Name_School)
-    subjects = Subject.objects.all()
+    
+    # Get only subjects associated with an ExamSession
+    subjects = Subject.objects.filter(examsession__isnull=False).distinct()
 
     all_subjects_questions = []
     remaining_time = None
@@ -394,6 +392,7 @@ def index(request):
         'school_name': school_name,
         'username': username
     })
+
 
 def welcome(request):
     userprofile = get_object_or_404(Userprofile,user=request.user)

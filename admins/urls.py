@@ -21,5 +21,7 @@ urlpatterns = [
     path('result',views.result,name='result'),
     path('term/<str:pk>/',views.term,name='term'),
     path('subject/<str:pk>/',views.subject,name='subject'),
-    path('status/<str:pk>/',views.status,name='status'),
+    path('status',views.status,name='status'),
+    path('deleteuserid',views.deleteuserid,name='deleteuserid'),
+    path('destroyexam',views.destroyexam,name='destroyexam'),
 ]
