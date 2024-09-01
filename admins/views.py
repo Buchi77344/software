@@ -408,7 +408,7 @@ def launch(request, pk=None):
                     )
 
             messages.success(request, 'Exam session has been successfully started.')
-            return redirect('admins:launch', term_id=pk)  # Pass term_id in redirect
+            return redirect('admins:launch', pk=pk)  # Pass term_id in redirect
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
@@ -599,3 +599,12 @@ def subject(request,pk):
         'subjects':subjects
     }
     return render (request, 'admins/subject.html',context) 
+
+def status(request,pk):
+    exam_session = get_object_or_404(ExamSession,pk=pk)
+
+    context = {
+        'exam_session': exam_session,
+        'questions': exam_session.get_questions(),
+    }
+    return render (request, 'admins/status.html',context)

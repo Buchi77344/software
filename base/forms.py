@@ -12,14 +12,14 @@ class MultiFileInput(ClearableFileInput):
 
 
 TERM_CHOICES = [
-    ('first_term', 'First Term'),
-    ('second_term', 'Second Term'),
-    ('third_term', 'Third Term'),
+    ('First Term', 'First Term'),
+    ('Second Term', 'Second Term'),
+    ('Third Term', 'Third Term'),
 ]
 
 SEMESTER_CHOICES = [
-    ('first_semester', 'First Semester'),
-    ('second_semester', 'Second Semester'),
+    ('first semester', 'First Semester'),
+    ('second semester', 'Second Semester'),
 ]
 GENERAL  = [
     ('general exam', 'General Exam'),
@@ -73,11 +73,18 @@ class MultiSubjectQuestionSelectionForm(forms.Form):
         widget=forms.CheckboxSelectMultiple,
         label='Select Subjects'
     )
-    exam_duration = forms.CharField(
-        max_length=8,
+    
+    # Generate 15-minute interval choices from 15 minutes to 4 hours
+    DURATION_CHOICES = [
+        (f"{h:02}:{m:02}:00", f"{h}h {m}m") 
+        for h in range(4) for m in (0, 15, 30, 45)
+    ] + [("04:00:00", "4h 00m")]
+
+    exam_duration = forms.ChoiceField(
+        choices=DURATION_CHOICES,
         initial='01:00:00',
-        label='Exam Duration (hh:mm:ss)',
-        help_text='Set the duration for the exam in hours, minutes, and seconds.'
+        label='Exam Duration',
+        help_text='Select the duration for the exam.'
     )
 
     def __init__(self, *args, **kwargs):
@@ -105,8 +112,8 @@ class MultiSubjectQuestionSelectionForm(forms.Form):
         if not subjects:
             self.add_error('subjects', 'At least one subject must be selected.')
 
-        if not self.is_valid_duration(exam_duration):
-            self.add_error('exam_duration', 'Please specify a valid exam duration in hh:mm:ss format.')
+        if exam_duration not in dict(self.DURATION_CHOICES).keys():
+            self.add_error('exam_duration', 'Please select a valid exam duration.')
 
         for subject in subjects:
             number_of_questions = cleaned_data.get(f'number_of_questions_{subject.id}')
@@ -123,10 +130,3 @@ class MultiSubjectQuestionSelectionForm(forms.Form):
         cleaned_data['exam_duration'] = exam_duration
 
         return cleaned_data
-
-    def is_valid_duration(self, duration):
-        try:
-            hours, minutes, seconds = map(int, duration.split(':'))
-            return (0 <= hours <= 99) and (0 <= minutes < 60) and (0 <= seconds < 60)
-        except ValueError:
-            return False
