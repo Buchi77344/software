@@ -152,12 +152,13 @@ from base.models import Question, Answer ,Subject ,TermOrSemester, ClassOrLevel
   
 from django.shortcuts import render, redirect
 from django.contrib import messages
-
+from django.conf import settings
 from docx import Document
 from io import BytesIO
 from PIL import Image
 import os
 import time
+import docx
 import re
 
 @login_required(login_url='login')
@@ -169,7 +170,7 @@ def upload(request):
             class_or_level_value = form.cleaned_data['class_or_level']
 
             class_or_level, _ = ClassOrLevel.objects.get_or_create(name=class_or_level_value)
-            term_or_semester, _ = TermOrSemester.objects.get_or_create(name=term_or_semester_value,class_or_level=class_or_level)
+            term_or_semester, _ = TermOrSemester.objects.get_or_create(name=term_or_semester_value, class_or_level=class_or_level)
 
             subjects = form.cleaned_data['subjects'].splitlines()
             files = request.FILES.getlist('files')
@@ -185,9 +186,9 @@ def upload(request):
 
                 try:
                     document = Document(file)
-                    cleaned_document = clean_document(document)
-                    subject, _ = Subject.objects.get_or_create(name=subject_text,term_or_semester=term_or_semester)
-                    questions_data = parse_document(cleaned_document)
+                    subject, _ = Subject.objects.get_or_create(name=subject_text, term_or_semester=term_or_semester)
+
+                    questions_data = parse_docx(document)
 
                     if not questions_data:
                         messages.error(request, f"No valid questions found in {file.name}. Please ensure your document is properly formatted.")
@@ -195,18 +196,14 @@ def upload(request):
 
                     with transaction.atomic():
                         for question_data in questions_data:
-                            success = save_question_and_answers(
+                            save_question_and_answers(
                                 question_text=question_data['question_text'],
                                 options=question_data['options'],
                                 correct_option=question_data['correct_option'],
-                                diagram_image_path=question_data['diagram_image_path'],
                                 subject=subject,
                                 term_or_semester=term_or_semester,
                                 class_or_level=class_or_level
                             )
-                            if not success:
-                                messages.error(request, f"Failed to save question: {question_data['question_text']}")
-                                return redirect('admins:upload')
 
                     messages.success(request, f"Questions from {file.name} uploaded successfully!")
                 except Exception as e:
@@ -216,104 +213,90 @@ def upload(request):
             return redirect('admins:question')
 
     else:
-        school_name = get_object_or_404(Name_School)
         form = BulkUploadForm()
 
-    return render(request, 'admins/upload.html', {'form': form, 'school_name': school_name})
+    return render(request, 'admins/upload.html', {'form': form})
 
-def clean_document(document):
-    cleaned_paragraphs = []
-    for para in document.paragraphs:
-        text = para.text.strip()
-        if text:
-            cleaned_paragraphs.append(text)
-    return cleaned_paragraphs
-
-def parse_document(cleaned_paragraphs):
+def parse_docx(document):
     questions_data = []
-    current_question = ""
-    current_options = []
-    correct_option = None
-    capturing_question = False
+    question_block = []
+    for para in document.paragraphs:
+        line = para.text.strip()
+        if line:
+            question_block.append(line)
+        elif question_block:
+            question_data = parse_question_block(question_block)
+            if question_data:
+                questions_data.append(question_data)
+            question_block = []
 
-    # Regular expressions to match the patterns
-    question_regex = re.compile(r"^\d+\.\s")  # Matches "1. ", "2. ", etc.
-    option_regex = re.compile(r"^[A-D]\.\s")  # Matches "A. ", "B. ", etc.
-    correct_regex = re.compile(r"^Correct:\s")  # Matches "Correct: "
+    if question_block:
+        question_data = parse_question_block(question_block)
+        if question_data:
+            questions_data.append(question_data)
 
-    print("\n--- Begin Parsing ---\n")
-    
-    for idx, paragraph in enumerate(cleaned_paragraphs):
-        paragraph = paragraph.strip()
-        print(f"Processing Paragraph {idx + 1}: {paragraph}")
-
-        if question_regex.match(paragraph):
-            if capturing_question and current_question:
-                if current_options and correct_option:
-                    questions_data.append({
-                        'question_text': current_question.strip(),
-                        'options': current_options,
-                        'correct_option': correct_option,
-                        'diagram_image_path': None
-                    })
-                    print(f"Captured Question: {current_question.strip()}")
-                else:
-                    print(f"Incomplete question ignored: {current_question.strip()}")
-
-            # Start capturing a new question
-            current_question = question_regex.sub("", paragraph).strip() + " "
-            current_options = []
-            correct_option = None
-            capturing_question = True
-
-        elif capturing_question and option_regex.match(paragraph):
-            current_options.append(paragraph.strip())
-            print(f"Captured Option: {paragraph.strip()}")
-
-        elif capturing_question and correct_regex.match(paragraph):
-            correct_option = correct_regex.sub("", paragraph).strip()
-            print(f"Captured Correct Option: {correct_option}")
-
-        elif capturing_question:
-            # Continue capturing multi-line question text
-            current_question += paragraph + " "
-            print(f"Continuing Question Text: {current_question.strip()}")
-
-    # Add the last question to the list
-    if capturing_question and current_question:
-        if current_options and correct_option:
-            questions_data.append({
-                'question_text': current_question.strip(),
-                'options': current_options,
-                'correct_option': correct_option,
-                'diagram_image_path': None
-            })
-            print(f"Captured Question: {current_question.strip()}")
-        else:
-            print(f"Incomplete question ignored: {current_question.strip()}")
-
-    print("\n--- Parsing Complete ---\n")
     return questions_data
 
-def save_question_and_answers(question_text, options, correct_option, diagram_image_path, subject, term_or_semester, class_or_level):
-    question, created = Question.objects.get_or_create(
-        text=question_text, 
-        subject=subject, 
-        term_or_semester=term_or_semester, 
+def parse_question_block(block):
+    question_text = ""
+    options = []
+    correct_option = None
+
+    question_regex = re.compile(r"^\d+\.\s")
+    option_regex = re.compile(r"^[A-D]\.\s")
+    correct_regex = re.compile(r"^Correct:\s")
+
+    in_question = False
+
+    for line in block:
+        line = line.strip()
+
+        if question_regex.match(line):
+            if in_question:
+                # Finalize the previous question
+                if question_text:
+                    question_text = re.sub(r"^\d+\.\s", "", question_text)  # Remove numbering
+                    return {
+                        'question_text': question_text,
+                        'options': options,
+                        'correct_option': correct_option,
+                    }
+
+            # Start a new question block
+            question_text = line
+            in_question = True
+
+        elif option_regex.match(line):
+            options.append(line)
+
+        elif correct_regex.match(line):
+            correct_option = line.split(":")[1].strip()
+
+    if in_question and question_text and options and correct_option:
+        question_text = re.sub(r"^\d+\.\s", "", question_text)  # Remove numbering
+        return {
+            'question_text': question_text,
+            'options': options,
+            'correct_option': correct_option,
+        }
+
+    return None
+
+def save_question_and_answers(question_text, options, correct_option, subject, term_or_semester, class_or_level):
+    question = Question.objects.create(
+        text=question_text,
+        subject=subject,
+        term_or_semester=term_or_semester,
         class_or_level=class_or_level
     )
 
-    if diagram_image_path:
-        question.diagram = diagram_image_path
-        question.save()
-
-    for option_text in options:
-        is_correct = option_text.startswith(correct_option)
-        Answer.objects.create(question=question, text=option_text, is_correct=is_correct)
-
-    return True
-
-
+    for option in options:
+        is_correct = option.startswith(correct_option)
+        Answer.objects.create(
+            question=question,
+            text=option,
+            is_correct=is_correct
+        )
 def export_user_data_to_pdf(request):
     userprofile = get_object_or_404(Userprofile, user=request.user)
     user_id = UserID.objects.all()[:10]
@@ -514,6 +497,8 @@ def profile(request):
     return render (request, 'admins/profile.html',context)
 
 from django.db.models import Count, Sum
+from django.db.models import Count, Sum, IntegerField, Case, When
+
 @login_required(login_url='admins:login')
 def result(request):
     userprofile = get_object_or_404(Userprofile, user=request.user)
@@ -537,7 +522,13 @@ def result(request):
                     'user__userid__generated_id'
                 ).annotate(
                     total_answers=Count('id'),
-                    correct_answers=Sum('is_correct')
+                    correct_answers=Sum(
+                        Case(
+                            When(is_correct=True, then=1),
+                            When(is_correct=False, then=0),
+                            output_field=IntegerField()
+                        )
+                    )
                 ).distinct()
 
                 results = []
