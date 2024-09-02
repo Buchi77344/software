@@ -337,13 +337,18 @@ def export_user_data_to_pdf(request):
     return response
 def user(request):
     userprofile = get_object_or_404(Userprofile, user=request.user)
-    
+    school_name = get_object_or_404(Name_School)
     user_id = UserID.objects.all()
     context = {
         'userprofile': userprofile,   
-        "user_id": user_id
+        "user_id": user_id,
+        "school_name":school_name
     }
     return render(request, 'admins/userget.html', context)
+def deleteuserid(request):
+    UserID.objects.all().delete()
+    return redirect('admins:user')
+
 import pandas as pd
 from django.http import HttpResponse
 from django.template.loader import get_template
@@ -408,7 +413,7 @@ def launch(request, pk=None):
                     )
 
             messages.success(request, 'Exam session has been successfully started.')
-            return redirect('admins:launch', pk=pk)  # Pass term_id in redirect
+            return redirect('admins:status')  # Pass term_id in redirect
         else:
             messages.error(request, 'Please correct the errors below.')
     else:
@@ -511,77 +516,50 @@ def profile(request):
 from django.db.models import Count, Sum
 @login_required(login_url='admins:login')
 def result(request):
-    userprofile = get_object_or_404(Userprofile,user=request.user)
-    # Get the subjects the user has taken quizzes for 
-    subjects = Subject.objects.all()  # Get all subjects from the database
+    userprofile = get_object_or_404(Userprofile, user=request.user)
+    
+    # Retrieve all ClassOrLevel and TermOrSemester
+    classes = ClassOrLevel.objects.all()
+    term_or_semesters = TermOrSemester.objects.all()
+
+    # Dictionary to store results by subject, class, and term
     subject_results = {}
 
-    # Loop through each subject and get the results
-    for subject in subjects:
-        users = Result.objects.filter(subject__name=subject.name).values(
-            'user__username', 
-            'user__last_name', 
-            'user__userid__generated_id'
-        ).annotate(
-            total_answers=Count('id'),  # Total number of answers per user for the subject
-            correct_answers=Sum('is_correct')  # Sum of correct answers per user for the subject
-        ).distinct()
+    for class_or_level in classes:
+        for term_or_semester in term_or_semesters.filter(class_or_level=class_or_level):
+            subjects = Subject.objects.filter(term_or_semester=term_or_semester)
 
-        # Prepare the results for each subject
-        results = []
-        for user in users:
-            total_answers = user['total_answers']
-            correct_answers = user['correct_answers']
-            score = f"{correct_answers}/{total_answers}"  # Format the score as 'correct/total'
-            
-            results.append({
-                'first_name': user['user__username'],
-                'last_name': user['user__last_name'],
-                'user_id': user['user__userid__generated_id'],
-                'score': score
-            })
-        
-        # Store the results in a dictionary with the subject name as the key
-        subject_results[subject.name] = results
+            for subject in subjects:
+                # Get results for the current subject, class, and term
+                users = Result.objects.filter(subject=subject).values(
+                    'user__username',
+                    'user__last_name',
+                    'user__userid__generated_id'
+                ).annotate(
+                    total_answers=Count('id'),
+                    correct_answers=Sum('is_correct')
+                ).distinct()
+
+                results = []
+                for user in users:
+                    total_answers = user['total_answers']
+                    correct_answers = user['correct_answers']
+                    score = f"{correct_answers}/{total_answers}"
+
+                    results.append({
+                        'first_name': user['user__username'],
+                        'last_name': user['user__last_name'],
+                        'user_id': user['user__userid__generated_id'],
+                        'score': score
+                    })
+
+                subject_results[(class_or_level.name, term_or_semester.name, subject.name)] = results
 
     context = {
         'subject_results': subject_results,
-        'userprofile':userprofile
+        'userprofile': userprofile
     }
-    # Loop through each subject the user has taken the quiz for
-    # for subject in subjects:
-    #     user_results = []  
-    #     correct_answers = 0
-    #     total_questions = 0 
 
-    #     # Fetch results for this subject
-    #     for result in Result.objects.filter(user=request.user, subject=subject):
-    #         # Get the correct answer for the current question
-    #         correct_answer = result.question.answers.get(is_correct=True)
-
-    #         # Add the correct answer to the result object
-    #         result.correct_answer = correct_answer
-    #         user_results.append(result)
-
-    #         # Count the correct answers
-    #         if result.is_correct:
-    #             correct_answers += 1
-
-    #         total_questions += 1
-
-    #     subjects_results[subject] = {
-    #         'user_results': user_results,
-    #         'correct_answers': correct_answers,
-    #         'total_questions': total_questions,
-    #     }
-
-    #     # Create a User_result entry
-       
-    # context = {
-    #     'users':users,
-    #     'subjects_results': subjects_results,
-    #     'userprofile':userprofile,
-    # }
     return render(request, 'admins/result.html', context)
 
 def term (request,pk):
@@ -600,11 +578,10 @@ def subject(request,pk):
     }
     return render (request, 'admins/subject.html',context) 
 
-def status(request,pk):
-    exam_session = get_object_or_404(ExamSession,pk=pk)
+def status(request):
+   
+    return render (request, 'admins/status.html') 
 
-    context = {
-        'exam_session': exam_session,
-        'questions': exam_session.get_questions(),
-    }
-    return render (request, 'admins/status.html',context)
+def destroyexam(request):
+    ExamSession.objects.all().delete()
+    return redirect('admins:question')

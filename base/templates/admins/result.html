@@ -199,17 +199,18 @@
                         
                         <div class = "category-wrapper flex-scroll">
                             <a data-category = "all" class="category-link" href = "">All</a>
-                            {% for subject_name, results in subject_results.items %}
-                            <a data-category = "{{ subject_name|upper }}" class="category-link" href = ""> {{ subject_name|upper }}</a>
+                            {% for class_name, term_name, subject_name in subject_results %}
+                            <a data-category = "{{ subject_name|upper }}-{{class_name}} {{term_name}}" class="category-link" href = ""> {{ subject_name|upper }}-{{class_name|upper}} {{term_name|upper}}</a>
                             {% endfor %}
                             
                         </div>
                     </div>
 
                     <div class = "subject-div-wrapper">
-                        {% for subject_name, results in subject_results.items %}
-                        <div data-select = "{{ subject_name }}" class = "subject-result-div">
-                            <h3 class = "subject-result-head">{{ subject_name|upper }}</h3>
+                        {% for key, results in subject_results.items %}
+                        {% with class_name=key.0 term_name=key.1 subject_name=key.2 %}
+                        <div data-select = "{{ subject_name|upper }}-{{class_name}} {{term_name}}" class = "subject-result-div">
+                            <h3 class = "subject-result-head">{{ subject_name|upper }}-{{class_name|upper}} {{term_name|upper}}</h3>
                             <table class="user-get-table table">
                                 <thead class="thead">
                                     <tr>
@@ -231,6 +232,7 @@
                                 </tbody>
                             </table>
                         </div>
+                        {% endwith %}
                         {% endfor %}
                     </div>
                 </div>

@@ -25,10 +25,10 @@ def save_user_model(sender, instance, created, **kwargs):
 class TermOrSemester(models.Model):
     TERM_CHOICES = [
         ('First Term', 'First Term'),
-        ('second_term', 'Second Term'),
-        ('third_term', 'Third Term'),
-        ('first_semester', 'First Semester'),
-        ('second_semester', 'Second Semester'),
+        ('second term', 'Second Term'),
+        ('third term', 'Third Term'),
+        ('first semester', 'First Semester'),
+        ('second semester', 'Second Semester'),
         ('general exam', 'General Exam'),
     ]
     
@@ -49,10 +49,10 @@ class ClassOrLevel(models.Model):
         ('sss2', 'SSS 2'),
         ('sss3', 'SSS 3'),
         ('cbt', 'CBT'),
-        ('level_100', 'Level 100'),
-        ('level_200', 'Level 200'),
-        ('level_300', 'Level 300'),
-        ('level_400', 'Level 400'),
+        ('level 100', 'Level 100'),
+        ('level 200', 'Level 200'),
+        ('level 300', 'Level 300'),
+        ('level 400', 'Level 400'),
     ]
     
     name = models.CharField(max_length=20, choices=CLASS_LEVEL_CHOICES)

@@ -34,10 +34,10 @@ CLASS_LEVEL_CHOICES = [
     ('sss2', 'SSS 2'),
     ('sss3', 'SSS 3'),
     ('cbt', 'CBT'),
-    ('level_100', 'Level 100'),
-    ('level_200', 'Level 200'),
-    ('level_300', 'Level 300'),
-    ('level_400', 'Level 400'),
+    ('level 100', 'Level 100'),
+    ('level 200', 'Level 200'),
+    ('level 300', 'Level 300'),
+    ('level 400', 'Level 400'),
 ]
 
 class BulkUploadForm(forms.Form):

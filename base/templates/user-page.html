@@ -1,42 +1,141 @@
-<form class="user-question-form" method="post" action="{% url 'index' %}">
-    {% csrf_token %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam Dashboard</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+            padding-top: 20px;
+        }
+        header {
+            background: #333;
+            color: #fff;
+            padding-top: 30px;
+            min-height: 70px;
+            border-bottom: #77B300 3px solid;
+        }
+        header a {
+            color: #fff;
+            text-decoration: none;
+            text-transform: uppercase;
+            font-size: 16px;
+        }
+        header ul {
+            padding: 0;
+            list-style: none;
+        }
+        header ul li {
+            display: inline;
+            margin-right: 10px;
+        }
+        .subjects, .questions, .time-remaining, .answers {
+            margin-bottom: 20px;
+            padding: 20px;
+            background: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .subjects h2, .questions h3, .time-remaining h3 {
+            margin-bottom: 10px;
+        }
+        .question-item {
+            margin-bottom: 15px;
+        }
+        .question-text {
+            font-weight: bold;
+        }
+        .answers label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        .submit-button {
+            background: #77B300;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .submit-button:hover {
+            background: #669900;
+        }
+        .time-remaining {
+            font-size: 18px;
+            color: #d9534f;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1>Welcome, {{ username }}</h1>
+            <ul>
+                <li><a href="">Logout</a></li>
+            </ul>
+        </div>
+    </header>
 
-    {% if all_subjects_questions %}
-        {% for subject_data in all_subjects_questions %}
-            <div data-box = "{{subject_data.subject.name}}" class="subject-box  flex-column gp-15">
-                <h3 class="subject-title">{{ subject_data.subject.name }}</h3>
-            
-                {% for question in subject_data.questions %}
-                    <div class="question-box">
-                        <div class="question-box-head flex-center">
-                            <h4 class="small-box-head">Question {{ forloop.counter }}</h4>
-                        </div>
+    <div class="container">
+        <div class="school-name">
+            <h2>{{ school_name }}</h2>
+        </div>
 
-                        <div class="question-text">
-                            <p>{{ question.text }}</p>
-                        </div>
+        <div class="subjects">
+            <h2>Subjects</h2>
+            {% if subjects %}
+                <ul>
+                    {% for subject in subjects %}
+                        <li>{{ subject.name }}</li>
+                    {% endfor %}
+                </ul>
+            {% else %}
+                <p>No subjects available.</p>
+            {% endif %}
+        </div>
 
-                        <div class="answers-wrapper flex-column">
-                            <div class="answers-container flex-column">
-                                {% if question.diagram %}
-                                    <img src="{{ question.diagram.url }}" alt="Diagram">
-                                {% endif %}
-                                {% for answer in question.answers.all %}
-                                    <div class="answer-item">
-                                        <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" id="answer_{{ answer.id }}" class="check-answer"
-                                        {% if user_answers.question.id == answer.id %} checked{% endif %}/>
-                                        <label for="answer_{{ answer.id }}">{{ answer.text }}</label>
-                                    </div>
-                                {% endfor %}
+        {% if remaining_time %}
+            <div class="time-remaining">
+                <h3>Time Remaining:</h3>
+                <p>{{ remaining_time|floatformat:0 }} seconds</p>
+            </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <div class="all-subjects-questions">
+                {% for subject_data in all_subjects_questions %}
+                    <div class="questions">
+                        <h3>{{ subject_data.subject.name }}</h3>
+                        {% for question in subject_data.questions %}
+                            <div class="question-item">
+                                <p class="question-text">{{ question.text }}</p>
+                                <div class="answers">
+                                    {% for answer in question.answers.all %}
+                                        <label>
+                                            <input type="radio" name="question_{{ question.id }}" value="{{ answer.id }}" {% if user_answers.question.id == answer.id %}checked{% endif %}>
+                                            {{ answer.text }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
                             </div>
-                        </div>
+                        {% endfor %}
                     </div>
                 {% endfor %}
             </div>
-        {% endfor %}
-    {% endif %}
 
-    <div class="user-question-btn-container flex-between">
-        <button type="submit" class="answer-submit-btn">Submit Answers</button>
+            <button type="submit" class="submit-button">Submit Answers</button>
+        </form>
     </div>
-</form>
+</body>
+</html>
