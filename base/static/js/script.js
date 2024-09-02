@@ -151,11 +151,12 @@ if(document.querySelector(".navigation-link-container")){
 
 
 if(document.querySelector(".subject-box")){
-
     const subjectBoxes = document.querySelectorAll(".subject-box")
+    subjectBoxes[0].classList.add("visible")
     const subjectMenu = document.querySelectorAll(".menu-wrapper")
     let subjectNumberDiv = document.querySelector(".question-numbers-div")
     let numberOfQuestions = document.querySelector(".number_of_questions")
+    let visibleSubject = document.querySelector(".subject-box.visible") 
     // Fetch existing selections when the page loads
     fetch('/get_selections/')
     .then(response => response.json())
@@ -177,16 +178,14 @@ if(document.querySelector(".subject-box")){
         })
     });
 
-    subjectBoxes[0].classList.add("visible")
-    console.log(subjectBoxes[0])
     numberOfQuestions.textContent = `Questions Total: ${subjectBoxes[0].querySelectorAll(".question-box").length}`
 
        //Script to highlight questions and add keyboard shortcuts
-    let visibleSubject = document.querySelector(".subject-box.visible") 
+    
     let questionsLength = visibleSubject.querySelectorAll(".question-box").length
     let optionKeys = ['a', 'b', 'c', 'd']
     let questionPerPage = 5
-    console.log(questionsLength)
+
     // function highlightQuestion(index) {
     //     // Scroll to the specific item
     //     let targetIndex = index > questionBoxes.length ? (index - 1) : index
@@ -203,26 +202,25 @@ if(document.querySelector(".subject-box")){
 
 
     function highlightQuestion(index) {
-    // Get all parent elements with the specified class name
-    const parentElement = document.querySelector(`.subject-box.visible`);
-    
-    // Get all question boxes within the current parent element
-    const questionBoxes = parentElement.querySelectorAll(".question-box");
+        // Get all parent elements with the specified class name
+        const parentElement = document.querySelector(`.subject-box.visible`);
+        
+        // Get all question boxes within the current parent element
+        const questionBoxes = parentElement.querySelectorAll(".question-box");
 
-    // Adjust the targetIndex to handle cases where index might be out of bounds
-    let targetIndex = index > questionBoxes.length ? (questionBoxes.length - 1) : index;
+        // Adjust the targetIndex to handle cases where index might be out of bounds
+        let targetIndex = index > questionBoxes.length ? (questionBoxes.length - 1) : index;
 
-    // Scroll to the specific item within the parent element
-    const targetItem = questionBoxes[targetIndex];
-    if (targetItem) {
-        targetItem.scrollIntoView({ behavior: "smooth" });
+        // Scroll to the specific item within the parent element
+        const targetItem = questionBoxes[targetIndex];
+        if (targetItem) {
+            targetItem.scrollIntoView({ behavior: "smooth" });
 
-        // Highlight the question by toggling the 'highlight' class
-        questionBoxes.forEach((el, i) => {
-            console.log(targetIndex)
-            el.classList.toggle("highlight", i === targetIndex);
-        });
-    }
+            // Highlight the question by toggling the 'highlight' class
+            questionBoxes.forEach((el, i) => {
+                el.classList.toggle("highlight", i === targetIndex);
+            });
+        }
    
     }
 
@@ -259,6 +257,7 @@ if(document.querySelector(".subject-box")){
                 el.addEventListener("click", () => {
                     let indexEl = parseInt(el.textContent) - 1
                     highlightQuestion(indexEl)
+                    document.querySelector(".subject-box.visible").dataset.currentQuestion = indexEl
                 })
             }else{
                 el.classList.remove("visible")
@@ -297,21 +296,44 @@ if(document.querySelector(".subject-box")){
 
     function selectAnswer(){
         // console.log(visibleSubject.querySelectorAll(".subject-box"))
-        document.querySelector(".subject-box.visible").querySelectorAll(".question-box").forEach((box, index) => {
-            console.log(box, index)
-            box.addEventListener("change", function(e){
-                if(e.target.matches("input")){
-                    questionNumbers[index].classList.add("answered");
+        // document.querySelector(".subject-box.visible").querySelectorAll(".question-box").forEach((box, index) => {
+        //     box.addEventListener("change", function(e){
+        //         if(e.target.matches("input")){
+        //             questionNumbers[index].classList.add("answered");
 
-                    // Update the current question to the one that was just answered
-                    // currentQuestion = index;
+        //             // Update the current question to the one that was just answered
+        //             // currentQuestion = index;
     
-                    highlightQuestion(index);
+        //             highlightQuestion(index);
                     
-                }
-            })
+        //         }
+        //     })
         
-        })
+        // })
+
+        // Get the currently visible subject box
+        let visibleSubjectBox = document.querySelector(".subject-box.visible");
+
+        if (!visibleSubjectBox) return; // Exit if no subject box is visible
+
+        // Get all the question boxes within the visible subject box
+        let questions = visibleSubjectBox.querySelectorAll(".question-box");
+
+        // Determine the start index for the questionNumbers spans
+        let subjectIndex = Array.from(document.querySelectorAll(".subject-box")).indexOf(visibleSubjectBox);
+        let startIndex = questions.length * subjectIndex; // Calculate the starting index for the current subject's spans
+
+        questions.forEach((box, index) => {
+            box.addEventListener("change", function(e) {
+                if (e.target.matches("input")) {
+                    // Add the 'answered' class to the corresponding span in questionNumbers
+                    questionNumbers[startIndex + index].classList.add("answered");
+
+                    // Highlight the current question
+                    highlightQuestion(index);
+                }
+            });
+        });
     }
 
     selectAnswer()
@@ -340,12 +362,13 @@ if(document.querySelector(".subject-box")){
         let currentQuestionEl = document.querySelector(".subject-box.visible").querySelectorAll(".question-box")
         console.log(optionKey)
         if(optionIndex == -1) return;
-        let currentOption = currentQuestionEl[currentQuestion].querySelectorAll('.check-answer')
+        let currentOption = currentQuestionEl[document.querySelector(".subject-box.visible").dataset.currentQuestion].querySelectorAll('.check-answer')
         console.log(currentOption)
         currentOption.forEach((el, index) => {
             el.parentElement.classList.remove("selected")
             
             if(index == optionIndex){
+                console.log(el)
                 el.click()
                 selectAnswer()
             }
@@ -379,14 +402,32 @@ if(document.querySelector(".subject-box")){
     }
     
     function prevQuestion(){
+
+        // Find the currently visible or active subject box
+        const parentElement = document.querySelector('.subject-box.visible'); 
+        
+        if (!parentElement) return; // Exit if no active subject is found
+
+        // Retrieve or initialize the currentQuestion for this specific parent element
+        let currentQuestion = parentElement.dataset.currentQuestion 
+                                ? parseInt(parentElement.dataset.currentQuestion) 
+                                : 0;
+
+        // Decrement the current question index only if it's within bounds
         if(currentQuestion > 0){
             currentQuestion--
         }
+
+        // Store the updated currentQuestion in the dataset of the parent element
+        parentElement.dataset.currentQuestion = currentQuestion;
+
+        // Highlight the current question in the active subject
         highlightQuestion(currentQuestion)
+
     }
     
     document.addEventListener("keydown", (e) => {
-        highlightQuestion(currentQuestion)
+        
         let key = e.key.toLowerCase()
         if(popupVisible){
             if(key === "y" || key === "Y"){
