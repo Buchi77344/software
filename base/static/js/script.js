@@ -142,12 +142,14 @@ let currentPage = 1;
 const itemsPerPage = 5;
 let currentQuestion = 0
 
-let navigationBtn = document.querySelector(".navigation-link-container button")
-
-navigationBtn.addEventListener("click", function(){
-    history.back()
-    console.log("hi")
-})
+if(document.querySelector(".navigation-link-container")){
+    let navigationBtn = document.querySelector(".navigation-link-container button")
+    
+    navigationBtn.addEventListener("click", function(){
+        history.back()
+        console.log("hi")
+    })
+}
 
 
 if(document.querySelector(".user-question-btn-container")){
@@ -215,8 +217,8 @@ if(document.querySelector(".user-question-btn-container")){
         //     cumulativeIndex += questionBoxes.length;
         // }
 
-        currentPage = Math.ceil((index + 1) / questionPerPage);
-        updatePagination();
+        // currentPage = Math.ceil((index + 1) / questionPerPage);
+        // updatePagination();
     
         // Scroll to the specific item
         let targetIndex = index > questionBoxes.length ? (index - 1) : index
