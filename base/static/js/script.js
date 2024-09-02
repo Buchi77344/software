@@ -10,6 +10,7 @@ let popupDiv = document.querySelector(".popup-div")
 let deleteBtn = document.querySelectorAll(".delete-btn")
 let popupBtn = document.querySelectorAll(".popup-btn-container button")
 let yesbtn = document.querySelector(".Yes-btn")
+const userQuestionForm = document.querySelector(".user-question-form")
 let answerBtn = document.querySelector(".answer-submit-btn")
 let popupVisible;
 
@@ -32,8 +33,7 @@ if(document.querySelector(".popup-overlay") || document.querySelector(".user_id-
     }
     
     function submitAnswer(){
-        answerBtn.type = "submit"
-        answerBtn.click()
+        userQuestionForm.submit()
     }
     
     if(document.querySelector(".Yes-btn.exam")){
@@ -94,9 +94,7 @@ if(document.querySelector(".popup-overlay") || document.querySelector(".user_id-
     
     
     if (useridSubmitBtn){
-        useridSubmitBtn.addEventListener("click", () =>{
-            console.log("hi")
-            
+        useridSubmitBtn.addEventListener("click", () =>{         
             startLoadingAnim(useridInput, overlay, useridBtnSpan)
         })
     }
@@ -152,7 +150,7 @@ if(document.querySelector(".navigation-link-container")){
 }
 
 
-if(document.querySelector(".user-question-btn-container")){
+if(document.querySelector(".subject-box")){
 
     const subjectBoxes = document.querySelectorAll(".subject-box")
     const subjectMenu = document.querySelectorAll(".menu-wrapper")
@@ -180,71 +178,73 @@ if(document.querySelector(".user-question-btn-container")){
     });
 
     subjectBoxes[0].classList.add("visible")
+    console.log(subjectBoxes[0])
     numberOfQuestions.textContent = `Questions Total: ${subjectBoxes[0].querySelectorAll(".question-box").length}`
 
        //Script to highlight questions and add keyboard shortcuts
-
-    let questionsLength = questionBoxes.length
+    let visibleSubject = document.querySelector(".subject-box.visible") 
+    let questionsLength = visibleSubject.querySelectorAll(".question-box").length
     let optionKeys = ['a', 'b', 'c', 'd']
     let questionPerPage = 5
+    console.log(questionsLength)
+    // function highlightQuestion(index) {
+    //     // Scroll to the specific item
+    //     let targetIndex = index > questionBoxes.length ? (index - 1) : index
+    //     const targetItem = document.querySelectorAll(".question-box")[targetIndex];
+    //     targetItem.scrollIntoView({ behavior: "smooth" });
     
-    function highlightQuestion(index) {
-        // Get all subject-box elements
-        // const subjectBoxes = document.querySelectorAll('.subject-box');
-    
-        // Iterate through each subject-box
-        // let cumulativeIndex = 0;
-        // for (const subjectBox of subjectBoxes) {
-        //     const questionBoxes = subjectBox.querySelectorAll('.question-box');
-    
-        //     // If the index falls within the current subjectBox
-        //     if (index < cumulativeIndex + questionBoxes.length) {
-        //         const targetIndex = index - cumulativeIndex;
-        //         const targetItem = questionBoxes[targetIndex];
-    
-        //         // Scroll to the specific item
-        //         targetItem.scrollIntoView({ behavior: 'smooth' });
-    
-        //         // Highlight the correct question
-        //         questionBoxes.forEach((el, i) => {
-        //             el.classList.toggle('highlight', i === targetIndex);
-        //         });
-    
-        //         break;
-        //     }
-    
-        //     // Update cumulativeIndex to include the questions in the current subjectBox
-        //     cumulativeIndex += questionBoxes.length;
-        // }
+    //     //highlight Questions
+    //     questionBoxes.forEach((el, i) =>{
+    //         el.classList.toggle("highlight", i === index)
+    //     })
 
-        // currentPage = Math.ceil((index + 1) / questionPerPage);
-        // updatePagination();
+        
+    // }
+
+
+    function highlightQuestion(index) {
+    // Get all parent elements with the specified class name
+    const parentElement = document.querySelector(`.subject-box.visible`);
     
-        // Scroll to the specific item
-        let targetIndex = index > questionBoxes.length ? (index - 1) : index
-        const targetItem = document.querySelectorAll(".question-box")[targetIndex];
+    // Get all question boxes within the current parent element
+    const questionBoxes = parentElement.querySelectorAll(".question-box");
+
+    // Adjust the targetIndex to handle cases where index might be out of bounds
+    let targetIndex = index > questionBoxes.length ? (questionBoxes.length - 1) : index;
+
+    // Scroll to the specific item within the parent element
+    const targetItem = questionBoxes[targetIndex];
+    if (targetItem) {
         targetItem.scrollIntoView({ behavior: "smooth" });
-    
-        //highlight Questions
-        questionBoxes.forEach((el, i) =>{
-            el.classList.toggle("highlight", i === index)
-        })
+
+        // Highlight the question by toggling the 'highlight' class
+        questionBoxes.forEach((el, i) => {
+            console.log(targetIndex)
+            el.classList.toggle("highlight", i === targetIndex);
+        });
     }
-    
+   
+    }
+
 
     let controlSmallHead = document.querySelector(".control.small-box-head")
     controlSmallHead.textContent = document.querySelector(".subject-title").textContent
     Array.from(subjectMenu).forEach(menu => {
+        
         menu.addEventListener("click", () => {
-          
-            console.log(document.querySelector(".subject-title").textContent)
             categorizeSubjects(menu)
+            categorizeSubjectNumbers(menu)
+            let currentQuestionIndex = document.querySelector(".subject-box.visible").dataset.currentQuestion
+            highlightQuestion(parseInt(currentQuestionIndex))
         })
     })
 
     questionNumbers.forEach((el, index) => {
         if(subjectMenu[0].dataset.menu.toLowerCase() == el.dataset.number.toLowerCase()){
             el.classList.add("visible")
+            el.addEventListener("click", () => {
+                highlightQuestion(index)
+            })
         }else{
             el.classList.remove("visible")
         }
@@ -252,75 +252,78 @@ if(document.querySelector(".user-question-btn-container")){
         
     })
 
-    function categorizeSubjects(menu){
-            subjectBoxes.forEach((el, index) => {
-                if(menu.dataset.menu.toLowerCase() == el.dataset.box.toLowerCase()){
-                    el.classList.add("visible")
-                    highlightQuestion(index)
-                    controlSmallHead.textContent = el.querySelector(".subject-title").textContent
-                    let questionBoxesLength = el.querySelectorAll(".question-box").length
-                    numberOfQuestions.textContent = `Questions Total: ${questionBoxesLength}`
-                  
-                }else{
-                    el.classList.remove("visible")
-                }
-
-                
-            })  
-
-            questionNumbers.forEach((el, index) => {
-                console.log(el.dataset.number)
-                if(menu.dataset.menu.toLowerCase() == el.dataset.number.toLowerCase()){
-                    el.classList.add("visible")
-
-                }else{
-                    el.classList.remove("visible")
-                }
-
-                
-            })
+    function categorizeSubjectNumbers(menu){
+        questionNumbers.forEach((el, index) => {    
+            if(menu.dataset.menu.toLowerCase() == el.dataset.number.toLowerCase()){
+                el.classList.add("visible")
+                el.addEventListener("click", () => {
+                    let indexEl = parseInt(el.textContent) - 1
+                    highlightQuestion(indexEl)
+                })
+            }else{
+                el.classList.remove("visible")
+            }
+            
+        })
     }
 
-    function selectNumber(){
-        questionBoxes.forEach((box, index) => {
+    function categorizeSubjects(menu){
+        subjectBoxes.forEach((el, index) => {
+            if(menu.dataset.menu.toLowerCase() == el.dataset.box.toLowerCase()){
+                el.classList.add("visible")
+                controlSmallHead.textContent = el.querySelector(".subject-title").textContent
+                let questionBoxesLength = el.querySelectorAll(".question-box").length
+                numberOfQuestions.textContent = `Questions Total: ${questionBoxesLength}`
+                
+            }else{
+                el.classList.remove("visible")
+            }
+            
+        })  
+
+        questionNumbers.forEach((el, index) => {
+            if(menu.dataset.menu.toLowerCase() == el.dataset.number.toLowerCase()){
+                el.classList.add("visible")
+
+            }else{
+                el.classList.remove("visible")
+            }
+
+            
+        })
+
+        selectAnswer()
+    }
+
+    function selectAnswer(){
+        // console.log(visibleSubject.querySelectorAll(".subject-box"))
+        document.querySelector(".subject-box.visible").querySelectorAll(".question-box").forEach((box, index) => {
+            console.log(box, index)
             box.addEventListener("change", function(e){
                 if(e.target.matches("input")){
-                    console.log(index)
-                    questionNumbers[index].classList.add("answered")
-                    highlightQuestion(index)
-                    currentQuestion = index
+                    questionNumbers[index].classList.add("answered");
+
+                    // Update the current question to the one that was just answered
+                    // currentQuestion = index;
+    
+                    highlightQuestion(index);
+                    
                 }
             })
         
         })
     }
 
-    selectNumber()
+    selectAnswer()
     
     if(questionBoxes.length == 0){
             document.querySelector(".user-question-btn-container").style.display = "none"
     }
-    
-  
-  
-    
-    // updatePagination();
-    
-    questionNumbers.forEach((el, index) => {
-        el.addEventListener("click", () => {
-    
-            // Scroll to the specific item
-            let targetIndex = index > questionBoxes.length ? (index - 1) : index
-            const targetItem = document.querySelectorAll(".question-box")[targetIndex];
-            targetItem.scrollIntoView({ behavior: "smooth" });
-        })
-
-        
-    })
 
     answerBtn.addEventListener("click", (e) => {
         ShowPopup()
     })
+
     
     if(document.querySelector(".user-login-error-message")){
         let errorMessage = document.querySelector(".user-login-error-message")
@@ -332,27 +335,46 @@ if(document.querySelector(".user-question-btn-container")){
         }
     }
 
- 
-    
-    
-    function selectOption(optionKey){
+    function selectOptionKey(optionKey){
         let optionIndex = optionKeys.indexOf(optionKey)
+        let currentQuestionEl = document.querySelector(".subject-box.visible").querySelectorAll(".question-box")
+        console.log(optionKey)
         if(optionIndex == -1) return;
-        let currentOption = questionBoxes[currentQuestion].querySelectorAll('.check-answer')
+        let currentOption = currentQuestionEl[currentQuestion].querySelectorAll('.check-answer')
+        console.log(currentOption)
         currentOption.forEach((el, index) => {
             el.parentElement.classList.remove("selected")
             
             if(index == optionIndex){
                 el.click()
-                selectNumber()
+                selectAnswer()
             }
         })
     }
     
     function nextQuestion(){
-        if(currentQuestion < (questionsLength - 1)){
-            currentQuestion++
+        // Find the currently visible or active subject box
+        const parentElement = document.querySelector('.subject-box.visible'); // Adjust this selector to match your "active" state
+
+        if (!parentElement) return; // Exit if no active subject is found
+
+        // Get all question boxes within the active subject
+        const questionBoxes = parentElement.querySelectorAll(".question-box");
+
+        // Retrieve or initialize the currentQuestion for this specific parent element
+        let currentQuestion = parentElement.dataset.currentQuestion 
+                                ? parseInt(parentElement.dataset.currentQuestion) 
+                                : 0;
+
+        // Increment the current question index only if it's within bounds
+        if (currentQuestion < questionBoxes.length - 1) {
+            currentQuestion++;
         }
+
+        // Store the updated currentQuestion in the dataset of the parent element
+        parentElement.dataset.currentQuestion = currentQuestion;
+
+        // Highlight the current question in the active subject
         highlightQuestion(currentQuestion)
     }
     
@@ -374,7 +396,7 @@ if(document.querySelector(".user-question-btn-container")){
             }
         }else{
             if(optionKeys.includes(key)){
-                selectOption(key)
+                selectOptionKey(key)
             }else if(key == "n" || key == "N"){
                 nextQuestion()
             }else if(key == "r" || key == "R"){
