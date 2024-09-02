@@ -318,7 +318,7 @@ if(document.querySelector(".subject-box")){
 
         // Get all the question boxes within the visible subject box
         let questions = visibleSubjectBox.querySelectorAll(".question-box");
-
+        console.log(questions.length)
         // Determine the start index for the questionNumbers spans
         let subjectIndex = Array.from(document.querySelectorAll(".subject-box")).indexOf(visibleSubjectBox);
         let startIndex = questions.length * subjectIndex; // Calculate the starting index for the current subject's spans
@@ -328,7 +328,7 @@ if(document.querySelector(".subject-box")){
                 if (e.target.matches("input")) {
                     // Add the 'answered' class to the corresponding span in questionNumbers
                     questionNumbers[startIndex + index].classList.add("answered");
-
+                    console.log(questionNumbers)
                     // Highlight the current question
                     highlightQuestion(index);
                 }
