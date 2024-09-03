@@ -235,6 +235,14 @@
         </div>
     </div>
     <script>
+
+        window.addEventListener('beforeunload', function(event) {
+            const data = JSON.stringify({ userId: 12345, action: 'close-tab' });
+            const url = 'https://your-server.com/api/log';
+
+            navigator.sendBeacon(url, data);
+        })
+
         let timerDiv = document.querySelector("#timer");
         let warningMessage = "";
         let inactivityTimeout;

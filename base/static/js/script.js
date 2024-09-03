@@ -318,19 +318,26 @@ if(document.querySelector(".subject-box")){
 
         // Get all the question boxes within the visible subject box
         let questions = visibleSubjectBox.querySelectorAll(".question-box");
-        console.log(questions.length)
+         console.log(questions.length)
         // Determine the start index for the questionNumbers spans
         let subjectIndex = Array.from(document.querySelectorAll(".subject-box")).indexOf(visibleSubjectBox);
-        let startIndex = questions.length * subjectIndex; // Calculate the starting index for the current subject's spans
+        let startIndex = 0
+
+        subjectBoxes.forEach((box, idx) => {
+            if(idx < subjectIndex){
+                startIndex += box.querySelectorAll(".question-box").length
+            }
+        })
 
         questions.forEach((box, index) => {
             box.addEventListener("change", function(e) {
                 if (e.target.matches("input")) {
                     // Add the 'answered' class to the corresponding span in questionNumbers
                     questionNumbers[startIndex + index].classList.add("answered");
-                    console.log(questionNumbers)
                     // Highlight the current question
                     highlightQuestion(index);
+                    document.querySelector(".subject-box.visible").dataset.currentQuestion = index
+                    console.log(document.querySelector(".subject-box.visible").dataset.currentQuestion)
                 }
             });
         });
@@ -388,7 +395,7 @@ if(document.querySelector(".subject-box")){
         let currentQuestion = parentElement.dataset.currentQuestion 
                                 ? parseInt(parentElement.dataset.currentQuestion) 
                                 : 0;
-
+        console.log(currentQuestion)
         // Increment the current question index only if it's within bounds
         if (currentQuestion < questionBoxes.length - 1) {
             currentQuestion++;

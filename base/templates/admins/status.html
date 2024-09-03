@@ -147,7 +147,15 @@
 
     <script>
         // Timer Functionality
-        let startTime = Date.now();
+        // Check if there's already a stored start time in localStorage
+        let storedStartTime = localStorage.getItem('startTime');
+
+        if (storedStartTime) {
+            startTime = parseInt(storedStartTime, 10); // Use the stored start time
+        } else {
+            let startTime = Date.now();
+            localStorage.setItem('startTime', startTime); // Save the start time to localStorage
+        }
 
         function updateTimer() {
             const timerElement = document.getElementById('timer');
@@ -155,7 +163,7 @@
 
             let hours = Math.floor(elapsedTime / 3600000);
             let minutes = Math.floor((elapsedTime % 3600000) / 60000);
-            let seconds = Math.floor((elapsedTime % 60000) / 1000);
+            let seconds = Math.floor((elapsedTime % 60000) / 1000);p
 
             timerElement.textContent = `Active Time: ${hours}h ${minutes}m ${seconds}s`;
 
@@ -167,7 +175,9 @@
         document.getElementById('destroy-launch').addEventListener('click', function() {
             // Code to handle the launch destruction
             alert('Launch has been destroyed!');
+            localStorage.removeItem('startTime'); // Clear the start time when the launch is destroyed
         });
+
     </script>
 </body>
 </html>

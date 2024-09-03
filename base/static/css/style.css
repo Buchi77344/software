@@ -423,7 +423,7 @@ svg path{
 .main-content-header{
     padding: 0px 15px;
     background-color: var(--block-clr);
-    min-height: 60px;
+    height: 60px;
     position: sticky;
     top: 0;
     left: 0;
@@ -679,7 +679,7 @@ svg path{
 
 .user_id-main{
     display: flex;
-    height: calc(100% - 46px);
+    height: calc(100vh - 60px);
 }
 
 .user_id-form{
@@ -698,6 +698,17 @@ svg path{
     text-align: center;
     font-size: 3rem;
     margin-top: 0;
+}
+
+.user-id-message{
+    background-color: #5c1c974d;
+    color: #10021db5;
+    max-width: 700px;
+    margin: 20px auto 0px;
+    width: 90%;
+    padding: 12px 10px;
+    text-align: center;
+    border-radius: 10px;
 }
 
 .user_id-name-input-div.flex-between{
