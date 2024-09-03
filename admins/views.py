@@ -576,3 +576,10 @@ def status(request):
 def destroyexam(request):
     ExamSession.objects.all().delete()
     return redirect('admins:question')
+
+def releaseip(request):
+    # userid = get_object_or_404(UserID ,user=request.user)
+    # context = {
+    #     'userid':userid,
+    # }
+    return render (request, 'admins/releaseip.html')

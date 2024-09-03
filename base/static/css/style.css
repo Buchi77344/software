@@ -257,6 +257,10 @@ svg path{
     padding-right : 13px;
 }
 
+.menu-item.releaseip svg{
+    stroke-width: 4px;
+}
+
 .menu-wrapper{
     padding : 4px 7px;
     cursor: pointer;
@@ -1817,6 +1821,15 @@ input#id_user_id{
     text-decoration: underline;
     margin-top: 30px;
     font-size: 1.1rem;
+}
+
+.releaseip-btn{
+    background-color: #12836c;
+    padding: 8px 14px;
+    color: hsl(0, 0%, 95%);
+    border-radius: 10px;
+    font-size: 1rem;
+    letter-spacing: 1px;
 }
 
 @keyframes next1 {
