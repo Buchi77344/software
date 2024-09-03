@@ -257,6 +257,10 @@ svg path{
     padding-right : 13px;
 }
 
+.menu-item.releaseip svg{
+    stroke-width: 4px;
+}
+
 .menu-wrapper{
     padding : 4px 7px;
     cursor: pointer;
@@ -423,7 +427,7 @@ svg path{
 .main-content-header{
     padding: 0px 15px;
     background-color: var(--block-clr);
-    min-height: 60px;
+    height: 60px;
     position: sticky;
     top: 0;
     left: 0;
@@ -685,7 +689,7 @@ svg path{
 
 .user_id-main{
     display: flex;
-    height: calc(100% - 46px);
+    height: calc(100vh - 60px);
 }
 
 .user_id-form{
@@ -704,6 +708,17 @@ svg path{
     text-align: center;
     font-size: 3rem;
     margin-top: 0;
+}
+
+.user-id-message{
+    background-color: #5c1c974d;
+    color: #10021db5;
+    max-width: 700px;
+    margin: 20px auto 0px;
+    width: 90%;
+    padding: 12px 10px;
+    text-align: center;
+    border-radius: 10px;
 }
 
 .user_id-name-input-div.flex-between{
@@ -863,7 +878,7 @@ svg path{
 }
 
 .candidate-info h2{
-    font-size: 2rem;
+    font-size: 2.1rem;
 
 }
 
@@ -1378,7 +1393,7 @@ svg path{
 }
 
 .subject-result-head{
-    font-size: 1.8rem;
+    font-size: 1.5rem;
     color: hsl(0, 0%, 25%);
     margin-top : 20px;
 }
@@ -1806,6 +1821,15 @@ input#id_user_id{
     text-decoration: underline;
     margin-top: 30px;
     font-size: 1.1rem;
+}
+
+.releaseip-btn{
+    background-color: #12836c;
+    padding: 8px 14px;
+    color: hsl(0, 0%, 95%);
+    border-radius: 10px;
+    font-size: 1rem;
+    letter-spacing: 1px;
 }
 
 @keyframes next1 {

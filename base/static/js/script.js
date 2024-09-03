@@ -333,11 +333,11 @@ if(document.querySelector(".subject-box")){
             box.addEventListener("change", function(e) {
                 if (e.target.matches("input")) {
                     // Add the 'answered' class to the corresponding span in questionNumbers
-                    console.log(questionNumbers)
                     questionNumbers[startIndex + index].classList.add("answered");
                     // Highlight the current question
                     highlightQuestion(index);
-                    document.querySelector('.subject-box.visible').dataset.currentQuestion = index
+                    document.querySelector(".subject-box.visible").dataset.currentQuestion = index
+                    console.log(document.querySelector(".subject-box.visible").dataset.currentQuestion)
                 }
             });
         });
@@ -395,7 +395,7 @@ if(document.querySelector(".subject-box")){
         let currentQuestion = parentElement.dataset.currentQuestion 
                                 ? parseInt(parentElement.dataset.currentQuestion) 
                                 : 0;
-
+        console.log(currentQuestion)
         // Increment the current question index only if it's within bounds
         if (currentQuestion < questionBoxes.length - 1) {
             currentQuestion++;
@@ -687,7 +687,9 @@ if(document.querySelector(".subject-box")){
         autoslide()
     }
 
-}    
+}
+
+
 
 // Script to persist answers on refresh
 

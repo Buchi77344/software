@@ -498,9 +498,3 @@ def close_tab(request):
 #     user.save()
 
 
-def releaseip(request):
-    userid = get_object_or_404(UserID ,user=request.user)
-    context = {
-        'userid':userid,
-    }
-    return render (request, 'releaseip.html',context)

@@ -24,4 +24,6 @@ urlpatterns = [
     path('status',views.status,name='status'),
     path('deleteuserid',views.deleteuserid,name='deleteuserid'),
     path('destroyexam',views.destroyexam,name='destroyexam'),
+    path('releaseip',views.releaseip,name='releaseip'),
+    path('ip/<str:user>/',views.ip,name='ip'), 
 ]

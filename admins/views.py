@@ -96,7 +96,7 @@ def generate_random_id():
     random_id = numbers + alphabets
     return ''.join(random.sample(random_id, len(random_id)))
  # Assuming you have this utility function
-
+@login_required(login_url='admins:login')
 def userid(request):
     error_message = None
     userprofile = get_object_or_404(Userprofile, user=request.user)
@@ -161,7 +161,7 @@ import time
 import docx
 import re
 
-@login_required(login_url='login')
+@login_required(login_url='admins:login')
 def upload(request):
     if request.method == 'POST':
         form = BulkUploadForm(request.POST, request.FILES)
@@ -318,6 +318,7 @@ def export_user_data_to_pdf(request):
     if pisa_status.err:
         return HttpResponse('We had some errors with the PDF creation')
     return response
+@login_required(login_url='admins:login')
 def user(request):
     userprofile = get_object_or_404(Userprofile, user=request.user)
     school_name = get_object_or_404(Name_School)
@@ -365,7 +366,7 @@ from base.models import Suffle,ExamSession , Subject ,Result ,User_result ,Name_
 from django.utils import timezone
 
 import uuid
-@login_required(login_url='login')
+@login_required(login_url='admins:login')
 def launch(request, pk=None):
     school_name = get_object_or_404(Name_School)
 
@@ -552,7 +553,7 @@ def result(request):
     }
 
     return render(request, 'admins/result.html', context)
-
+@login_required(login_url='admins:login')
 def term (request,pk):
     class_or_level = get_object_or_404(ClassOrLevel, pk=pk)
     terms = TermOrSemester.objects.filter(class_or_level=class_or_level)
@@ -560,7 +561,7 @@ def term (request,pk):
         'terms':terms
     }
     return render (request, 'admins/term.html',context)
-
+@login_required(login_url='admins:login')
 def subject(request,pk):
     term_or_semester = get_object_or_404(TermOrSemester, pk=pk)
     subjects = Subject.objects.filter(term_or_semester=term_or_semester)
@@ -576,3 +577,19 @@ def status(request):
 def destroyexam(request):
     ExamSession.objects.all().delete()
     return redirect('admins:question')
+
+def releaseip(request):
+    userid = UserID.objects.all()
+
+    context = {
+        'userid':userid,
+    }
+    return render (request, 'admins/releaseip.html',context)
+
+
+def ip(request, user):
+    user_instance = get_object_or_404(User, username=user)
+    user_instance.session_id = None
+    user_instance.save()
+    messages.success(request, 'IP address has been successfully released.')
+    return redirect('admins:releaseip')
