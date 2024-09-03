@@ -12,6 +12,8 @@ urlpatterns = [
     path('save_selection/', views.save_selection, name='save_selection'), 
     path('get_selections/', views.get_selections, name='get_selectionsb'), 
     path('submit-answer/', views.submit_answer, name='submit_answer'),
+    path('close-tab/',views.close_tab, name ='close_tab' ),
+    path('releaseip',views.releaseip,name="releaseip"),
     
 
    

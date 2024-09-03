@@ -337,6 +337,7 @@ if(document.querySelector(".subject-box")){
                     questionNumbers[startIndex + index].classList.add("answered");
                     // Highlight the current question
                     highlightQuestion(index);
+                    document.querySelector('.subject-box.visible').dataset.currentQuestion = index
                 }
             });
         });

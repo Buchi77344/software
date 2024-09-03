@@ -8,6 +8,7 @@ from django.dispatch import receiver
 class User(AbstractUser):
     school_name = models.CharField(max_length=500, null=True,blank=True)
     recovery_code = models.CharField(max_length=100, null=True)
+    session_id = models.UUIDField(default=None, null=True, blank=True)
 
 class Name_School(models.Model):
     school = models.CharField(max_length=345)
