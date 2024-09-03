@@ -12,7 +12,7 @@
 
         <div class="releaseip popup-overlay">
             <div class="releaseip popup-div">
-                <h3 class = "releaseip popup-head">You Have successfully released Lanre UserID</h3>
+                <h3 class = "releaseip popup-head">You Have successfully released UserID</h3>
                 <div class = "popup-btn-container">
                     <button class = "ok-btn">Click Ok, To Continue</button>
                 </div>
@@ -184,6 +184,7 @@
                 <div class="user-get-container">
                     <div class="candidate-info flex-between">
                         <h2>Candidate Info</h2>
+
                         <form method= "get" action="{% url 'admins:search' %}" class = "user-search-form flex">
                             <input required type = "text" placeholder="Search..." name = "query" class = "user-search-input"/>
                             <button class ="user-search-btn">
@@ -194,24 +195,29 @@
                             </button>
                         </form>
                     </div>
+                {% for messages in messages %}
+                    <p class = "success-releaseip-message">{{messages}}</p>
+                {% endfor %}
                     <table class="user-get-table table">
                         <thead class="thead">
                             <tr>
-                                <th scope="col">User ID</th>
                                 <th scope="col">First Name</th>
                                 <th scope="col">Last Name</th>
+                                <th scope="col">User ID</th>
                                 <th scope="col">Action</th>
                             </tr>
                         </thead>
                         <tbody>
+                            {% for user_id in userid %}
                             <tr>
-                                <td>Adedayo</td>
-                                <td>Tiwa</td>
-                                <td>E4699R</td>
+                                <td>{{user_id.user.username}}</td>
+                                <td>{{user_id.user.last_name}}</td>
+                                <td>{{user_id.generated_id}}</td>
                                 <td>
-                                    <button class = "releaseip-btn">Release IP</button>
+                                   <a href="{% url 'admins:ip' user_id.user %}"> <button class = "releaseip-btn">Release IP</button></a>
                                 </td>
                             </tr>
+                            {% endfor %}
                           
                         
                         </tbody>
@@ -223,28 +229,33 @@
 
     <script>
         let rpPopupVisible;
-        function showTimePopup() {
-            document.querySelector(".time.popup-overlay").style.display = "grid";
+        let successsMessageIp = document.querySelector(".success-releaseip-message")
+        let ipPopupHead = document.querySelector(".releaseip.popup-head")
+        function showReleaseipPopup() {
+            
+            document.querySelector(".releaseip.popup-overlay").style.display = "grid";
             rpPopupVisible = true;
             setTimeout(() => {
-                document.querySelector(".time.popup-div").classList.add("visible");
+                document.querySelector(".releaseip.popup-div").classList.add("visible");
             }, 100);
         }
-        function removeTimePopup() {
-            document.querySelector(".time.popup-div").classList.remove("visible");
+        function removeReleaseipPopup() {
+            document.querySelector(".releaseip.popup-div").classList.remove("visible");
             rpPopupVisible = false;
             setTimeout(() => {
-                document.querySelector(".time.popup-overlay").style.display = "none";
+                document.querySelector(".releaseip.popup-overlay").style.display = "none";
             }, 100);
         }
 
-        // if(""){
-        //     return
-        // }
+        if(successsMessageIp){
+            ipPopupHead.textContent = successsMessageIp.textContent
+            showReleaseipPopup()
+            successsMessageIp.style.display = "none"
+        }
 
         document.querySelector(".ok-btn").addEventListener("click", function () {
             console.log("ok-btn");
-            removeTimePopup();
+            removeReleaseipPopup();
         });
 
     </script>
