@@ -474,6 +474,12 @@ svg path{
     padding-bottom: 10px;
 }
 
+.small-box-text#timer{
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: hsl(0, 0%, 5%);
+}
+
 .question-numbers-div{
     display: grid;
     grid-template-columns: repeat(5, auto);

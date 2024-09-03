@@ -269,9 +269,8 @@ def userid(request):
 from django.shortcuts import render, redirect
 from django.contrib import auth
 from .forms import LoginForm
-
+import uuid
 def login(request):
-    
     username = get_object_or_404(Name_School)
     
     error_message = None
@@ -281,21 +280,26 @@ def login(request):
       
         if form.is_valid(): 
             user_id = form.cleaned_data['user_id']
-            user_id= ''.join([char.upper() if char.isalpha() else char for char in user_id])
+            user_id = ''.join([char.upper() if char.isalpha() else char for char in user_id])
            
             user = auth.authenticate(request, username=user_id)
             if user is not None: 
-              
-               auth.login(request, user)
-               
-               return redirect('welcome')  
+                # Check if there's an active session ID
+                if user.session_id is not None:
+                    error_message = "This user is already logged in on another device."
+                else:
+                    # Generate a new session ID
+                    user.session_id = uuid.uuid4()
+                    user.save()
+
+                    auth.login(request, user)
+                    return redirect('welcome')
             else:
-                error_message = "Invalid user ID"  
+                error_message = "Invalid user ID"
     else: 
         form = LoginForm()
         
- 
-    return render(request, 'login.html', {'form': form, 'error_message': error_message,'username':username})
+    return render(request, 'login.html', {'form': form, 'error_message': error_message, 'username': username})
 
 
 
@@ -477,3 +481,26 @@ def submit_answer(request):
         return JsonResponse({'status': 'success', 'message': 'Answer submitted successfully!'})
     else:
         return JsonResponse({'status': 'error', 'message': 'Invalid request method.'})
+    
+
+@csrf_exempt
+def close_tab(request):
+    if request.method == 'POST':
+      data = json.loads(request.body.decode('utf-8'))
+      message = data.get('message' ,'no message')
+      print('recived:', message)
+      return JsonResponse({'status':True})
+    else:
+        return JsonResponse({'status':False})
+
+#  user = request.user
+#     user.session_id = None
+#     user.save()
+
+
+def releaseip(request):
+    userid = get_object_or_404(UserID ,user=request.user)
+    context = {
+        'userid':userid,
+    }
+    return render (request, 'releaseip.html',context)
