@@ -9,6 +9,7 @@ class User(AbstractUser):
     school_name = models.CharField(max_length=500, null=True,blank=True)
     recovery_code = models.CharField(max_length=100, null=True)
     session_id = models.UUIDField(default=None, null=True, blank=True)
+    is_online = models.BooleanField(default=False)
 
 class Name_School(models.Model):
     school = models.CharField(max_length=345)
@@ -31,6 +32,7 @@ class TermOrSemester(models.Model):
         ('first semester', 'First Semester'),
         ('second semester', 'Second Semester'),
         ('general exam', 'General Exam'),
+        ('Start Test', 'Start Test'),
     ]
     
     name = models.CharField(max_length=20, choices=TERM_CHOICES)
@@ -50,6 +52,7 @@ class ClassOrLevel(models.Model):
         ('sss2', 'SSS 2'),
         ('sss3', 'SSS 3'),
         ('cbt', 'CBT'),
+        ('Test','Test'),
         ('level 100', 'Level 100'),
         ('level 200', 'Level 200'),
         ('level 300', 'Level 300'),

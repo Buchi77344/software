@@ -593,3 +593,23 @@ def ip(request, user):
     user_instance.save()
     messages.success(request, 'IP address has been successfully released.')
     return redirect('admins:releaseip')
+
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+
+import json
+
+@csrf_exempt
+def close_tab(request):
+  session_id =  request.user.session_id
+  if User.objects.filter(session_id =session_id ,user=request.user).exists:
+    return JsonResponse({'session_exists': True})
+    
+        
+  else:
+        return JsonResponse({'session_exists': False})
+
+
+def user_status_api(request):
+    user_statuses = UserID.objects.select_related('user').values('id', 'user__is_online')
+    return JsonResponse(list(user_statuses), safe=False)

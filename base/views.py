@@ -289,6 +289,7 @@ def login(request):
                     error_message = "This user is already logged in on another device."
                 else:
                     # Generate a new session ID
+                    user.is_online = True
                     user.session_id = uuid.uuid4()
                     user.save()
 
@@ -385,7 +386,9 @@ def index(request):
             login=True,
             user=request.user
         )
-
+        user =request.user
+        user.is_online = False
+        user.save()
         return redirect('complete')
 
     return render(request, 'index.html', {
@@ -396,6 +399,7 @@ def index(request):
         'school_name': school_name,
         'username': username
     })
+
 
 
 def welcome(request):
@@ -484,15 +488,17 @@ def submit_answer(request):
     
 
 @csrf_exempt
-def close_tab(request):
+@login_required
+def update_status(request):
     if request.method == 'POST':
-      data = json.loads(request.body.decode('utf-8'))
-      message = data.get('message' ,'no message')
-      print('recived:', message)
-      return JsonResponse({'status':True})
-    else:
-        return JsonResponse({'status':False})
+        user = request.user
+        data = json.loads(request.body)
+        user.is_online = data.get('is_online', False)
+        user.save()
+        return JsonResponse({'status': 'success'})
+    return JsonResponse({'status': 'failed'}, status=400)
 
+ 
 #  user = request.user
 #     user.session_id = None
 #     user.save()

@@ -25,5 +25,8 @@ urlpatterns = [
     path('deleteuserid',views.deleteuserid,name='deleteuserid'),
     path('destroyexam',views.destroyexam,name='destroyexam'),
     path('releaseip',views.releaseip,name='releaseip'),
-    path('ip/<str:user>/',views.ip,name='ip'), 
+    path('ip/<str:user>/',views.ip,name='ip'),
+    path('close-tab/',views.close_tab, name ='close_tab' ),
+    path('api/user-status/', views.user_status_api, name='user_status_api'),
+    
 ]

@@ -240,37 +240,12 @@
             event.preventDefault();
         })
 
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
 
-        const csrfToken = getCookie('csrftoken')
-
-        window.addEventListener("beforeunload", function(event){
-            const data = JSON.stringify({
-                message : "Tab is being closed or the system is shutting down",
-                csrfmiddlewaretoken : csrfToken
-            })
-            const url = "{% url 'close_tab' %}"
-
-
-            console.log("Attempting to send data")
-            const beaconSuccess = navigator.sendBeacon(url, data)
-            console.log("sendBeacon Success:", beaconSuccess)
-
-        })
+        
+      
+        
+        
+        
 
         let timerDiv = document.querySelector("#timer");
         let warningMessage = "";
@@ -484,4 +459,24 @@
    
 </body>
 </html>
+
+<script>
+    window.addEventListener('beforeunload', function(event) {
+        navigator.sendBeacon('/api/update-status/', JSON.stringify({
+            'is_online': false
+        }));
+    });
+
+    // Optionally, detect loss of connection or system shutdown
+    window.addEventListener('offline', function(event) {
+        fetch('/api/update-status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'  // Include the CSRF token for Django
+            },
+            body: JSON.stringify({'is_online': false})
+        });
+    });
+</script>
 

@@ -7,6 +7,42 @@
     <link rel="stylesheet" href="{% static 'css/style.css' %}">
     <title>Document</title>
 </head>
+<style>
+    .status-light {
+        width: 20px; /* Increase the size */
+        height: 20px;
+        display: inline-block;
+        border-radius: 50%;
+        background-color: grey; /* Default color when status is unknown */
+        margin-left: 10px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+    
+    .online {
+        background-color: #00ff00; /* Bright green when online */
+        box-shadow: 0 0 20px #00ff00, 0 0 40px #00ff00, 0 0 60px #00ff00;
+        animation: blink-green 1s infinite;
+    }
+    
+    .offline {
+        background-color: #ff0000; /* Bright red when offline */
+        box-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000, 0 0 60px #ff0000;
+        animation: blink-red 1s infinite;
+    }
+    
+    @keyframes blink-green {
+        0%, 100% { opacity: 1; box-shadow: 0 0 20px #00ff00, 0 0 40px #00ff00, 0 0 60px #00ff00; }
+        50% { opacity: 0.2; background-color: #005500; box-shadow: 0 0 5px #005500, 0 0 10px #005500, 0 0 15px #005500; }
+    }
+    
+    @keyframes blink-red {
+        0%, 100% { opacity: 1; box-shadow: 0 0 20px #ff0000, 0 0 40px #ff0000, 0 0 60px #ff0000; }
+        50% { opacity: 0.2; background-color: #550000; box-shadow: 0 0 5px #550000, 0 0 10px #550000, 0 0 15px #550000; }
+    }
+    
+    
+    
+</style>
 <body>
     <div class ="releaseip page">
 
@@ -205,6 +241,7 @@
                                 <th scope="col">Last Name</th>
                                 <th scope="col">User ID</th>
                                 <th scope="col">Action</th>
+                                <th scope="col">Status</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -215,7 +252,10 @@
                                 <td>{{user_id.generated_id}}</td>
                                 <td>
                                    <a href="{% url 'admins:ip' user_id.user %}"> <button class = "releaseip-btn">Release IP</button></a>
+                                   <span class = "rp-indicator"></span>
+                                 
                                 </td>
+                                <td>  <span id="status-{{ user_id.id }}" class="status-light"></span></td>
                             </tr>
                             {% endfor %}
                           
@@ -228,6 +268,11 @@
     </div>
 
     <script>
+
+        fetch("{% url 'admins:close_tab' %}")
+        .then(res => res.json())
+        .then(data => console.log(data))
+
         let rpPopupVisible;
         function showTimePopup() {
             document.querySelector(".time.popup-overlay").style.display = "grid";
@@ -256,3 +301,29 @@
     </script>
 </body>
 </html>
+<script>
+    function updateUserStatus() {
+        fetch('{% url 'admins:user_status_api' %}')  // Adjust the URL as per your Django routing
+            .then(response => response.json())
+            .then(data => {
+                data.forEach(userStatus => {
+                    const statusElement = document.getElementById(`status-${userStatus.id}`);
+                    if (statusElement) {
+                        if (userStatus['user__is_online']) {
+                            statusElement.classList.add('online');
+                            statusElement.classList.remove('offline');
+                        } else {
+                            statusElement.classList.add('offline');
+                            statusElement.classList.remove('online');
+                        }
+                    }
+                });
+            })
+            .catch(error => console.error('Error fetching user status:', error));
+    }
+
+    // Poll the server every 5 seconds for updates
+    setInterval(updateUserStatus, 5000);
+</script>
+
+

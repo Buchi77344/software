@@ -1832,6 +1832,14 @@ input#id_user_id{
     letter-spacing: 1px;
 }
 
+.rp-indicator{
+    width : 20px;
+    height: 20px;
+    background-color: rgb(211, 20, 20);
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
 @keyframes next1 {
     from{
         transform: translateX(0%)
