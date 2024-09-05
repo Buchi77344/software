@@ -9,6 +9,7 @@ class User(AbstractUser):
     school_name = models.CharField(max_length=500, null=True,blank=True)
     recovery_code = models.CharField(max_length=100, null=True)
     session_id = models.UUIDField(default=None, null=True, blank=True)
+    is_online = models.BooleanField(default=False)
 
 class Name_School(models.Model):
     school = models.CharField(max_length=345)
@@ -31,6 +32,9 @@ class TermOrSemester(models.Model):
         ('first semester', 'First Semester'),
         ('second semester', 'Second Semester'),
         ('general exam', 'General Exam'),
+        (' Test 1','Test 1'),
+        (' Test 2','Test 2'),
+        (' Test 3','Test 3'),
     ]
     
     name = models.CharField(max_length=20, choices=TERM_CHOICES)
@@ -50,6 +54,7 @@ class ClassOrLevel(models.Model):
         ('sss2', 'SSS 2'),
         ('sss3', 'SSS 3'),
         ('cbt', 'CBT'),
+        ('Test','Test'),
         ('level 100', 'Level 100'),
         ('level 200', 'Level 200'),
         ('level 300', 'Level 300'),
@@ -138,20 +143,31 @@ class ExamSession(models.Model):
     def get_questions(self):
         
         return Question.objects.filter(examsession=self).order_by('shuffle_order')
-
-
+    
+from datetime import timedelta
 
 class UserExamSessionx(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    subject = models.ForeignKey(Subject, on_delete=models.CASCADE)  # Track subject separately
-    exam_session = models.ForeignKey(ExamSession, on_delete=models.CASCADE, null=True)
-    start_time = models.DateTimeField(default=timezone.now)  # When the user starts the exam
+    subject = models.ForeignKey('Subject', on_delete=models.CASCADE)
+    exam_session = models.ForeignKey('ExamSession', on_delete=models.CASCADE, null=True)
+    start_time = models.DateTimeField()
+    remaining_time = models.FloatField(default=0)  # Remaining time in seconds
+    paused = models.BooleanField(default=False)
+    paused_time = models.DateTimeField(null=True, blank=True)
+    
+    def pause(self, remaining_seconds):
+        """Pause the exam session and save the remaining time"""
+        self.remaining_time = remaining_seconds
+        self.paused_at = timezone.now()
+        self.save()
 
-    class Meta:
-        unique_together = ('user', 'subject')  # Ensure unique sessions per user per subject
+    def resume(self):
+        """Resume the session by resetting the start time and recalculating the end time"""
+        if self.remaining_time:
+            self.start_time = timezone.now() - timedelta(seconds=self.remaining_time)
+            self.paused_at = None
+            self.save()
 
-    def __str__(self):
-        return f"UserExamSession - User: {self.user.username}, Subject: {self.subject.name}"
 
 class Result(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)

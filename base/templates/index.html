@@ -6,7 +6,20 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel = "stylesheet" href = "static/css/style.css"/>
     <script src = "{% static 'js/script.js' %}" defer></script>
-    <title>Document</title>
+    <title>User Page</title>
+
+    <script>
+        window.addEventListener('beforeunload', function (event) {
+            // Send AJAX request to pause the exam session when the user closes the tab
+            navigator.sendBeacon('{% url 'save_time' %}', JSON.stringify({
+                'paused': true  // Add the correct subject ID in your template
+            }));
+        });
+    </script>
+    
+    
+        
+        
 </head>
 <body>
     <div class = "page">
@@ -234,43 +247,19 @@
             </div>
         </div>
     </div>
+    
     <script>
 
         document.addEventListener('contextmenu', function(event){
             event.preventDefault();
         })
 
-        function getCookie(name) {
-            let cookieValue = null;
-            if (document.cookie && document.cookie !== '') {
-                const cookies = document.cookie.split(';');
-                for (let i = 0; i < cookies.length; i++) {
-                    const cookie = cookies[i].trim();
-                    // Does this cookie string begin with the name we want?
-                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                        break;
-                    }
-                }
-            }
-            return cookieValue;
-        }
 
-        const csrfToken = getCookie('csrftoken')
-
-        window.addEventListener("beforeunload", function(event){
-            const data = JSON.stringify({
-                message : "Tab is being closed or the system is shutting down",
-                csrfmiddlewaretoken : csrfToken
-            })
-            const url = "{% url 'close_tab' %}"
-
-
-            console.log("Attempting to send data")
-            const beaconSuccess = navigator.sendBeacon(url, data)
-            console.log("sendBeacon Success:", beaconSuccess)
-
-        })
+        
+      
+        
+        
+        
 
         let timerDiv = document.querySelector("#timer");
         let warningMessage = "";
@@ -323,6 +312,7 @@
         // Function to start countdown timer
         function startCountDown(timeSeconds) {
             let remainingSeconds = timeSeconds;
+            console.log(remainingSeconds)
             function updateTimer() {
                 if (remainingSeconds >= 0) {
                     let timeString = formatTimeFunc(remainingSeconds);
@@ -485,3 +475,58 @@
 </body>
 </html>
 
+<script>
+    // Detect when the user switches tabs, closes the tab, or minimizes the browser
+    document.addEventListener('visibilitychange', function() {
+        if (document.hidden) {
+            navigator.sendBeacon('/api/update-status/', JSON.stringify({
+                'is_online': false
+            }));
+        }
+    });
+
+    // Detect when the user goes offline (loses network connection)
+    window.addEventListener('offline', function(event) {
+        fetch('/api/update-status/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'  // Include the CSRF token for Django
+            },
+            body: JSON.stringify({'is_online': false})
+        });
+    });
+</script>
+
+{% comment %} 
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let userExamSessionId = "{{ user_exam_session_id }}";
+        let remainingSeconds = {{ remaining_time|floatformat:0 }}; // Get the remaining time from Django
+        console.log(remainingSeconds)
+        // Function to send the remaining time to the backend when the tab is closed
+        function sendPauseSignal() {
+            if (userExamSessionId) {
+                navigator.sendBeacon('{% url 'save_time' %}', JSON.stringify({
+                    'user_exam_session_id': userExamSessionId,
+                    'remaining_time': remainingSeconds
+                }));
+            }
+        }
+    
+        // Update remaining time every second
+        function updateRemainingTime() {
+            if (remainingSeconds > 0) {
+                remainingSeconds--;
+            }
+        }
+    
+        // Call updateRemainingTime every second
+        setInterval(updateRemainingTime, 1000);
+    
+        // Send pause signal when the user closes the tab
+        window.addEventListener('beforeunload', function (event) {
+            sendPauseSignal();
+        });
+    });
+    </script> {% endcomment %}

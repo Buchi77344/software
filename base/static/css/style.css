@@ -835,10 +835,26 @@ svg path{
     color:hsl(0, 0%, 97%);
 }
 
+.status-link{
+    --logout-clr : rgb(31, 185, 146);
+    padding : 10px 20px;
+    border : 1px solid var(--logout-clr);
+    color :var(--logout-clr);
+    border-radius: 5px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    margin: 0px 20px 0px auto;
+    transition : background-color .2s ease, color .2s ease;
+}
+
+.status-link:hover{
+    background-color: var(--logout-clr);
+    color:hsl(0, 0%, 97%);
+}
+
 .user-get-container{
     width: 85%;
-    margin-inline: auto;
-    margin-top : 30px;
+    margin: 30px auto; 
 }
 
 .table{
@@ -1835,6 +1851,16 @@ input#id_user_id{
     font-size: 1rem;
     letter-spacing: 1px;
 }
+
+.rp-indicator{
+    width : 20px;
+    height: 20px;
+    background-color: rgb(211, 20, 20);
+    border-radius: 50%;
+    margin-right: 10px;
+}
+
+
 
 @keyframes next1 {
     from{

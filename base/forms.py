@@ -15,6 +15,9 @@ TERM_CHOICES = [
     ('First Term', 'First Term'),
     ('Second Term', 'Second Term'),
     ('Third Term', 'Third Term'),
+    (' Test 1','Test 1'),
+    (' Test 2','Test 2'),
+    (' Test 3','Test 3'),
 ]
 
 SEMESTER_CHOICES = [
@@ -34,6 +37,7 @@ CLASS_LEVEL_CHOICES = [
     ('sss2', 'SSS 2'),
     ('sss3', 'SSS 3'),
     ('cbt', 'CBT'),
+    ('Test','Test'),
     ('level 100', 'Level 100'),
     ('level 200', 'Level 200'),
     ('level 300', 'Level 300'),
