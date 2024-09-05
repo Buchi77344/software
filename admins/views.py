@@ -4,6 +4,9 @@ from django.contrib import messages
 from django.contrib import auth
 from django.contrib.auth.decorators import login_required
 
+
+def custom_page(request, exception):
+    return render(request, 'admins/admins-404.html', status=404)
 # Create your views here.
 @login_required(login_url='admins:login')
 def dashboard(request):
@@ -163,6 +166,8 @@ import re
 
 @login_required(login_url='admins:login')
 def upload(request):
+    school_name =get_object_or_404(Name_School)
+    userprofile = get_object_or_404(Userprofile, user=request.user)
     if request.method == 'POST':
         form = BulkUploadForm(request.POST, request.FILES)
         if form.is_valid():
@@ -215,7 +220,7 @@ def upload(request):
     else:
         form = BulkUploadForm()
 
-    return render(request, 'admins/upload.html', {'form': form})
+    return render(request, 'admins/upload.html', {'form': form,'school_name':school_name,'userprofile':userprofile})
 
 def parse_docx(document):
     questions_data = []
@@ -449,6 +454,7 @@ def question_list(request):
 
 from base.forms import SearchForm 
 from django.db.models import Q
+@login_required(login_url='admins:login')
 def search(request):
     
     form = SearchForm()
@@ -503,6 +509,7 @@ from django.db.models import Count, Sum, IntegerField, Case, When
 @login_required(login_url='admins:login')
 def result(request):
     userprofile = get_object_or_404(Userprofile, user=request.user)
+    school_name =get_object_or_404(Name_School)
     
     # Retrieve all ClassOrLevel and TermOrSemester
     classes = ClassOrLevel.objects.all()
@@ -549,7 +556,8 @@ def result(request):
 
     context = {
         'subject_results': subject_results,
-        'userprofile': userprofile
+        'userprofile': userprofile,
+        'school_name':school_name,
     }
 
     return render(request, 'admins/result.html', context)
@@ -562,6 +570,7 @@ def term (request,pk):
     }
     return render (request, 'admins/term.html',context)
 @login_required(login_url='admins:login')
+
 def subject(request,pk):
     term_or_semester = get_object_or_404(TermOrSemester, pk=pk)
     subjects = Subject.objects.filter(term_or_semester=term_or_semester)
@@ -578,15 +587,20 @@ def destroyexam(request):
     ExamSession.objects.all().delete()
     return redirect('admins:question')
 
+@login_required(login_url='admins:login')
 def releaseip(request):
     userid = UserID.objects.all()
+    userprofile = get_object_or_404(Userprofile, user=request.user)
+    school_name =get_object_or_404(Name_School)
 
     context = {
         'userid':userid,
+        'userprofile': userprofile,
+        'school_name':school_name,
     }
     return render (request, 'admins/releaseip.html',context)
 
-
+@login_required(login_url='admins:login')
 def ip(request, user):
     user_instance = get_object_or_404(User, username=user)
     user_instance.session_id = None

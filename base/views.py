@@ -11,6 +11,14 @@ import uuid
 from datetime import datetime
 from django.urls import reverse
 from datetime import timedelta
+def custom_page_not_found(request, exception):
+    # Check the request path to determine which app the 404 occurred in
+    if request.path.startswith('/base/'):
+        return render(request, 'base/404.html', status=404)
+    elif request.path.startswith('/admins/'):
+        return render(request, 'admins/admins-404.html', status=404)
+    else:
+        return render(request, '404.html', status=404)
 
 @login_required(login_url='login')
 @login_required(login_url='login')
@@ -310,7 +318,7 @@ from collections import defaultdict
 def index(request):
     username = get_object_or_404(UserID, user=request.user)
     school_name = get_object_or_404(Name_School)
-    
+
     # Get only subjects associated with an ExamSession
     subjects = Subject.objects.filter(examsession__isnull=False).distinct()
 
@@ -342,11 +350,14 @@ def index(request):
                     defaults={'exam_session': exam_session, 'start_time': timezone.now()}
                 )
 
-                duration_parts = exam_session.exam_duration.split(':')
-                duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]), seconds=int(duration_parts[2]))
-                end_time = user_exam_session.start_time + duration
+                if user_exam_session.paused:
+                    # If the session was paused, reset start_time to now
+                    user_exam_session.start_time = timezone.now()
+                    user_exam_session.paused = False
+                    user_exam_session.save()
 
-                remaining_time = max(0, (end_time - timezone.now()).total_seconds())
+                # Set the remaining_time to be rendered
+                remaining_time = user_exam_session.remaining_time
 
             if request.user.is_authenticated:
                 user_results = Result.objects.filter(user=request.user, subject=subject)
@@ -386,9 +397,7 @@ def index(request):
             login=True,
             user=request.user
         )
-        user =request.user
-        user.is_online = False
-        user.save()
+
         return redirect('complete')
 
     return render(request, 'index.html', {
@@ -399,6 +408,9 @@ def index(request):
         'school_name': school_name,
         'username': username
     })
+
+
+
 
 
 
@@ -504,3 +516,27 @@ def update_status(request):
 #     user.save()
 
 
+from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse
+import json
+
+@csrf_exempt
+@login_required(login_url='login')
+def save_time(request):
+     if request.method == 'POST':
+        data = json.loads(request.body)
+        paused = data.get('paused', False)
+
+        if paused:  # Only pause if the request indicates to do so
+            try:
+                user_exam_sessions = UserExamSessionx.objects.filter(user=request.user, paused=False)
+                for user_exam_session in user_exam_sessions:
+                    elapsed_time = (timezone.now() - user_exam_session.start_time).total_seconds()
+                    user_exam_session.remaining_time = max(0, user_exam_session.remaining_time - elapsed_time)
+                    user_exam_session.paused = True
+                    user_exam_session.save()
+                return JsonResponse({'status': 'paused'}, status=200)
+            except UserExamSessionx.DoesNotExist:
+                return JsonResponse({'status': 'error', 'message': 'No active session found'}, status=404)
+
+     return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)

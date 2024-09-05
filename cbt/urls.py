@@ -19,11 +19,13 @@ from django.urls import path , include
 from django.conf import settings
 from django.conf.urls.static import static
 
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('',include('base.urls')),
     path('admins/',include('admins.urls', namespace='admins')),
 
 ]
-if settings.DEBUG is False:
+handler404 = 'base.views.custom_page_not_found' 
+if not settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

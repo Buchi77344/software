@@ -30,3 +30,4 @@ urlpatterns = [
     path('api/user-status/', views.user_status_api, name='user_status_api'),
     
 ]
+
