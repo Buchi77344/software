@@ -218,8 +218,8 @@ svg path{
 } */
 
 .menu-content{
-    padding : 10px 0px 15px;
-    height: 490px;
+    padding-bottom: 12px;
+    max-height: 85vh;
     overflow-y: auto;
 }
 
@@ -275,6 +275,10 @@ svg path{
 
 .subjects-link-div.flex-column {
     gap: 20px;
+}
+
+.menu-item.active .menu-wrapper{
+    background-color: hsla(0, 0%, 10%, 0.8);
 }
 
 .menu-wrapper:hover{
