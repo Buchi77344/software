@@ -423,7 +423,7 @@ from xhtml2pdf import pisa
 def export_user_data_to_pdf(request, class_name):
     userprofile = get_object_or_404(Userprofile, user=request.user)
     
-    # Filter UserID objects based on the class_name
+    # Filter UserID objects based on the class_name good
     user_ids = UserID.objects.filter(class_name=class_name)
     
     context = {
