@@ -447,7 +447,7 @@ def export_user_data_to_pdf(request, class_name):
     return response
 from django.shortcuts import render, redirect
 from base.forms import MultiSubjectQuestionSelectionForm
-from base.models import Suffle,ExamSession , Subject ,Result ,User_result ,Name_School
+from base.models import Suffle,ExamSession , Subject ,Result ,User_result ,Name_School,UserExamSessionx
 from django.utils import timezone
 
 import uuid
@@ -667,18 +667,49 @@ def destroyexam(request):
     ExamSession.objects.all().delete()
     return redirect('admins:question')
 
+from datetime import timedelta
+
 @login_required(login_url='admins:login')
 def releaseip(request):
     userid = UserID.objects.all()
     userprofile = get_object_or_404(Userprofile, user=request.user)
-    school_name =get_object_or_404(Name_School)
+    school_name = get_object_or_404(Name_School)
+
+    # Retrieve the first exam session (or the relevant one you want)
+    exam_session = UserExamSessionx.objects.first()
+
+    # Initialize variable to hold remaining time
+    general_remaining_time = None
+
+    if exam_session:
+        if exam_session.remaining_time:
+            # If remaining time is already saved, use it
+            general_remaining_time = exam_session.remaining_time
+        else:
+            # Calculate remaining time based on start time and exam duration
+            duration_parts = exam_session.exam_session.exam_duration.split(':')
+            duration = timedelta(
+                hours=int(duration_parts[0]),
+                minutes=int(duration_parts[1]),
+                seconds=int(duration_parts[2])
+            )
+            end_time = exam_session.start_time + duration
+            general_remaining_time = max(0, (end_time - timezone.now()).total_seconds())
+
+            # Save the calculated remaining time to the session for future use
+            exam_session.remaining_time = general_remaining_time
+            exam_session.save()
 
     context = {
-        'userid':userid,
+        'userid': userid,
         'userprofile': userprofile,
-        'school_name':school_name,
+        'school_name': school_name,
+        'general_remaining_time': general_remaining_time  # Pass the general remaining time to the template
     }
-    return render (request, 'admins/releaseip.html',context)
+
+    return render(request, 'admins/releaseip.html', context)
+
+
 
 @login_required(login_url='admins:login')
 def ip(request, user):

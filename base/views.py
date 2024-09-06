@@ -540,19 +540,25 @@ def save_time(request):
      return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
 
 def handle_post_request(request):
-     clicker = get_object_or_404(endx)
-     clicker.click = True
-     clicker.save()
-     
-     clicker.save()
-     return redirect ('admins:profile')
+    # Update the 'click' field to True, or create the object if it doesn't exist
+    clicker, created = endx.objects.get_or_create(defaults={'click': True})
+    
+    if not created:
+        # If the object already exists, update the 'click' field to True
+        clicker.click = True
+        clicker.save()
+    
+    return redirect('admins:releaseip')
      
         
 def good_ok(request):
-     clicker = get_object_or_404(endx)
-     clicker.click =False
-     clicker.save()
-     return redirect ('admins:profile')
+    clicker, created = endx.objects.get_or_create(defaults={'click': False})
+    
+    if not created:
+        # If the object already exists, update the 'click' field to True
+        clicker.click = False
+        clicker.save()
+    return redirect ('admins:releaseip')
      
 
      

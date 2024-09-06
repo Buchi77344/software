@@ -107,7 +107,7 @@
                                 </svg>
                                 <span>Generate</span>
                             </div>
-                           
+                        
                         </a>
 
                         <a href = "{% url 'admins:upload' %}" class = "menu-item">
@@ -188,7 +188,7 @@
                             </div>
                         </a>
 
-                        <a href = "{% url 'admins:releaseip' %}" class = "menu-item releaseip">
+                        <a href = "{% url 'admins:releaseip' %}" class = "active menu-item releaseip">
                             <div class="menu-wrapper flex gp-10">
                                 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
                                 <!-- Uploaded to: SVG Repo, www.svgrepo.com, Transformed by: SVG Repo Mixer Tools -->
@@ -216,10 +216,20 @@
                     <span>{{school_name.school}}</span>
                     <button class = "end-exam-btn"><a href = "{% url 'handle_post_request' %}">End Exam</a></button>
                     <a class = "revert-end-link" href="{% url 'good_ok' %}">Revert</a>
+                    <a class = "revert-end-link" href="{% url 'good_ok' %}">Pause Time</a>
+                    
+                                        {% if general_remaining_time %}
+                                            <p> {{ general_remaining_time|floatformat:0 }}</p>
+                                        {% else %}
+                                            <p>No active exam </p>
+                                        {% endif %}
                     <a class = "logout-link" href="{% url 'admins:logout' %}">Logout</a>
+                    
+                    
+
                 </div>
                 
-           
+        
                 <div class="user-get-container">
                     <div class="candidate-info flex-between">
                         <h2>Candidate Info</h2>
@@ -245,14 +255,14 @@
                                 <td>{{user_id.user.last_name}}</td>
                                 <td>{{user_id.generated_id}}</td>
                                 <td>
-                                   <a href="{% url 'admins:ip' user_id.user %}"> <button class = "releaseip-btn">Release IP</button></a>
-                                   <span class = "rp-indicator"></span>
-                                 
+                                <a href="{% url 'admins:ip' user_id.user %}"> <button class = "releaseip-btn">Release IP</button></a>
+                                <span class = "rp-indicator"></span>
+                                
                                 </td>
                                 <td>  <span id="status-{{ user_id.id }}" class="status-light"></span></td>
                             </tr>
                             {% endfor %}
-                          
+                        
                         
                         </tbody>
                     </table>
@@ -278,6 +288,7 @@
                 document.querySelector(".releaseip.popup-div").classList.add("visible");
             }, 100);
         }
+        
         function removeReleaseipPopup() {
             document.querySelector(".releaseip.popup-div").classList.remove("visible");
             rpPopupVisible = false;
@@ -301,6 +312,9 @@
     </script>
 </body>
 </html>
+
+
+
 <script>
     function updateUserStatus() {
         fetch("{% url 'admins:user_status_api' %}")  // Adjust the URL as per your Django routing
@@ -326,5 +340,7 @@
     setInterval(updateUserStatus, 5000);
     updateUserStatus()
 </script>
+
+
 
 
