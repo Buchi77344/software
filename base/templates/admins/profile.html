@@ -190,11 +190,43 @@
                                         </div>
                                     </form>
                                 </div>
+                           
                             </div>
                     </div>
+                    <a href="#" onclick="sendTrue()">Send True Value</a>
+                    <div id="response-container"></div>
                 </div>
             </div>
         </div>
     </div>
 </body>
 </html>
+
+
+
+
+<script>
+function sendTrue() {
+    fetch("{% url 'handle_post_request' %}", {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ value: true })
+    })
+    .then(response => response.json())  // Parse the JSON response from the view
+    .then(data => {
+        // Display the message received from the Django view
+        console.log('Message from server:', data.message);
+        document.getElementById('response-container').innerText = data.message;  // Display message on page
+    })
+    .catch((error) => {
+        console.error('Error:', error);
+    });
+}
+</script>
+
+<!-- Placeholder to show the message returned by the view -->
+
+

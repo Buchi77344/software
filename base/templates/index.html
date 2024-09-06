@@ -498,9 +498,9 @@
     });
 </script>
 
-{% comment %} 
+
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+ /**   document.addEventListener('DOMContentLoaded', function () {
         let userExamSessionId = "{{ user_exam_session_id }}";
         let remainingSeconds = {{ remaining_time|floatformat:0 }}; // Get the remaining time from Django
         console.log(remainingSeconds)
@@ -528,5 +528,26 @@
         window.addEventListener('beforeunload', function (event) {
             sendPauseSignal();
         });
-    });
-    </script> {% endcomment %}
+    });**/
+    </script>
+    
+<script>
+    function getTrueValue() {
+        fetch("{% url 'handle_get_request' %}")
+        .then(response => response.json())
+        .then(data => {
+            console.log('Received:', data);  // This should log "true"
+
+            if (data.value == true) {
+                // Perform your desired action here
+              //  alert('True value received from the server!');
+              document.querySelector(".user-question-form").submit()
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    setInterval(getTrueValue, 5000)
+    </script>

@@ -1,5 +1,5 @@
 from django import forms
-from base.models import Subject ,Question
+from base.models import Subject ,Question ,UserID
 from django.forms.widgets import ClearableFileInput
 
 class MultiFileInput(ClearableFileInput):
@@ -134,3 +134,9 @@ class MultiSubjectQuestionSelectionForm(forms.Form):
         cleaned_data['exam_duration'] = exam_duration
 
         return cleaned_data
+    
+
+class UserIDForm(forms.Form):
+    class_name = forms.ChoiceField(choices=UserID.CLASS_LEVEL_CHOICES)
+    first_name = forms.CharField(max_length=150)
+    last_name = forms.CharField(max_length=150) 

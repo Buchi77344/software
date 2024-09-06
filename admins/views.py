@@ -90,7 +90,7 @@ import string
 from django.shortcuts import render
 from base.models import User
 from base.models import UserID
-from  base.forms import UsernameForm
+from  base.forms import UsernameForm ,UserIDForm
 from django.db import IntegrityError, transaction
 
 def generate_random_id():
@@ -99,49 +99,54 @@ def generate_random_id():
     random_id = numbers + alphabets
     return ''.join(random.sample(random_id, len(random_id)))
  # Assuming you have this utility function
+from django.utils.crypto import get_random_string  # For generating random passwords
 @login_required(login_url='admins:login')
+
 def userid(request):
     error_message = None
-    userprofile = get_object_or_404(Userprofile, user=request.user)
-    
-    if request.method == "POST": 
-        username = request.POST.get('username')
-        last_name = request.POST.get('last_name')
-        
-        if User.objects.filter(username=username).exists():
-            messages.error(request, 'This UserID has already been generated before, please try another name.')
-            return redirect("admins:userid") 
-        
-        try:
-            with transaction.atomic():
-                user, created = User.objects.get_or_create(username=username, last_name=last_name)
-                if created:
-                    user.set_password(User.objects.make_random_password())
+
+    if request.method == "POST":
+        form = UserIDForm(request.POST)
+        if form.is_valid():
+            class_name = form.cleaned_data['class_name']
+            first_name = request.POST.get('first_name')
+            last_name = request.POST.get('last_name')
+
+            try:
+                with transaction.atomic():
+                    # Automatically generate a password
+                    random_password = get_random_string(length=8)
+                    
+                    # Create the user with username and last_name, and set the password
+                    user = User.objects.create_user(username=first_name, last_name=last_name, password=random_password)
                     user.save()
 
-                unique_id = generate_random_id().upper()
-                # Case-insensitive check for existing generated_id
-                while UserID.objects.filter(generated_id__iexact=unique_id).exists():
-                    unique_id = generate_random_id().upper()
+                    # Create the UserID entry
+                    user_id = UserID.objects.create(user=user, class_name=class_name)
+                    user_id.save()
 
-                user_id, created = UserID.objects.get_or_create(user=user)
-                user_id.generated_id = unique_id
-                user_id.save()
-
-                return redirect('admins:user')
-
-        except IntegrityError:
-            error_message = "There was an error creating the user. Please try again."  
-        except Exception as e:
-            error_message = f"An unexpected error occurred: {str(e)}"
-    
+                    # Optionally, print or log the generated password for the user's reference
+                    print(f"Generated password for {first_name}: {random_password}")
+                    
+                    return redirect('userid')  # Redirect after successful creation
+            except IntegrityError:
+                error_message = "There was an error creating the user. Please try again."
+            except Exception as e:
+                error_message = f"An unexpected error occurred: {str(e)}"
+        else:
+            error_message = "Invalid form data. Please correct the errors below."
     else:
-        school_name = get_object_or_404(Name_School)
-        context = {
-            'school_name': school_name,
-            'error_message': error_message,
-            'userprofile': userprofile
-        }
+        form = UserIDForm()
+
+    return render(request, 'admins/userid.html', {'form': form, 'error_message': error_message})
+
+    # else:
+    #     school_name = get_object_or_404(Name_School)
+    #     context = {
+    #         'school_name': school_name,
+    #         'error_message': error_message,
+    #         'userprofile': userprofile
+    #     }
 
     return render(request, 'admins/userid.html', context)  
 from django.shortcuts import render, redirect

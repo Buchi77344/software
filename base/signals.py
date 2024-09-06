@@ -1,21 +1,27 @@
-# from django.contrib.auth.signals import user_logged_in, user_logged_out
-# from django.dispatch import receiver
-# from .models import UserExamSessionx
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+from django.conf import settings
+from django.contrib.auth.models import User
+from .models import Userprofile ,Name_School,User_result,UserID # Adjust import based on your actual UserProfile model
 
-# @receiver(user_logged_out)
-# def pause_exam_on_logout(sender, request, user, **kwargs):
-#     try:
-#         user_exam_sessions = UserExamSessionx.objects.filter(user=user, paused_time=False)
-#         for session in user_exam_sessions:
-#             session.pause()
-#     except UserExamSessionx.DoesNotExist:
-#         pass
+@receiver(post_save, sender=User)
+def save_user_model(sender, instance, created, **kwargs):
+    if created and instance.is_staff and instance.school_name:
+        # Create the Name_School object if it doesn't already exist
+        Name_School.objects.get_or_create(school=instance.school_name)
 
-# @receiver(user_logged_in)
-# def resume_exam_on_login(sender, request, user, **kwargs):
-#     try:
-#         user_exam_sessions = UserExamSessionx.objects.filter(user=user, paused_time=True)
-#         for session in user_exam_sessions:
-#             session.resume()
-#     except UserExamSessionx.DoesNotExist:
-#         pass
+@receiver(post_save, sender=User)
+def save_user_model(sender ,instance,created,**kwargs):
+    if created:
+          Userprofile.objects.create(user=instance)
+  
+
+post_save.connect(save_user_model, sender=User )
+
+@receiver(post_save, sender=User)
+def save_user_model(sender ,instance,created,**kwargs):
+    if created:
+          User_result.objects.create(userid=instance)
+  
+
+post_save.connect(save_user_model, sender=UserID )

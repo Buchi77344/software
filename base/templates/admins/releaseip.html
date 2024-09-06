@@ -214,6 +214,8 @@
             <div class = "main-content">
                 <div class="main-content-header flex-between">
                     <span>{{school_name.school}}</span>
+                    <button class = "end-exam-btn"><a href = "{% url 'handle_post_request' %}">End Exam</a></button>
+                    <a class = "revert-end-link" href="{% url 'good_ok' %}">Revert</a>
                     <a class = "logout-link" href="{% url 'admins:logout' %}">Logout</a>
                 </div>
                 
@@ -295,12 +297,13 @@
             removeReleaseipPopup();
         });
 
+
     </script>
 </body>
 </html>
 <script>
     function updateUserStatus() {
-        fetch('{% url 'admins:user_status_api' %}')  // Adjust the URL as per your Django routing
+        fetch("{% url 'admins:user_status_api' %}")  // Adjust the URL as per your Django routing
             .then(response => response.json())
             .then(data => {
                 data.forEach(userStatus => {
