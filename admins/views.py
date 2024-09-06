@@ -93,11 +93,7 @@ from base.models import UserID
 from  base.forms import UsernameForm ,UserIDForm
 from django.db import IntegrityError, transaction
 
-def generate_random_id():
-    numbers = ''.join(random.choice(string.digits) for _ in range(4))
-    alphabets = ''.join(random.choice(string.ascii_letters) for _ in range(2))
-    random_id = numbers + alphabets
-    return ''.join(random.sample(random_id, len(random_id)))
+
  # Assuming you have this utility function
 from django.utils.crypto import get_random_string  # For generating random passwords
 @login_required(login_url='admins:login')
@@ -128,7 +124,7 @@ def userid(request):
                     # Optionally, print or log the generated password for the user's reference
                     print(f"Generated password for {first_name}: {random_password}")
                     
-                    return redirect('userid')  # Redirect after successful creation
+                    return redirect('admins:user')  # Redirect after successful creation
             except IntegrityError:
                 error_message = "There was an error creating the user. Please try again."
             except Exception as e:
@@ -330,15 +326,91 @@ def export_user_data_to_pdf(request):
     return response
 @login_required(login_url='admins:login')
 def user(request):
-    userprofile = get_object_or_404(Userprofile, user=request.user)
-    school_name = get_object_or_404(Name_School)
-    user_id = UserID.objects.all()
+    grouped_users = {}
+    class_choices = dict(UserID.CLASS_LEVEL_CHOICES)  # Get the class level names
+
+    for class_level, class_label in class_choices.items():
+        users_in_class = UserID.objects.filter(class_name=class_level).select_related('user')
+        
+        # Only add classes that have users
+        if users_in_class.exists():
+            grouped_users[class_label] = users_in_class
+
     context = {
-        'userprofile': userprofile,   
-        "user_id": user_id,
-        "school_name":school_name
+       'grouped_users': grouped_users
     }
     return render(request, 'admins/userget.html', context)
+# Function to generate a random ID
+def generate_random_id():
+    numbers = ''.join(random.choice(string.digits) for _ in range(4))
+    alphabets = ''.join(random.choice(string.ascii_letters) for _ in range(2))
+    random_id = numbers + alphabets
+    # Shuffle the result to mix digits and letters
+    return ''.join(random.sample(random_id, len(random_id)))
+
+# View to handle ID generation for selected users
+def generate_user_ids(request):
+    if request.method == "POST":
+        selected_user_ids = request.POST.getlist('selected_users')
+        
+        if selected_user_ids:
+            try:
+                with transaction.atomic():
+                    for user_id in selected_user_ids:
+                        # Fetch the user from UserID model
+                        user_obj = UserID.objects.get(user_id=user_id)
+                        
+                        # Generate a random unique ID and convert it to uppercase
+                        random_id = generate_random_id().upper()
+                        while UserID.objects.filter(generated_id=random_id).exists():
+                            random_id = generate_random_id().upper()
+
+                        # Assign the generated uppercase ID to the user and save it
+                        user_obj.generated_id = random_id
+                        user_obj.save()
+
+                    return redirect('admins:user')  # Redirect after successful generation
+
+            except UserID.DoesNotExist:
+                # Handle the case where the user does not exist in the UserID model
+                print(f"UserID object with user_id={user_id} does not exist.")
+            except Exception as e:
+                print(f"An error occurred: {e}")
+                # You can handle errors more gracefully
+
+    return redirect('admins:user')
+
+def delete_generated_ids(request):
+    if request.method == "POST":
+        try:
+            with transaction.atomic():
+                UserID.objects.update(generated_id=None)  # Clear the generated_id for all users
+                return redirect('admins:user')  # Redirect after successful deletion
+        except Exception as e:
+            print(f"An error occurred: {e}")
+            # Handle errors gracefully
+    return redirect('admins:user')
+def delete_user(request, user_id):
+    try:
+        user_obj = UserID.objects.get(user_id=user_id)
+        user_obj.delete()  # This will delete the UserID record and remove the generated_id
+        return redirect('admins:user')  # Redirect after successful deletion
+    except UserID.DoesNotExist:
+        print(f"UserID object with user_id={user_id} does not exist.")
+        return redirect('admins:user')  # Redirect back if the user does not exist
+    except Exception as e:
+        print(f"An error occurred: {e}")
+        
+def user_list_by_class(request):
+    grouped_users = {}
+    class_choices = dict(UserID.CLASS_LEVEL_CHOICES)
+
+    for class_level, class_label in class_choices.items():
+        users_in_class = UserID.objects.filter(class_name=class_level).select_related('user')
+        if users_in_class.exists():
+            grouped_users[class_label] = users_in_class
+
+    return render(request, 'user_list_by_class.html', {'grouped_users': grouped_users})
 def deleteuserid(request):
     UserID.objects.all().delete()
     return redirect('admins:user')
@@ -348,18 +420,21 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
 
-def export_user_data_to_pdf(request):
+def export_user_data_to_pdf(request, class_name):
     userprofile = get_object_or_404(Userprofile, user=request.user)
-    user_id = UserID.objects.all()[:10]  # Fetching the first 10 UserID objects
+    
+    # Filter UserID objects based on the class_name
+    user_ids = UserID.objects.filter(class_name=class_name)
     
     context = {
         'userprofile': userprofile,
-        "user_id": user_id
+        "user_ids": user_ids,
+        "class_name": class_name
     }
-    
+
     template_path = 'admins/pdf.html'
-    response = HttpResponse(content_type='application/pdf')
-    response['Content-Disposition'] = 'attachment; filename="user_data.pdf"'
+    response = HttpResponse(content_type='application/pdf')  
+    response['Content-Disposition'] = f'attachment; filename="{class_name}_user_data.pdf"'
 
     template = get_template(template_path)
     html = template.render(context)

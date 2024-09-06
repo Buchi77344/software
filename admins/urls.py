@@ -15,7 +15,7 @@ urlpatterns = [
     path('question_list',views.question_list,name= "question_list"),
     path('search',views.search,name='search'),
     path('question',views.question,name='question'),
-    path('export-to-excel/',views.export_user_data_to_pdf, name='export_user_data_to_pdf'),
+    path('export-pdf/<str:class_name>/', views.export_user_data_to_pdf, name='export_user_data_to_pdf'),
     path('delete/<str:pk>/', views.delete, name='delete'),
     path('profile',views.profile,name='profile'),
     path('result',views.result,name='result'),
@@ -28,6 +28,8 @@ urlpatterns = [
     path('ip/<str:user>/',views.ip,name='ip'),
     path('close-tab/',views.close_tab, name ='close_tab' ),
     path('api/user-status/', views.user_status_api, name='user_status_api'),
-    
+    path('generate/', views.generate_user_ids, name='generate_user_ids'),
+    path('delete-gen/', views.delete_generated_ids, name='delete_generated_ids'),
+    path('delete_user/<int:user_id>/',views.delete_user, name='delete_user'),
 ]
 
