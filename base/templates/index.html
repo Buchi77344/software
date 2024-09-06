@@ -11,7 +11,7 @@
     <script>
         window.addEventListener('beforeunload', function (event) {
             // Send AJAX request to pause the exam session when the user closes the tab
-            navigator.sendBeacon('{% url 'save_time' %}', JSON.stringify({
+            navigator.sendBeacon("{% url 'save_time' %}", JSON.stringify({
                 'paused': true  // Add the correct subject ID in your template
             }));
         });
@@ -253,14 +253,6 @@
         document.addEventListener('contextmenu', function(event){
             event.preventDefault();
         })
-
-
-        
-      
-        
-        
-        
-
         let timerDiv = document.querySelector("#timer");
         let warningMessage = "";
         let inactivityTimeout;
@@ -321,7 +313,7 @@
                 } else {
                     clearInterval(timeInterval);
                     if (document.querySelectorAll(".question-box").length > 0) {
-                        logoutSubmitAnswer();
+                        //logoutSubmitAnswer();
                     }
                 }
 
@@ -498,35 +490,35 @@
     });
 </script>
 
-{% comment %} 
+ 
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
-        let userExamSessionId = "{{ user_exam_session_id }}";
-        let remainingSeconds = {{ remaining_time|floatformat:0 }}; // Get the remaining time from Django
-        console.log(remainingSeconds)
-        // Function to send the remaining time to the backend when the tab is closed
-        function sendPauseSignal() {
-            if (userExamSessionId) {
-                navigator.sendBeacon('{% url 'save_time' %}', JSON.stringify({
-                    'user_exam_session_id': userExamSessionId,
-                    'remaining_time': remainingSeconds
-                }));
-            }
-        }
+    // document.addEventListener('DOMContentLoaded', function () {
+    //     let userExamSessionId = "{{ user_exam_session_id }}";
+    //     let remainingSeconds = "{{ remaining_time|floatformat:0 }}"; // Get the remaining time from Django
+    //     console.log(remainingSeconds)
+    //     // Function to send the remaining time to the backend when the tab is closed
+    //     function sendPauseSignal() {
+    //         if (userExamSessionId) {
+    //             navigator.sendBeacon("{% url 'save_time' %}", JSON.stringify({
+    //                 'user_exam_session_id': userExamSessionId,
+    //                 'remaining_time': remainingSeconds
+    //             }));
+    //         }
+    //     }
     
-        // Update remaining time every second
-        function updateRemainingTime() {
-            if (remainingSeconds > 0) {
-                remainingSeconds--;
-            }
-        }
+    //     // Update remaining time every second
+    //     function updateRemainingTime() {
+    //         if (remainingSeconds > 0) {
+    //             remainingSeconds--;
+    //         }
+    //     }
     
-        // Call updateRemainingTime every second
-        setInterval(updateRemainingTime, 1000);
+    //     // Call updateRemainingTime every second
+    //     setInterval(updateRemainingTime, 1000);
     
-        // Send pause signal when the user closes the tab
-        window.addEventListener('beforeunload', function (event) {
-            sendPauseSignal();
-        });
-    });
-    </script> {% endcomment %}
+    //     // Send pause signal when the user closes the tab
+    //     window.addEventListener('beforeunload', function (event) {
+    //         sendPauseSignal();
+    //     });
+    // });
+</script> 

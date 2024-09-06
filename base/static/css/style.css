@@ -282,7 +282,7 @@ svg path{
 }
 
 .menu-wrapper:hover{
-    background-color: hsla(0, 0%, 10%, 0.8);
+    background-color: hsla(0, 0%, 10%, 0.6);
 }
 
 .calculator-menu-wrapper{

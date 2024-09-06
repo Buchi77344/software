@@ -281,6 +281,17 @@
         }, 100);
     }
 
+    if(successsMessageIp){
+        ipPopupHead.textContent = successsMessageIp.textContent
+        showReleaseipPopup()
+        successsMessageIp.style.display = "none"
+    }
+
+    document.querySelector(".ok-btn").addEventListener("click", () => {
+        console.log("ok-btn")
+        removeReleaseipPopup()
+    })
+
 </script>
 
 <script>

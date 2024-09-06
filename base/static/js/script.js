@@ -242,6 +242,7 @@ if(document.querySelector(".subject-box")){
             el.classList.add("visible")
             el.addEventListener("click", () => {
                 highlightQuestion(index)
+                document.querySelector(".subject-box.visible").dataset.currentQuestion = index
             })
         }else{
             el.classList.remove("visible")
