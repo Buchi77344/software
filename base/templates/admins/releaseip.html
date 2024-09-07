@@ -216,13 +216,6 @@
                     <span>{{school_name.school}}</span>
                     <button class = "end-exam-btn"><a href = "{% url 'handle_post_request' %}">End Exam</a></button>
                     <a class = "revert-end-link" href="{% url 'good_ok' %}">Revert</a>
-                    <a class = "revert-end-link" href="{% url 'good_ok' %}">Pause Time</a>
-                    
-                                        {% if general_remaining_time %}
-                                            <p> {{ general_remaining_time|floatformat:0 }}</p>
-                                        {% else %}
-                                            <p>No active exam </p>
-                                        {% endif %}
                     <a class = "logout-link" href="{% url 'admins:logout' %}">Logout</a>
                     
                     
@@ -233,7 +226,11 @@
                 <div class="user-get-container">
                     <div class="candidate-info flex-between">
                         <h2>Candidate Info</h2>
-
+                        {% if general_remaining_time %}
+                            <p class = "exam-time-text"> {{ general_remaining_time|floatformat:0 }}</p>
+                        {% else %}
+                            <p>No active exam </p>
+                        {% endif %}
                     </div>
                 {% for messages in messages %}
                     <p class = "success-releaseip-message">{{messages}}</p>
@@ -309,6 +306,66 @@
         });
 
 
+    </script>
+
+    <script>
+        let timerEl = document.querySelector(".exam-time-text")
+        let endExamBtn = document.querySelector(".end-exam-btn")
+        function formatTimeFunc(seconds) {
+            let time_hours = Math.floor(seconds / 3600);
+            let time_min = Math.floor((seconds % 3600) / 60);
+            let time_secs = seconds % 60;
+
+            let formatedTime = String(time_hours).padStart(2, "0") + ":" + String(time_min).padStart(2, "0") + ":" + String(time_secs).padStart(2, "0");
+            return formatedTime;
+        }
+
+        // Function to start countdown timer
+        function startCountDown(timeSeconds) {
+            let remainingSeconds = timeSeconds;
+            console.log(remainingSeconds)
+            function updateTimer() {
+                if (remainingSeconds >= 0) {
+                    let timeString = formatTimeFunc(remainingSeconds);
+                    timerEl.textContent = timeString;
+                    remainingSeconds--;
+                    localStorage.setItem('remainingTime', remainingSeconds);
+                } else {
+                    clearInterval(timeInterval)
+                    localStorage.removeItem('remainingTime');
+                }
+            }
+
+            updateTimer();
+            let timeInterval = setInterval(updateTimer, 1000);
+        }
+
+        function runRemainingTime(){
+            // Check if there is a saved remaining time in localStorage
+            let savedTime = localStorage.getItem('remainingTime');
+            let initialTime = "{{ general_remaining_time|floatformat:0 }}";
+
+            // If there's saved time, use it; otherwise, use the server-provided time
+            if (savedTime !== null && !isNaN(savedTime)) {
+                startCountDown(parseInt(savedTime, 10)); // Start from the saved time
+            } else {
+                startCountDown(parseInt(initialTime, 10)); // Start from the server time
+            }
+        }
+
+        runRemainingTime()
+
+        let revertBool;
+        let savedRevert = localStorage.getItem("revertBool")
+        if(savedRevert){
+            console.log("revert-Btn")
+        }
+
+        endExamBtn.addEventListener("click", () => {
+            revertBool = true
+            localStorage.setItem("revertBool", revertBool)
+            
+        }) 
     </script>
 </body>
 </html>

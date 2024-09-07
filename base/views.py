@@ -550,15 +550,34 @@ def handle_post_request(request):
     
     return redirect('admins:releaseip')
      
-        
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+import json
+
+@csrf_exempt
 def good_ok(request):
-    clicker, created = endx.objects.get_or_create(defaults={'click': False})
-    
-    if not created:
-        # If the object already exists, update the 'click' field to True
-        clicker.click = False
-        clicker.save()
-    return redirect ('admins:releaseip')
+    if request.method == "POST":
+        try:
+            # Parse JSON data from the request body
+            data = json.loads(request.body)
+            value = data.get('value', False)
+
+            if not value:  # Equivalent to checking if value is False
+                clicker, created = endx.objects.get_or_create(defaults={'click': False})
+
+                if not created:
+                    # If the object already exists, update the 'click' field
+                    clicker.click = False
+                    clicker.save()
+                
+            # Return a JSON response with the value
+            return JsonResponse({'value': value})
+
+        except json.JSONDecodeError:
+            return JsonResponse({'error': 'Invalid JSON'}, status=400)
+    else:
+        return JsonResponse({'error': 'Method not allowed'}, status=405)
+
      
 
      

@@ -415,7 +415,7 @@ def deleteuserid(request):
     UserID.objects.all().delete()
     return redirect('admins:user')
 
-import pandas as pd
+import pandas as pd  
 from django.http import HttpResponse
 from django.template.loader import get_template
 from xhtml2pdf import pisa
@@ -423,15 +423,12 @@ from xhtml2pdf import pisa
 def export_user_data_to_pdf(request, class_name):
     userprofile = get_object_or_404(Userprofile, user=request.user)
     
-    # Filter UserID objects based on the class_name good
-    user_ids = UserID.objects.filter(class_name=class_name)
-    
+    user_ids = UserID.objects.all()   
     context = {
         'userprofile': userprofile,
         "user_ids": user_ids,
         "class_name": class_name
     }
-
     template_path = 'admins/pdf.html'
     response = HttpResponse(content_type='application/pdf')  
     response['Content-Disposition'] = f'attachment; filename="{class_name}_user_data.pdf"'
@@ -641,6 +638,40 @@ def result(request):
     }
 
     return render(request, 'admins/result.html', context)
+
+from django.template.loader import render_to_string
+
+def download_result(request, class_id, term_id, subject_id):
+    # Fetch the objects by their IDs
+    class_or_level = get_object_or_404(ClassOrLevel, id=class_id)
+    term_or_semester = get_object_or_404(TermOrSemester, id=term_id)
+    subject = get_object_or_404(Subject, id=subject_id)
+
+    # Now generate the PDF logic (e.g., using xhtml2pdf or other methods)
+    # Example:
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{class_or_level.name}_{term_or_semester.name}_{subject.name}_results.pdf"'
+    
+    # Render HTML to PDF (assuming you have a template ready)
+    template_path = 'admins/result_pdf.html'
+    context = {
+        'class_or_level': class_or_level,
+        'term_or_semester': term_or_semester,
+        'subject': subject,
+        # Any other context data needed for PDF rendering
+    }
+    html = render_to_string(template_path, context)
+    
+    # Generate PDF (using a library like xhtml2pdf)
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse('We had some errors with the PDF creation')
+    
+    return response
+  
+
+
 @login_required(login_url='admins:login')
 def term (request,pk):
     class_or_level = get_object_or_404(ClassOrLevel, pk=pk)
@@ -671,46 +702,61 @@ from datetime import timedelta
 
 @login_required(login_url='admins:login')
 def releaseip(request):
+    # Retrieve necessary data
     userid = UserID.objects.all()
     userprofile = get_object_or_404(Userprofile, user=request.user)
     school_name = get_object_or_404(Name_School)
 
-    # Retrieve the first exam session (or the relevant one you want)
-    exam_session = UserExamSessionx.objects.first()
+    # Admin user to automatically assign the exam session (you can replace with actual admin user logic)
+    admin_user = User.objects.filter(is_staff=True ).first()
 
-    # Initialize variable to hold remaining time
-    general_remaining_time = None
+    # Retrieve the first exam session (or the relevant one)
+    exam_session = ExamSession.objects.first()  # Customize this to get specific ExamSession
+    user_exam_session = None
 
     if exam_session:
-        if exam_session.remaining_time:
-            # If remaining time is already saved, use it
-            general_remaining_time = exam_session.remaining_time
-        else:
+        # Check if UserExamSessionx already exists for the admin user
+        user_exam_session, created = UserExamSessionx.objects.get_or_create(
+            user=admin_user,
+            exam_session=exam_session,
+            defaults={
+                'start_time': timezone.now(),
+                'subject': exam_session.subject  # Add the subject field from the ExamSession
+            }
+        )
+
+        # Initialize remaining time
+        if created or user_exam_session.remaining_time is None:
             # Calculate remaining time based on start time and exam duration
-            duration_parts = exam_session.exam_session.exam_duration.split(':')
+            duration_parts = exam_session.exam_duration.split(':')
             duration = timedelta(
                 hours=int(duration_parts[0]),
                 minutes=int(duration_parts[1]),
                 seconds=int(duration_parts[2])
             )
-            end_time = exam_session.start_time + duration
-            general_remaining_time = max(0, (end_time - timezone.now()).total_seconds())
+            end_time = user_exam_session.start_time + duration
+            remaining_time = max(0, (end_time - timezone.now()).total_seconds())
 
-            # Save the calculated remaining time to the session for future use
-            exam_session.remaining_time = general_remaining_time
-            exam_session.save()
+            # Save the remaining time
+            user_exam_session.remaining_time = remaining_time
+            user_exam_session.save()
 
+        else:
+            # Use already saved remaining time
+            remaining_time = user_exam_session.remaining_time
+
+    else:
+        remaining_time = None  # Handle case if no exam session exists
+
+    # Pass the necessary data to the template
     context = {
         'userid': userid,
         'userprofile': userprofile,
         'school_name': school_name,
-        'general_remaining_time': general_remaining_time  # Pass the general remaining time to the template
+        'general_remaining_time': remaining_time  # Pass remaining time to template
     }
 
     return render(request, 'admins/releaseip.html', context)
-
-
-
 @login_required(login_url='admins:login')
 def ip(request, user):
     user_instance = get_object_or_404(User, username=user)

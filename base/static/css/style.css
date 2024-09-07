@@ -1876,6 +1876,11 @@ input#id_user_id{
     letter-spacing: 1px;
 }
 
+.exam-time-text{
+    font-size : 1.8rem;
+    font-weight : 600;
+}
+
 .rp-indicator{
     width : 20px;
     height: 20px;
@@ -1884,7 +1889,31 @@ input#id_user_id{
     margin-right: 10px;
 }
 
+.end-exam-btn{
+    border-radius: 5px;
+    letter-spacing: 1px;
+    text-decoration: none;
+    background-color: hsl(0, 71%, 42%);
+    color:hsl(0, 0%, 97%);
+    padding : 10px 20px;
+    transition: background-color .2s ease;
+    margin-left: auto;
+    font-size: 1rem;
+    margin-right: 15px;
+}
 
+.end-exam-btn a{
+    color : hsl(0, 0%, 97%);
+    
+}
+
+.revert-end-link{
+    display: none;
+}
+
+.end-exam-btn:hover{
+    background-color: hsl(0, 71%, 32%);;
+}
 
 @keyframes next1 {
     from{

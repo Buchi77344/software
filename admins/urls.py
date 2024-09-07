@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import download_result
 
 app_name ='admins'
 
@@ -31,5 +32,7 @@ urlpatterns = [
     path('generate/', views.generate_user_ids, name='generate_user_ids'),
     path('delete-gen/', views.delete_generated_ids, name='delete_generated_ids'),
     path('delete_user/<int:user_id>/',views.delete_user, name='delete_user'),
+    path('download-result/<int:class_id>/<int:term_id>/<int:subject_id>/', download_result, name='download_result'),
 ]
 
+ 
