@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>User Data</title>
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+   
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -53,7 +53,7 @@
     <div class="container">
         <div class="info-section">
             
-            <h1> {{school_name.school}}</h1>
+            <h1> {{class_name}}</h1>
             
             <p><strong>List of candidate:</strong></p>
         </div>
@@ -66,11 +66,11 @@
                 </tr>
             </thead>
             <tbody>
-                {% for user in user_id %}
+                {% for user_id in user_ids %}
                 <tr>
-                    <td>{{ user.user.username }}</td>
-                    <td>{{ user.user.last_name }}</td>
-                    <td>{{ user.generated_id }}</td>
+                    <td>{{ user_id.user.username }}</td>
+                    <td>{{ user_id.user.last_name }}</td>
+                    <td>{{ user_id.generated_id }}</td>
                 </tr>
                 {% endfor %}
             </tbody>
