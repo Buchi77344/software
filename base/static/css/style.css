@@ -693,16 +693,16 @@ svg path{
 
 .user_id-main{
     display: flex;
-    height: calc(100vh - 60px);
+    min-height: calc(100vh - 60px);
 }
 
 .user_id-form{
     max-width: 660px;
     width: 90%;
-    height: 350px;
+    /* height: 350px; */
     background-color: var(--main-sb-hv-clr);
     border-radius: 20px;
-    padding: 15px 30px 15px 30px;
+    padding: 25px 30px 30px;
     position: relative;
     margin: auto;
 }
@@ -727,6 +727,30 @@ svg path{
 
 .user_id-name-input-div.flex-between{
     gap : 20px;
+}
+
+.user_id-form p{
+    margin : 15px 0 0;
+}
+
+.user_id-form label{
+    color :hsl(0, 0%, 90%);
+    font-size: 1.2rem;
+}
+
+.user_id-form select{
+    padding: 5px 10px;
+    background-color: hsla(0, 0%, 97%, 0.9);
+}
+
+.user_id-form input{
+    width : 100%;
+    display: block;
+    padding : 7px 10px;
+    margin-top : 10px;
+    font-size: 1rem;
+    background-color: hsla(0, 0%, 95%, 0.8);
+    border-radius: 10px;
 }
 
 .user_id-input{
@@ -1290,7 +1314,7 @@ svg path{
     gap : 15px;
 }
 
-.upload-cta-form label{
+form label{
     font-size: 1.1rem;
     text-transform: capitalize;
     color : hsl(0, 0%, 20%);
@@ -1300,7 +1324,7 @@ svg path{
     display: block;
 }
 
-.upload-cta-form select{
+form select{
     display: block;
     width : 100%;
     padding: 10px;
@@ -1310,11 +1334,11 @@ svg path{
     font-size: 1.1rem;
 }
 
-.upload-cta-form select:focus{
+form select:focus{
     outline: 1px solid rgba(0,0,0,.1);
 }
 
-.upload-cta-form textarea{
+form textarea{
     margin-top: 10px;
     width : 100%;
     border-radius: 5px;

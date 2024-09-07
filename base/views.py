@@ -12,7 +12,7 @@ from datetime import datetime
 from django.urls import reverse
 from datetime import timedelta
 def custom_page_not_found(request, exception):
-    # Check the request path to determine which app the 404 occurred in
+    # Check the request path to determine which app the 404 occurred in loading
     if request.path.startswith('/base/'):
         return render(request, 'base/404.html', status=404)
     elif request.path.startswith('/admins/'):
@@ -234,7 +234,7 @@ import string
 from django.shortcuts import render
 from .models import User
 from .models import UserID ,Loding
-from .forms import UsernameForm
+from .forms import UsernameForm ,UserIDForm
 from django.db import IntegrityError, transaction
 
 def generate_random_id(length=6):
@@ -246,22 +246,16 @@ def userid(request):
     error_message = None
 
     if request.method == "POST":
-        form = UsernameForm(request.POST)
+        form = UserIDForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data['username']
+            class_name = form.cleaned_data['class_name']
             try:
                 with transaction.atomic():
-                    user, created = User.objects.get_or_create(username=username)
-                    if created:
-                        user.set_password(User.objects.make_random_password())
-                        user.save()
-                    unique_id = generate_random_id()
-                    while UserID.objects.filter(generated_id=unique_id).exists():
-                        unique_id = generate_random_id()
-                    user_id, created = UserID.objects.get_or_create(user=user)
-                    user_id.generated_id = unique_id
+                    user = User.objects.create_user(username=request.POST['username'], password=request.POST['password'])
+                    user.save()
+                    user_id = UserID.objects.create(user=user, class_name=class_name)
                     user_id.save()
-                    return redirect('userid')
+                    return redirect('userid')  # Redirect after successful creation
             except IntegrityError:
                 error_message = "There was an error creating the user. Please try again."
             except Exception as e:
@@ -269,11 +263,9 @@ def userid(request):
         else:
             error_message = "Invalid form data. Please correct the errors below."
     else:
-        form = UsernameForm()
+        form = UserIDForm()
 
-    return render(request, 'userid.html', {'form': form, 'error_message': error_message})
-
-
+    return render(request, 'admins/userid.html', {'form': form, 'error_message': error_message})  
 from django.shortcuts import render, redirect
 from django.contrib import auth
 from .forms import LoginForm
@@ -344,14 +336,23 @@ def index(request):
             if exam_sessions.exists():
                 exam_session = exam_sessions.first()
 
+                # Calculate the total duration of the exam
+                duration_parts = exam_session.exam_duration.split(':')
+                duration = timedelta(hours=int(duration_parts[0]), minutes=int(duration_parts[1]), seconds=int(duration_parts[2]))
+
+                # Get or create the user exam session
                 user_exam_session, created = UserExamSessionx.objects.get_or_create(
                     user=request.user,
                     subject=subject,
-                    defaults={'exam_session': exam_session, 'start_time': timezone.now()}
+                    defaults={
+                        'exam_session': exam_session, 
+                        'start_time': timezone.now(),
+                        'remaining_time': duration.total_seconds()  # Set the remaining time initially
+                    }
                 )
 
-                if user_exam_session.paused:
-                    # If the session was paused, reset start_time to now
+                if not created and user_exam_session.paused:
+                    # If the session was paused, reset start_time to now and un-pause
                     user_exam_session.start_time = timezone.now()
                     user_exam_session.paused = False
                     user_exam_session.save()
@@ -411,9 +412,6 @@ def index(request):
 
 
 
-
-
-
 def welcome(request):
     userprofile = get_object_or_404(Userprofile,user=request.user)
     context = {
@@ -427,7 +425,7 @@ def complete(request):
 
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
-from .models import UserSelection
+from .models import UserSelection ,endx
 import json
 
 @csrf_exempt
@@ -540,3 +538,31 @@ def save_time(request):
                 return JsonResponse({'status': 'error', 'message': 'No active session found'}, status=404)
 
      return JsonResponse({'status': 'error', 'message': 'Invalid request'}, status=400)
+
+def handle_post_request(request):
+     clicker = get_object_or_404(endx)
+     clicker.click = True
+     clicker.save()
+     
+     clicker.save()
+     return redirect ('admins:profile')
+     
+        
+def good_ok(request):
+     clicker = get_object_or_404(endx)
+     clicker.click =False
+     clicker.save()
+     return redirect ('admins:profile')
+     
+
+     
+    
+
+def handle_get_request(request):
+    if request.method == 'GET':
+        clicker = get_object_or_404(endx)
+
+       
+        return JsonResponse({'value': clicker.click})  # Return the value as JSON
+    
+    return JsonResponse({'error': 'Invalid request method'})

@@ -490,21 +490,21 @@
     });
 </script>
 
- 
+
 <script>
-    // document.addEventListener('DOMContentLoaded', function () {
-    //     let userExamSessionId = "{{ user_exam_session_id }}";
-    //     let remainingSeconds = "{{ remaining_time|floatformat:0 }}"; // Get the remaining time from Django
-    //     console.log(remainingSeconds)
-    //     // Function to send the remaining time to the backend when the tab is closed
-    //     function sendPauseSignal() {
-    //         if (userExamSessionId) {
-    //             navigator.sendBeacon("{% url 'save_time' %}", JSON.stringify({
-    //                 'user_exam_session_id': userExamSessionId,
-    //                 'remaining_time': remainingSeconds
-    //             }));
-    //         }
-    //     }
+ /**   document.addEventListener('DOMContentLoaded', function () {
+        let userExamSessionId = "{{ user_exam_session_id }}";
+        let remainingSeconds = {{ remaining_time|floatformat:0 }}; // Get the remaining time from Django
+        console.log(remainingSeconds)
+        // Function to send the remaining time to the backend when the tab is closed
+        function sendPauseSignal() {
+            if (userExamSessionId) {
+                navigator.sendBeacon('{% url 'save_time' %}', JSON.stringify({
+                    'user_exam_session_id': userExamSessionId,
+                    'remaining_time': remainingSeconds
+                }));
+            }
+        }
     
     //     // Update remaining time every second
     //     function updateRemainingTime() {
@@ -516,9 +516,30 @@
     //     // Call updateRemainingTime every second
     //     setInterval(updateRemainingTime, 1000);
     
-    //     // Send pause signal when the user closes the tab
-    //     window.addEventListener('beforeunload', function (event) {
-    //         sendPauseSignal();
-    //     });
-    // });
-</script> 
+        // Send pause signal when the user closes the tab
+        window.addEventListener('beforeunload', function (event) {
+            sendPauseSignal();
+        });
+    });**/
+    </script>
+    
+<script>
+    function getTrueValue() {
+        fetch("{% url 'handle_get_request' %}")
+        .then(response => response.json())
+        .then(data => {
+            console.log('Received:', data);  // This should log "true"
+
+            if (data.value == true) {
+                // Perform your desired action here
+              //  alert('True value received from the server!');
+              document.querySelector(".user-question-form").submit()
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+
+    setInterval(getTrueValue, 5000)
+    </script>

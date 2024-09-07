@@ -182,14 +182,12 @@
                     {% for messages in messages %}
                         <h3 class = "user-id-message">{{messages|upper}}</h3>
                     {% endfor %}
-                    <form class = "user_id-form flex-column" method="post">
+                    <form class = "user_id-form form flex-column" method="post">
                         {% csrf_token %}
-                        <h1 class = "user_id-head">Generate User ID</h1>
-                        <div class="user_id-name-input-div flex-between">
-                            <input required type = "text" placeholder="First Name" name = "username"class = "user_id-input"/>
-                            <input required type = "text" placeholder="Last Name" name = "last_name"class = "user_id-input"/>
-                        </div>
-                        <button class = "user_id-submit-btn" type="submit"><span>Generate</span></button>
+                        <h1 class = "user_id-head">User Signup </h1>
+                       
+                        {{ form.as_p }}
+                        <button class = "user_id-submit-btn" type="submit"><span>Signup</span></button>
                     </form>
                 </div>
             </div>

@@ -214,6 +214,8 @@
             <div class = "main-content">
                 <div class="main-content-header flex-between">
                     <span>{{school_name.school}}</span>
+                    <button class = "end-exam-btn"><a href = "{% url 'handle_post_request' %}">End Exam</a></button>
+                    <a class = "revert-end-link" href="{% url 'good_ok' %}">Revert</a>
                     <a class = "logout-link" href="{% url 'admins:logout' %}">Logout</a>
                 </div>
                 
@@ -258,41 +260,50 @@
             </div>
         </div>
     </div>
+
+    <script>
+
+        fetch("{% url 'admins:close_tab' %}")
+        .then(res => res.json())
+        .then(data => console.log(data))
+
+        let rpPopupVisible;
+        let successsMessageIp = document.querySelector(".success-releaseip-message")
+        let ipPopupHead = document.querySelector(".releaseip.popup-head")
+        function showReleaseipPopup() {
+            
+            document.querySelector(".releaseip.popup-overlay").style.display = "grid";
+            rpPopupVisible = true;
+            setTimeout(() => {
+                document.querySelector(".releaseip.popup-div").classList.add("visible");
+            }, 100);
+        }
+        
+        function removeReleaseipPopup() {
+            document.querySelector(".releaseip.popup-div").classList.remove("visible");
+            rpPopupVisible = false;
+            setTimeout(() => {
+                document.querySelector(".releaseip.popup-overlay").style.display = "none";
+            }, 100);
+        }
+
+        if(successsMessageIp){
+            ipPopupHead.textContent = successsMessageIp.textContent
+            showReleaseipPopup()
+            successsMessageIp.style.display = "none"
+        }
+
+        document.querySelector(".ok-btn").addEventListener("click", function () {
+            console.log("ok-btn");
+            removeReleaseipPopup();
+        });
+
+
+    </script>
 </body>
 </html>
 
-<script>
-    let rpPopupVisible;
-    let successsMessageIp = document.querySelector(".success-releaseip-message")
-    let ipPopupHead = document.querySelector(".releaseip.popup-head")
-    function showReleaseipPopup() {
-        
-        document.querySelector(".releaseip.popup-overlay").style.display = "grid";
-        rpPopupVisible = true;
-        setTimeout(() => {
-            document.querySelector(".releaseip.popup-div").classList.add("visible");
-        }, 100);
-    }
-    function removeReleaseipPopup() {
-        document.querySelector(".releaseip.popup-div").classList.remove("visible");
-        rpPopupVisible = false;
-        setTimeout(() => {
-            document.querySelector(".releaseip.popup-overlay").style.display = "none";
-        }, 100);
-    }
 
-    if(successsMessageIp){
-        ipPopupHead.textContent = successsMessageIp.textContent
-        showReleaseipPopup()
-        successsMessageIp.style.display = "none"
-    }
-
-    document.querySelector(".ok-btn").addEventListener("click", () => {
-        console.log("ok-btn")
-        removeReleaseipPopup()
-    })
-
-</script>
 
 <script>
     function updateUserStatus() {

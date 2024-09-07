@@ -94,8 +94,24 @@ class Answer(models.Model):
    
 
 class UserID(models.Model):
+    CLASS_LEVEL_CHOICES = [
+        ('jss1', 'JSS 1'),
+        ('jss2', 'JSS 2'),
+        ('jss3', 'JSS 3'),
+        ('sss1', 'SSS 1'),
+        ('sss2', 'SSS 2'),
+        ('sss3', 'SSS 3'),
+        ('cbt', 'CBT'),
+        ('Test','Test'),
+        ('level 100', 'Level 100'),
+        ('level 200', 'Level 200'),
+        ('level 300', 'Level 300'),
+        ('level 400', 'Level 400'),
+    ]
+    
+    class_name = models.CharField(max_length=20, choices=CLASS_LEVEL_CHOICES,null=True)
     user = models.OneToOneField(User, on_delete=models.CASCADE)
-    generated_id = models.CharField(max_length=100, unique=True)
+   
     
 
     def __str__(self):
@@ -208,6 +224,10 @@ class UserSelection(models.Model):
 class Loding(models.Model):
     user =  models.ForeignKey(User,on_delete=models.CASCADE , null= True)
     login = models.BooleanField(default=False)
+
+
+class endx(models.Model):
+    click =  models.BooleanField(default=False)
 
 
   

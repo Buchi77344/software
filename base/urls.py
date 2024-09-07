@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from django.conf.urls import handler404
 from base.views import custom_page_not_found
+
 urlpatterns = [
     path('',views.index,name= "index"),
     path('welcome',views.welcome,name= "welcome"),
@@ -16,6 +17,9 @@ urlpatterns = [
     path('submit-answer/', views.submit_answer, name='submit_answer'),
     path('api/update-status/', views.update_status, name='update_status'),
     path('save_time/', views.save_time, name='save_time'),
+    path('get-request/', views.handle_post_request, name='handle_post_request'),
+    path('post-request/', views.handle_get_request, name='handle_get_request'),
+    path('good_ok/', views.good_ok, name='good_ok'),
     
 
 ]
