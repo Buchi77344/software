@@ -37,13 +37,13 @@ textarea{
     font-family: var(--font-family);
 }
 
-button{
+button, input[type = "checkbox"]{
     cursor: pointer;
 }
 
 button:active{
-    transform: scale(0.7);
-    transition : transform .4s ease
+    transform: scale(0.9);
+    transition: transform .8s ease;
 }
 
 input:focus-within{
@@ -877,8 +877,110 @@ svg path{
 }
 
 .user-get-container{
-    width: 85%;
+    width: 90%;
     margin: 30px auto; 
+}
+
+.user-get-head{
+    margin: 12px 0;
+    font-size: clamp(2rem, 4.5vw, 2.5rem);
+}
+
+.delete-btn{
+    padding: 7px 12px;
+    background-color: rgb(209 39 39);
+    color: hsl(0, 0%, 95%);
+    font-size: 1rem;
+    border-radius: 5px;
+}
+
+.accordion-item{
+    background-color: hsl(0, 0%, 98%);
+}
+
+.accordion-header{
+    margin-bottom: 0px;
+}
+
+.accordion-collapse{
+    max-height: 0;
+    transition: max-height 0.5s ease;
+    overflow: hidden;
+}
+
+.accordion-collapse.show{
+    max-height: var(--accord-height);
+}
+
+.accordion-button{
+    margin: 20px 0 0;
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    border: 1px solid hsla(0, 0%, 0%, 0.2);
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    font-size: 1rem;
+}
+
+.user-get-form{
+    padding : 12px; 
+}
+
+.user-get-check.flex{
+    gap : 10px;
+}
+
+.user-get-label{
+    font-size: 1.23rem;
+}
+
+.user-get-input{
+    appearance: none;
+    width : 20px;
+    height : 20px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    position: relative;
+    border-radius: 4px;
+}
+
+.user-get-input:checked{
+    background-color: var(--main-sb-hv-clr);
+}
+
+.user-get-list-group-item{
+    border : 1px solid rgba(0, 0, 0, .2);
+    padding : 5px 12px;
+    margin : 12px 0px
+}
+
+.user-get-input:checked::after{
+    content: "";
+    position: absolute;
+    top : 5px;
+    left : 5px;
+    width : 6px;
+    height : 4px;
+    border-bottom: 2px solid hsl(0, 0%, 97%);
+    border-left: 2px solid hsl(0, 0%, 97%);
+    transform: rotate(-45deg);
+}
+
+.generate-id-btn{
+    background-color: var(--variant-clr);
+    color : hsl(0, 0%, 96%);
+    padding: 7px 12px;
+    font-size: 1rem;
+    border-radius: 4px;
+}
+
+.download-id-pdf-btn{
+    background-color: rgb(102, 100, 100);
+    color : hsl(0, 0%, 96%);
+    border-radius: 4px;
+    padding: 7px 12px;  
+    margin-left: 5px;
 }
 
 .table{
@@ -1876,11 +1978,6 @@ input#id_user_id{
     letter-spacing: 1px;
 }
 
-.exam-time-text{
-    font-size : 1.8rem;
-    font-weight : 600;
-}
-
 .rp-indicator{
     width : 20px;
     height: 20px;
@@ -1890,30 +1987,36 @@ input#id_user_id{
 }
 
 .end-exam-btn{
+    padding : 10px 20px;
     border-radius: 5px;
     letter-spacing: 1px;
-    text-decoration: none;
-    background-color: hsl(0, 71%, 42%);
-    color:hsl(0, 0%, 97%);
-    padding : 10px 20px;
-    transition: background-color .2s ease;
-    margin-left: auto;
+    background-color:rgb(185, 31, 31);
     font-size: 1rem;
-    margin-right: 15px;
+    margin: 0 20px 0px 30px;
+
 }
 
 .end-exam-btn a{
-    color : hsl(0, 0%, 97%);
-    
+    color:hsl(0, 0%, 97%);
 }
 
 .revert-end-link{
     display: none;
 }
 
-.end-exam-btn:hover{
-    background-color: hsl(0, 71%, 32%);;
+.exam-time-text{
+    margin-left: auto;
+    font-size: 1.6rem;
+    font-weight: 600;
 }
+
+.no-active-text{
+    margin-left: auto;
+    font-size: 1.6rem;
+    font-weight: 600;
+}
+
+
 
 @keyframes next1 {
     from{

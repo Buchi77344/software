@@ -690,6 +690,57 @@ if(document.querySelector(".subject-box")){
 
 }
 
+let accordionButtons = document.querySelectorAll(".accordion-button")
+let accordionCollapse = document.querySelectorAll(".accordion-collapse")
+let selectAllInput = document.querySelectorAll(".select-all")
+let parentAccordion = document.querySelectorAll(".accordion-item")
+if(document.querySelector(".accordion-button")){
+    parentAccordion.forEach((parent, index) => {
+        let accordionButtons = parent.querySelectorAll(".accordion-button")
+        accordionButtons.forEach((el) => {
+            el.onclick = function(){    
+                removeOtherAccordions(index)
+                let accordionCollapseHeight = parent.querySelector(".accordion-collapse").scrollHeight
+                parent.style.setProperty("--accord-height", `${accordionCollapseHeight}px`)
+                parent.querySelector(".accordion-collapse").classList.toggle("show")
+                console.log(parent.querySelector(".accordion-collapse"))
+            }
+        })
+    })
+
+    function removeOtherAccordions(index){
+        accordionCollapse.forEach((d, i) => {
+            if(i !== index){
+                d.classList.remove("show")
+            }
+        })
+    }
+
+    parentAccordion.forEach(el => {
+        const selectAllInput = el.querySelector(".select-all")
+        const checkBoxes = el.querySelectorAll(".user-get-input:not(.select-all)")
+
+        selectAllInput.addEventListener("change", function(){
+            checkBoxes.forEach((box) => {
+                box.checked = this.checked
+            })
+        })
+
+        checkBoxes.forEach(box => {
+            box.addEventListener("change", function(){
+                if(this.checked == false){
+                    selectAllInput.checked = false
+                }else if(Array.from(checkBoxes).every(chk => chk.checked == true)){
+                    selectAllInput.checked = true
+                    console.log("all true")
+                }
+            })
+        })
+    })
+}
+
+
+
 
 
 // Script to persist answers on refresh
@@ -759,3 +810,23 @@ if(document.querySelector(".subject-box")){
       
     //     // document.getElementById("current-page").textContent = `Page ${page}`;
     // }
+
+        // accordionButtons.forEach((el, index) => {
+    //     el.onclick = function(){    
+    //         removeOtherAccordions(index)
+    //         let grandparentEl = el.parentElement.parentElement
+    //         let accordionCollapseHeight = grandparentEl.querySelector(".accordion-collapse").scrollHeight
+    //         grandparentEl.style.setProperty("--accord-height", `${accordionCollapseHeight}px`)
+    //         grandparentEl.querySelector(".accordion-collapse").classList.toggle("show")
+    //     }
+    // })
+
+     // selectAllInput.forEach(inputEl => {
+    //     inputEl.addEventListener("change", function(){
+    //         let parentEl = this.parentElement.parentElement
+    //         console.log(parentEl) 
+    //         parentEl.querySelectorAll("input[type = 'checkbox']").forEach(el => {
+    //             el.checked = inputEl.checked
+    //         })
+    //     })
+    // })
