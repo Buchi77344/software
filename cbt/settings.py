@@ -21,7 +21,7 @@ BASE_DIR = RESOURCE_DIR
 
 SECRET_KEY = 'django-insecure-m_gso4!7k4bid_0d%$qsq)c&7^*dsobdsb7=^qu!!_1)&iz0@d'
 
-DEBUG = False
+DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost']
 

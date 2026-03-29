@@ -3,7 +3,6 @@ from . import views
 from django.conf.urls import handler404
 from base.views import custom_page_not_found
 
-app_name = "base"
 
 
 urlpatterns = [
@@ -22,8 +21,6 @@ urlpatterns = [
     path('save_time/', views.save_time, name='save_time'),
     path('get-request/', views.handle_post_request, name='handle_post_request'),
     path('post-request/', views.handle_get_request, name='handle_get_request'),
-    path('good_ok/', views.good_ok, name='good_ok'),
-    
-
+    path('good_ok/', views.good_ok, name='good_ok'),    
 ]
 handler404 = custom_page_not_found
