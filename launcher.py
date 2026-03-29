@@ -12,7 +12,8 @@ from pathlib import Path
 
 HOST = "127.0.0.1"
 PORT = 8010
-URL = f"http://{HOST}:{PORT}"
+START_PATH = "/login/"   # change this only if your real first page is different
+URL = f"http://{HOST}:{PORT}{START_PATH}"
 PROJECT_SETTINGS = "cbt.settings"
 
 
@@ -59,6 +60,9 @@ def is_http_ready(url=URL):
     try:
         with urllib.request.urlopen(url, timeout=2) as response:
             return response.status in (200, 301, 302, 403)
+    except urllib.error.HTTPError as e:
+        # If Django responds at all, the server is up.
+        return e.code in (200, 301, 302, 403, 404)
     except Exception:
         return False
 
