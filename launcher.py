@@ -108,6 +108,41 @@ def collect_static():
         print("Collectstatic warning:")
         print(e)
 
+def create_default_superuser():
+    try:
+        print("Checking for default superuser...")
+
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", PROJECT_SETTINGS)
+
+        import django
+        django.setup()
+
+        from django.contrib.auth import get_user_model
+
+        User = get_user_model()
+
+        username = "tiplogo"
+        password = "tiplogo"
+
+        if not User.objects.filter(username=username).exists():
+            print("Creating default superuser...")
+
+            User.objects.create_superuser(
+                username=username,
+                password=password
+
+            )
+
+            print("Superuser created:")
+            print(f"Username: {username}")
+            print(f"Password: {password}")
+        else:
+            print("Superuser already exists.")
+
+    except Exception as e:
+        print("Superuser creation failed:")
+        print(e)
+
 
 def run_server():
     try:
@@ -116,6 +151,7 @@ def run_server():
 
         copy_bundled_db_if_needed()
         run_migrations()
+        create_default_superuser()
         collect_static()
 
         from cbt.wsgi import application
