@@ -18,7 +18,7 @@ jobs:
         with:
           python-version: "3.10"
 
-      - name: Show project files
+      - name: Show project structure
         run: |
           dir
           if exist cbt dir cbt
@@ -28,7 +28,6 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install pyinstaller waitress
           pip install -r requirements.txt
 
       - name: Build EXE
@@ -42,7 +41,7 @@ jobs:
             --add-data "static;static" ^
             launcher.py
 
-      - name: Upload dist
+      - name: Upload artifact
         if: success()
         uses: actions/upload-artifact@v4
         with:
