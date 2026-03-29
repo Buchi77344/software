@@ -418,7 +418,6 @@ def deleteuserid(request):
 import pandas as pd  
 from django.http import HttpResponse
 from django.template.loader import get_template
-from xhtml2pdf import pisa
 
 def export_user_data_to_pdf(request, class_name):
     userprofile = get_object_or_404(Userprofile, user=request.user)
