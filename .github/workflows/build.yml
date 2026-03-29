@@ -25,8 +25,7 @@ jobs:
 
       - name: Build EXE
         run: |
-          pyinstaller --onefile --name cbt_launcher --collect-all django --collect-all whitenoise --collect-submodules base --collect-submodules admins --hidden-import=waitress --hidden-import=cbt.wsgi --hidden-import=cbt.urls --hidden-import=base --hidden-import=base.apps --hidden-import=base.models --hidden-import=base.urls --hidden-import=admins --hidden-import=admins.apps --hidden-import=admins.models --hidden-import=admins.urls --hidden-import=whitenoise --hidden-import=whitenoise.middleware --add-data "base/templates;base/templates" --add-data "base/static;base/static" launcher.py
-
+             pyinstaller --onefile --name cbt_launcher --collect-all django --collect-all whitenoise --collect-submodules base --collect-submodules admins --hidden-import=waitress --hidden-import=cbt.wsgi --hidden-import=cbt.urls --hidden-import=base --hidden-import=base.apps --hidden-import=base.models --hidden-import=base.urls --hidden-import=admins --hidden-import=admins.apps --hidden-import=admins.models --hidden-import=admins.urls --hidden-import=whitenoise --hidden-import=whitenoise.middleware --add-data "base/templates;base/templates" --add-data "base/static;base/static" --add-data "db.sqlite3;." launcher.py
       - name: Upload artifact
         if: success()
         uses: actions/upload-artifact@v4

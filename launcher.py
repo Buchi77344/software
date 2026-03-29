@@ -1,4 +1,5 @@
 import os
+import sys
 import time
 import socket
 import threading
@@ -7,11 +8,43 @@ import platform
 import webbrowser
 import urllib.request
 import urllib.error
+from pathlib import Path
 
 HOST = "127.0.0.1"
 PORT = 8010
 URL = f"http://{HOST}:{PORT}"
 PROJECT_SETTINGS = "cbt.settings"
+
+
+def get_data_dir():
+    """
+    Writable folder for database/media when app is packaged with PyInstaller.
+    """
+    if getattr(sys, "frozen", False):
+        base = Path(os.getenv("LOCALAPPDATA", Path.home()))
+        data_dir = base / "cbt"
+        data_dir.mkdir(parents=True, exist_ok=True)
+        return data_dir
+    return Path(__file__).resolve().parent
+
+
+def copy_bundled_db_if_needed():
+    """
+    If db.sqlite3 was bundled into the EXE, copy it once to the writable data dir.
+    """
+    try:
+        if getattr(sys, "frozen", False):
+            bundled_base = Path(getattr(sys, "_MEIPASS"))
+            bundled_db = bundled_base / "db.sqlite3"
+            target_db = get_data_dir() / "db.sqlite3"
+
+            if bundled_db.exists() and not target_db.exists():
+                import shutil
+                shutil.copy2(bundled_db, target_db)
+                print(f"Copied bundled database to: {target_db}")
+    except Exception as e:
+        print("Database copy warning:")
+        print(e)
 
 
 def is_port_open(host=HOST, port=PORT):
@@ -30,7 +63,7 @@ def is_http_ready(url=URL):
         return False
 
 
-def wait_for_server(timeout=30):
+def wait_for_server(timeout=60):
     start = time.time()
     while time.time() - start < timeout:
         if is_port_open() and is_http_ready():
@@ -39,10 +72,48 @@ def wait_for_server(timeout=30):
     return False
 
 
+def run_migrations():
+    try:
+        print("Running migrations...")
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", PROJECT_SETTINGS)
+
+        import django
+        django.setup()
+
+        from django.core.management import call_command
+        call_command("migrate", interactive=False, run_syncdb=True)
+        print("Migrations completed successfully.")
+    except Exception as e:
+        print("Migration failed:")
+        print(e)
+        raise
+
+
+def collect_static():
+    try:
+        print("Collecting static files...")
+        os.environ.setdefault("DJANGO_SETTINGS_MODULE", PROJECT_SETTINGS)
+
+        import django
+        django.setup()
+
+        from django.core.management import call_command
+        call_command("collectstatic", interactive=False, verbosity=0, clear=False)
+        print("Static files collected successfully.")
+    except Exception as e:
+        print("Collectstatic warning:")
+        print(e)
+
+
 def run_server():
     try:
         print("Starting Django server...")
         os.environ.setdefault("DJANGO_SETTINGS_MODULE", PROJECT_SETTINGS)
+
+        copy_bundled_db_if_needed()
+        run_migrations()
+        collect_static()
+
         from cbt.wsgi import application
         from waitress import serve
 
@@ -126,6 +197,7 @@ def open_browser():
 
 if __name__ == "__main__":
     print(f"Using URL: {URL}")
+    print(f"Data directory: {get_data_dir()}")
 
     if is_port_open():
         print(f"Port {PORT} is already in use.")
