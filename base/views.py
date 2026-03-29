@@ -271,7 +271,6 @@ from django.contrib import auth
 from .forms import LoginForm
 import uuid
 def login(request):
-    username = get_object_or_404(Name_School)
     
     error_message = None
 
@@ -300,7 +299,7 @@ def login(request):
     else: 
         form = LoginForm()
         
-    return render(request, 'login.html', {'form': form, 'error_message': error_message, 'username': username})
+    return render(request, 'login.html', {'form': form, 'error_message': error_message,})
 
 
 
