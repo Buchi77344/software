@@ -144,10 +144,10 @@ def open_windows_browser():
             print(f"Trying Edge: {edge}")
             subprocess.Popen([
                 edge,
-                # "--kiosk",
+                "--kiosk",
                 URL,
-                # "--edge-kiosk-type=fullscreen",
-                # "--no-first-run",
+                "--edge-kiosk-type=fullscreen",
+                "--no-first-run",
             ])
             return True
         except Exception:
