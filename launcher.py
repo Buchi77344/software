@@ -12,7 +12,7 @@ from pathlib import Path
 
 HOST = "127.0.0.1"
 PORT = 8010
-START_PATH = "/login/"   # change this only if your real first page is different
+START_PATH = "/"   # change this only if your real first page is different
 URL = f"http://{HOST}:{PORT}{START_PATH}"
 PROJECT_SETTINGS = "cbt.settings"
 
