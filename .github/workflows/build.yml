@@ -25,7 +25,7 @@ jobs:
 
       - name: Build EXE
         run: |
-          pyinstaller --onefile --name cbt_launcher --collect-all django --hidden-import=waitress --hidden-import=cbt.wsgi launcher.py
+          pyinstaller --onefile --name cbt_launcher --collect-all django --collect-submodules base --hidden-import=waitress --hidden-import=cbt.wsgi --hidden-import=base --hidden-import=base.apps --hidden-import=base.models --add-data "base/templates;templates" --add-data "base/static;static" launcher.py
 
       - name: Upload artifact
         if: success()
