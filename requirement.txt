@@ -1,9 +1,10 @@
-django
+Django
 requests
 pandas
 docx2txt
-docx
 python-docx
 django-extensions
 xhtml2pdf
 whitenoise
+waitress
+pyinstaller

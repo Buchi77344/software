@@ -3,6 +3,7 @@ name: Build Windows EXE
 on:
   push:
     branches: ["main"]
+  workflow_dispatch:
 
 jobs:
   build:
@@ -17,18 +18,33 @@ jobs:
         with:
           python-version: "3.10"
 
+      - name: Show project files
+        run: |
+          dir
+          if exist cbt dir cbt
+          if exist templates dir templates
+          if exist static dir static
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r requirements.txt
           pip install pyinstaller waitress
+          pip install -r requirements.txt
 
       - name: Build EXE
         run: |
-          pyinstaller --onefile launcher.py
+          pyinstaller --onefile ^
+            --name cbt_launcher ^
+            --collect-all django ^
+            --hidden-import=waitress ^
+            --hidden-import=cbt.wsgi ^
+            --add-data "templates;templates" ^
+            --add-data "static;static" ^
+            launcher.py
 
-      - name: Upload build artifact
+      - name: Upload dist
+        if: success()
         uses: actions/upload-artifact@v4
         with:
-          name: django-exe
+          name: cbt-windows-build
           path: dist/
