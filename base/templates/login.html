@@ -12,9 +12,17 @@
 <body>
     <div class = "page">
        <div class="user-login-page">
-                   <a href="{% url 'admin:login' %}">
-                       <button class = "admin-login-btn">Admin Login</button>
-                   </a>
+                   <a href="{% url 'admins:login' %}">
+<button class="admin-login-btn" style="
+    padding: 10px;
+    position: relative;
+    background-color: blueviolet;
+    border-radius: 6px;
+    color: #ffffff;
+    font-size: 16px;
+    left: 438px;
+    font-weight: 500;
+">Admin Login</button>                   </a>
 
            <h1 class = "user-login-page-head">{{username}}</h1>
             <div class = "user-login-wrapper">

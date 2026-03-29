@@ -3,6 +3,9 @@ from . import views
 from django.conf.urls import handler404
 from base.views import custom_page_not_found
 
+app_name = "base"
+
+
 urlpatterns = [
     path('',views.index,name= "index"),
     path('welcome',views.welcome,name= "welcome"),
